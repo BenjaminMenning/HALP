@@ -4,7 +4,7 @@ package HALP.CS313Project;
 // The only method is checksum() which takes the byte array data,
 // and returns the computed checksum for data.
 
-class CRC8   {
+public class CRC8   {
 	public byte checksum(byte[] data)   {
 		short _register = 0;
 		short bitMask = 0;
