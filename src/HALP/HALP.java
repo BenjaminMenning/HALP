@@ -5,78 +5,101 @@
  */
 package HALP;
 
+import java.net.DatagramSocket;
+import java.net.SocketException;
+
 /**
  *
  * @author Ben
  */
 public class HALP implements HALPInterface
 {
-    private String clntIPAddress = "";
+    private String clntIPAddr = "";
+    private String igIPAddr = "";
+    private String servIPAddr = "";
     private int clntPortNum = 0;
-    private String igIPAddress = "";
     private int igPortNum = 0;
-    private String servIPAddress = "";
     private int servPortNum = 0;
+    private DatagramSocket clntSocket;
+    private DatagramSocket igSocket;
+    private DatagramSocket servSocket;
 
+    public HALP() throws SocketException
+    {
+        clntSocket = new DatagramSocket();
+        igSocket = new DatagramSocket();
+        servSocket = new DatagramSocket();
+    }
+    
     @Override
     public void setClientIP(String ipAddr) 
     {
-        clntIPAddress = ipAddr;
+        clntIPAddr = ipAddr;
     }
 
     @Override
-    public void setClientPort(int portNum) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setClientPort(int portNum) 
+    {
+        clntPortNum = portNum;
     }
 
     @Override
-    public String getClientIP() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String getClientIP() 
+    {
+        return clntIPAddr;
     }
 
     @Override
-    public int getClientPort() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int getClientPort() 
+    {
+        return clntPortNum;
     }
 
     @Override
-    public void setIGIP(String ipAddr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setIGIP(String ipAddr) 
+    {
+        igIPAddr = ipAddr;
     }
 
     @Override
-    public void setIGPort(int portNum) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setIGPort(int portNum) 
+    {
+        igPortNum = portNum;
     }
 
     @Override
-    public String getIGIP() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String getIGIP() 
+    {
+        return igIPAddr;
     }
 
     @Override
-    public int getIGPort() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int getIGPort() 
+    {
+        return igPortNum;
     }
 
     @Override
-    public void setServerIP(String ipAddr) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setServerIP(String ipAddr) 
+    {
+        servIPAddr = ipAddr;
     }
 
     @Override
-    public void setServerPort(int portNum) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setServerPort(int portNum) 
+    {
+        servPortNum = portNum;
     }
 
     @Override
-    public String getServerIP() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String getServerIP() 
+    {
+        return servIPAddr;
     }
 
     @Override
-    public int getServerPort() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int getServerPort() 
+    {
+        return servPortNum;
     }
-    
 }
