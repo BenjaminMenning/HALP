@@ -7,6 +7,7 @@ package HALP;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.Random;
 
 /**
  *
@@ -17,9 +18,12 @@ public class HALP implements HALPInterface
     private String clntIPAddr = "";
     private String igIPAddr = "";
     private String servIPAddr = "";
+    
     private int clntPortNum = 0;
     private int igPortNum = 0;
     private int servPortNum = 0;
+    private int errorRate = 0;
+    
     private DatagramSocket clntSocket;
     private DatagramSocket igSocket;
     private DatagramSocket servSocket;
@@ -101,5 +105,73 @@ public class HALP implements HALPInterface
     public int getServerPort() 
     {
         return servPortNum;
+    }
+    
+    @Override
+    public boolean errorGenerator()
+    {
+        Random random = new Random();
+        int chanceMax = 100;
+        int randomChance = random.nextInt(chanceMax) + 1;
+        if(randomChance <= errorRate)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    @Override
+    public int randomIndex()
+    {
+        Random random = new Random();
+        int indexMax = 18;
+        int randomIndex = random.nextInt(indexMax);
+        return randomIndex;
+    }
+    
+    @Override
+    public byte generateByteError(byte oldByte)
+    {
+        Random random = new Random();
+        int bitMax = 7;
+        int randomBit = random.nextInt(bitMax);
+        byte errorByte = oldByte;
+        errorByte ^= 1 << randomBit; 
+//        System.out.println(errorByte);
+        return errorByte;
+    }
+    
+    @Override
+    public int errorNumber()
+    {
+        int errorNum;
+        Random random = new Random();
+        int chanceMax = 100;
+        int randomChance = random.nextInt(chanceMax) + 1;
+        if(randomChance <= 70)
+        {
+            errorNum = 1;
+            return errorNum;
+        }
+        else
+        {
+            errorNum = 2;
+            return errorNum;
+        }
+    }
+    
+    @Override
+    public void setErrorRate(int rate)
+    {
+        errorRate = rate;
+    }
+    
+    @Override
+    public int getErrorRate()
+    {
+        return errorRate;
     }
 }
