@@ -35,6 +35,24 @@ public interface HALPInterface
     
     public int getServerPort();
     
+    public byte[] getHeader();
+    
+    public String getDestinationIP(byte[] headerBytes);
+    
+    public int getDestinationPort(byte[] headerBytes);
+    
+    public boolean isChecksumValid(byte[] headerBytes);
+    
+    public boolean isRSTFlagSet(byte[] headerBytes);
+    
+    public boolean isDRTDownload(byte[] headerBytes);
+    
+    public boolean isAckValid(byte[] headerBytes);
+    
+    public boolean isSynFlagSet(byte[] headerBytes);
+    
+    public boolean isFinFlagSet(byte[] headerBytes);
+    
     /**
      * This method generates errors based off of the error rate entered by the
      * user.
