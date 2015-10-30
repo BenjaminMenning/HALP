@@ -226,7 +226,7 @@ public class HALPSender {
         
         // Creates CRC and link sender objects
         CRC8 crc8 = new CRC8();
-        HALPSender linkSender = new HALPSender();
+        LinkSenderX linkSender = new LinkSenderX();
 
         byte[] testByte = new byte[1];
         new Random().nextBytes(testByte);

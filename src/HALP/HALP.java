@@ -24,6 +24,29 @@ public class HALP implements HALPInterface
     private int servPortNum = 0;
     private int errorRate = 0;
     
+    // Constants for header field lengths in bytes
+    private static final int DESTIP_LEN = 4;
+    private static final int DESTPN_LEN = 2;
+    private static final int CRC_LEN = 2;
+    private static final int SEQ_LEN = 4;
+    private static final int ACK_LEN = 4;
+    private static final int FLAG_LEN = 1;
+    private static final int RSVD_LEN = 3;
+    private static final int HEDR_LEN = 20;
+    private static final int DTRT_LEN = 2;
+
+    // Constants for header field byte offsets
+    private static final int DESTIP_OFFSET = 0;
+    private static final int DESTPN_OFFSET = 4;
+    private static final int CRC_OFFSET = 6;
+    private static final int SEQ_OFFSET = 8;
+    private static final int ACK_OFFSET = 12;
+    private static final int FLAG_OFFSET = 16;
+    private static final int RSVD_OFFSET = 17; 
+    private static final int DATA_OFFSET = 20;
+    private static final int DTRT_OFFSET = 20; // data rate
+    private static final int FILE_OFFSET = 22;
+    
     private DatagramSocket clntSocket;
     private DatagramSocket igSocket;
     private DatagramSocket servSocket;
@@ -107,6 +130,56 @@ public class HALP implements HALPInterface
         return servPortNum;
     }
     
+    @Override
+    public byte[] getHeader(byte[] messageBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public byte[] getData(byte[] messageBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getDestinationIP(byte[] messageBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getDestinationPort(byte[] messageBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isChecksumValid(byte[] headerBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isRSTFlagSet(byte[] headerBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isDRTFlagSet(byte[] headerBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isAckFlagSet(byte[] headerBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isSynFlagSet(byte[] headerBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isFinFlagSet(byte[] headerBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     @Override
     public boolean errorGenerator()
     {

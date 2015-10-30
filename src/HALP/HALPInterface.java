@@ -11,46 +11,161 @@ package HALP;
  */
 public interface HALPInterface 
 {
+
+    /**
+     *
+     * @param ipAddr
+     */
     public void setClientIP(String ipAddr);
     
+    /**
+     *
+     * @param portNum
+     */
     public void setClientPort(int portNum);
     
+    /**
+     *
+     * @return
+     */
     public String getClientIP();
     
+    /**
+     *
+     * @return
+     */
     public int getClientPort();
     
+    /**
+     *
+     * @param ipAddr
+     */
     public void setIGIP(String ipAddr);
     
+    /**
+     *
+     * @param portNum
+     */
     public void setIGPort(int portNum);
     
+    /**
+     *
+     * @return
+     */
     public String getIGIP();
     
+    /**
+     *
+     * @return
+     */
     public int getIGPort();
     
+    /**
+     *
+     * @param ipAddr
+     */
     public void setServerIP(String ipAddr);
     
+    /**
+     *
+     * @param portNum
+     */
     public void setServerPort(int portNum);
     
+    /**
+     *
+     * @return
+     */
     public String getServerIP();
     
+    /**
+     *
+     * @return
+     */
     public int getServerPort();
     
-    public byte[] getHeader();
+    /**
+     * This method extracts the header from a message.
+     * 
+     * @param messageBytes  the byte array containing the message
+     * @return  byte[]  returns byte array containing the header bytes
+     */
+    public byte[] getHeader(byte[] messageBytes);
     
-    public String getDestinationIP(byte[] headerBytes);
+    /**
+     * This method extracts the data from a message.
+     * 
+     * @param messageBytes  the byte array containing the message
+     * @return  byte[]  returns byte array containing the data bytes
+     */
+    public byte[] getData(byte[] messageBytes);
     
-    public int getDestinationPort(byte[] headerBytes);
+    /**
+     * This method extracts the destination IP address formatted as a String 
+     * from a message. This method might need to be changed later on if we 
+     * alter our header format.
+     * 
+     * @param messageBytes  the byte array containing the message
+     * @return  String  returns String containing the IP address
+     */
+    public String getDestinationIP(byte[] messageBytes);
     
+    /**
+     * This method extracts the destination port number formatted as an integer
+     * from a message. This method might need to be changed later on if we 
+     * alter our header format.
+     * 
+     * @param messageBytes  the byte array containing the message
+     * @return  int returns int containing the port number
+     */
+    public int getDestinationPort(byte[] messageBytes);    
+    
+    /**
+     * This method determines if the checksum in the header is valid?
+     * 
+     * @param headerBytes   the byte array containing the header information
+     * @return  returns true if valid, false otherwise
+     */
     public boolean isChecksumValid(byte[] headerBytes);
     
+    /**
+     * This method determines if the RST flag has been set.
+     * 
+     * @param headerBytes   the byte array containing the header information
+     * @return  returns true if set, false otherwise
+     */
     public boolean isRSTFlagSet(byte[] headerBytes);
     
-    public boolean isDRTDownload(byte[] headerBytes);
+    /**
+     * This method determines if the DRT flag has been set.
+     * 
+     * @param headerBytes   the byte array containing the header information
+     * @return  returns true if upload, false if download
+     */
+    public boolean isDRTFlagSet(byte[] headerBytes);
     
-    public boolean isAckValid(byte[] headerBytes);
+    /**
+     * This method determines if the ACK flag has been set.
+     * 
+     * @param headerBytes   the byte array containing the header information
+     * @return  returns true if set, false otherwise
+     */
+    public boolean isAckFlagSet(byte[] headerBytes);
     
+    /**
+     * This method determines if the SYN flag has been set.
+     * 
+     * @param headerBytes   the byte array containing the header information
+     * @return  returns true if set, false otherwise
+     */
     public boolean isSynFlagSet(byte[] headerBytes);
     
+    /**
+     * This method determines if the FIN flag has been set.
+     * 
+     * @param headerBytes   the byte array containing the header information
+     * @return  returns true if set, false otherwise
+     */
     public boolean isFinFlagSet(byte[] headerBytes);
     
     /**
