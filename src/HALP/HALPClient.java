@@ -19,6 +19,8 @@ public class HALPClient
         HALP halpClient = new HALP(IG_PORT, IG_PORT, SERVER_PORT);
 
         // Request user input to retrieve the IP addresses of gateway and server
+//        halpClient.clntInputIGIP();
+//        halpClient.clntInputServIP();
         System.out.println("Please enter the internet gateway IP address: ");
         String igIPAddress = console.nextLine();
         halpClient.setIGIP(igIPAddress);
@@ -27,8 +29,6 @@ public class HALPClient
         String servIPAddress = console.nextLine();
         halpClient.setServerIP(servIPAddress);
         halpClient.setServerPort(SERVER_PORT);
-        
-
 
         try 
         {
@@ -55,15 +55,15 @@ public class HALPClient
                 byte[] serverPNBytes = new byte[2];
                 byte[] messageBytes = new byte[lengthOfMessage];
 
-                // Splits IP address up into an array of segments
-                String[] segments = servIPAddress.split("\\."); 
+//                // Splits IP address up into an array of segments
+//                String[] segments = servIPAddress.split("\\."); 
 
-                // Goes through array and parses String segments to ints
-                // and assigns to bytes
-                for (int i = 0; i < 4; i++) {
-                    int temp = Integer.parseInt(segments[i]);
-                    serverIPBytes[i] = (byte) temp;
-                }
+//                // Goes through array and parses String segments to ints
+//                // and assigns to bytes
+//                for (int i = 0; i < 4; i++) {
+//                    int temp = Integer.parseInt(segments[i]);
+//                    serverIPBytes[i] = (byte) temp;
+//                }
 
                 serverIPBytes = serverIP.getAddress();
 

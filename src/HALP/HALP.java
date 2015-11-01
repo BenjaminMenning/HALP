@@ -5,11 +5,18 @@
  */
 package HALP;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import static java.lang.System.console;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,14 +26,32 @@ public class HALP implements HALPInterface
 {
     private Scanner console = new Scanner(System.in);
     
+    private boolean connectionActive = false;
+    
     private String clntIPAddr = "";
     private String igIPAddr = "";
     private String servIPAddr = "";
+    
+    private InetAddress servINAddr;
+    private InetAddress igINAddr;
     
     private int clntPortNum = 0;
     private int igPortNum = 0;
     private int servPortNum = 0;
     private int errorRate = 0;
+    
+    // Byte arrays for message fields
+    private byte[] destIPBytes = new byte[DESTIP_LEN];
+    private byte[] destPNBytes = new byte[DESTPN_LEN];
+    private byte[] crcBytes = new byte[CRC_LEN];
+    private byte[] seqBytes = new byte[SEQ_LEN];
+    private byte[] ackBytes = new byte[ACK_LEN];
+    private byte[] flagBytes = new byte[FLAG_LEN];
+    private byte[] rsvdBytes = new byte[RSVD_LEN];
+    private byte[] hedrBytes = new byte[HEDR_LEN];
+    private byte[] dtrtBytes = new byte[DTRT_LEN];
+    private byte[] fileBytes = new byte[10]; // placeholder value
+    private byte[] dataBytes = new byte[DTRT_LEN];
     
     // Constants for header field lengths in bytes
     private static final int DESTIP_LEN = 4;
@@ -50,6 +75,9 @@ public class HALP implements HALPInterface
     private static final int DATA_OFFSET = 20;
     private static final int DTRT_OFFSET = 20; // data rate
     private static final int FILE_OFFSET = 22;
+    
+    private byte[] currentMessage;
+    private ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
     
     private DatagramSocket clntSocket;
     private DatagramSocket igSocket;
@@ -100,6 +128,11 @@ public class HALP implements HALPInterface
     public void setIGIP(String ipAddr) 
     {
         igIPAddr = ipAddr;
+        try {
+            igINAddr = InetAddress.getByName(igIPAddr);
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -124,6 +157,11 @@ public class HALP implements HALPInterface
     public void setServerIP(String ipAddr) 
     {
         servIPAddr = ipAddr;
+        try {
+            servINAddr = InetAddress.getByName(servIPAddr);
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -273,6 +311,79 @@ public class HALP implements HALPInterface
     @Override
     public void clntInputServIP() 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Please enter the server IP address: ");
+        String servIPAddress = console.nextLine();
+        setServerIP(servIPAddress);
+    }
+
+    @Override
+    public void clntConvertDestIPToBytes() 
+    {
+        destIPBytes = servINAddr.getAddress();
+    }
+
+    @Override
+    public void clntConvertDestPNToBytes() 
+    {
+        // Creates a string containing the binary string of the
+        // port number integer
+        String serverPortBin = Integer.toBinaryString(servPortNum);
+
+        // Add 0's if length is less than 16 bits
+        if(serverPortBin.length() < 16)
+        {
+            int zeroCount = 16 - serverPortBin.length();
+            while (zeroCount > 0)
+            {
+                serverPortBin = "0" + serverPortBin;
+                zeroCount--;
+            }
+        }
+
+        // Parses binary string into two integers for two
+        // separate bytes and assigns them
+        int part1 = Integer.parseInt(serverPortBin.substring(0, 8), 2);
+        int part2 = Integer.parseInt(serverPortBin.substring(8, 16),2);
+        destPNBytes[0] = (byte) part1;
+        destPNBytes[1] = (byte) part2;
+    }
+
+    @Override
+    public void assembleMessage() 
+    {
+        try {
+            //    private byte[] destIPBytes = new byte[DESTIP_LEN];
+//    private byte[] destPNBytes = new byte[DESTPN_LEN];
+//    private byte[] crcBytes = new byte[CRC_LEN];
+//    private byte[] seqBytes = new byte[SEQ_LEN];
+//    private byte[] ackBytes = new byte[ACK_LEN];
+//    private byte[] flagBytes = new byte[FLAG_LEN];
+//    private byte[] rsvdBytes = new byte[RSVD_LEN];
+//    private byte[] hedrBytes = new byte[HEDR_LEN];
+//    private byte[] dtrtBytes = new byte[DTRT_LEN];
+//    private byte[] dataBytes = new byte[DTRT_LEN];
+            
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+            outputStream.write(destIPBytes);
+            outputStream.write(destPNBytes);
+            outputStream.write(crcBytes);
+            outputStream.write(seqBytes);
+            outputStream.write(ackBytes);
+            outputStream.write(flagBytes);
+            outputStream.write(rsvdBytes);
+            outputStream.write(dtrtBytes);
+            outputStream.write(dataBytes);
+            currentMessage = outputStream.toByteArray();
+            messageQueue.add(currentMessage);
+        } catch (IOException ex) {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void runClient() 
+    {
+        clntInputIGIP();
+        clntInputServIP();
     }
 }

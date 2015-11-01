@@ -98,6 +98,13 @@ public interface HALPInterface
      */
     public void clntInputServIP();
     
+    public void clntConvertDestIPToBytes();
+    
+    public void clntConvertDestPNToBytes();
+    
+    public void assembleMessage();
+    
+    public void runClient();
     
     /**
      * This method extracts the header from a message.
