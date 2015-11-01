@@ -85,6 +85,21 @@ public interface HALPInterface
     public int getServerPort();
     
     /**
+     * This is a client method that requests the user to enter the IG's IP
+     * address.
+     * 
+     */
+    public void clntInputIGIP();
+    
+    /**
+     * This is a client method that requests the user to enter the server's IP
+     * address.
+     * 
+     */
+    public void clntInputServIP();
+    
+    
+    /**
      * This method extracts the header from a message.
      * 
      * @param messageBytes  the byte array containing the message

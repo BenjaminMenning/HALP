@@ -9,20 +9,20 @@ import java.util.Scanner;
 public class HALPClient 
 {
     static DatagramSocket clientSocket;
-    private static final int SERVER_PORT = 56789;  
-    private static final int IGPORT = 45666;
+    private static final int SERVER_PORT = 54001;  
+    private static final int IG_PORT = 54001;
         
         
     public static void main (String args[]) throws Exception 
     {	
         Scanner console = new Scanner(System.in);
-        HALP halpClient = new HALP();
+        HALP halpClient = new HALP(IG_PORT, IG_PORT, SERVER_PORT);
 
         // Request user input to retrieve the IP addresses of gateway and server
         System.out.println("Please enter the internet gateway IP address: ");
         String igIPAddress = console.nextLine();
         halpClient.setIGIP(igIPAddress);
-        halpClient.setIGPort(IGPORT);
+        halpClient.setIGPort(IG_PORT);
         System.out.println("Please enter the server IP address: ");
         String servIPAddress = console.nextLine();
         halpClient.setServerIP(servIPAddress);
@@ -41,7 +41,7 @@ public class HALPClient
                 InetAddress destination = InetAddress.getByName(igIPAddress);		
 
                 // Determine gateway port number
-                int portNumber = IGPORT;
+                int portNumber = IG_PORT;
 
                 // Determine server IP address
                 InetAddress serverIP = InetAddress.getByName(servIPAddress);

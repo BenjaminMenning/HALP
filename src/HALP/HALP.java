@@ -5,9 +5,11 @@
  */
 package HALP;
 
+import static java.lang.System.console;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Random;
+import java.util.Scanner;
 
 /**
  *
@@ -15,6 +17,8 @@ import java.util.Random;
  */
 public class HALP implements HALPInterface
 {
+    private Scanner console = new Scanner(System.in);
+    
     private String clntIPAddr = "";
     private String igIPAddr = "";
     private String servIPAddr = "";
@@ -53,6 +57,16 @@ public class HALP implements HALPInterface
 
     public HALP() throws SocketException
     {
+        clntSocket = new DatagramSocket();
+        igSocket = new DatagramSocket();
+        servSocket = new DatagramSocket();
+    }
+    
+    public HALP(int clntPN, int igPN, int servPN) throws SocketException
+    {
+        clntPortNum = clntPN;
+        igPortNum = igPN;
+        servPortNum = servPN;
         clntSocket = new DatagramSocket();
         igSocket = new DatagramSocket();
         servSocket = new DatagramSocket();
@@ -246,5 +260,19 @@ public class HALP implements HALPInterface
     public int getErrorRate()
     {
         return errorRate;
+    }
+
+    @Override
+    public void clntInputIGIP() 
+    {
+        System.out.println("Please enter the internet gateway IP address: ");
+        String igIPAddress = console.nextLine();
+        setIGIP(igIPAddress);
+    }
+
+    @Override
+    public void clntInputServIP() 
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
