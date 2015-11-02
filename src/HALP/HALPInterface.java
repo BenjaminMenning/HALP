@@ -104,7 +104,15 @@ public interface HALPInterface
     
     public void assembleMessage();
     
+    public void sendMessage() throws Exception;
+    
+    public void receiveMessage();
+    
     public void runClient();
+    
+    public void closeConnection();
+    
+    public void setData();
     
     /**
      * This method extracts the header from a message.

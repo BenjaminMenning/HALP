@@ -11,7 +11,7 @@ public class HALPServer {
 
 	static DatagramSocket serverSocket;
 
-	private static final int PORT = 56789;
+	private static final int PORT = 54001;
 
 	public static void main(String args[]) throws Exception
 	{

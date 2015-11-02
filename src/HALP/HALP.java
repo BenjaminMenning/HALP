@@ -8,6 +8,7 @@ package HALP;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import static java.lang.System.console;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -40,6 +41,8 @@ public class HALP implements HALPInterface
     private int servPortNum = 0;
     private int errorRate = 0;
     
+    private int currMsgLen = 0;
+    
     // Byte arrays for message fields
     private byte[] destIPBytes = new byte[DESTIP_LEN];
     private byte[] destPNBytes = new byte[DESTPN_LEN];
@@ -52,6 +55,8 @@ public class HALP implements HALPInterface
     private byte[] dtrtBytes = new byte[DTRT_LEN];
     private byte[] fileBytes = new byte[10]; // placeholder value
     private byte[] dataBytes = new byte[DTRT_LEN];
+    private byte[] currMsg;
+    private ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
     
     // Constants for header field lengths in bytes
     private static final int DESTIP_LEN = 4;
@@ -76,8 +81,6 @@ public class HALP implements HALPInterface
     private static final int DTRT_OFFSET = 20; // data rate
     private static final int FILE_OFFSET = 22;
     
-    private byte[] currentMessage;
-    private ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
     
     private DatagramSocket clntSocket;
     private DatagramSocket igSocket;
@@ -183,13 +186,23 @@ public class HALP implements HALPInterface
     }
     
     @Override
+    public void setData() 
+    {
+        String dataStr = "Yoyoyoyoyo";
+        dataBytes = dataStr.getBytes();
+    }
+
+    
+    @Override
     public byte[] getHeader(byte[] messageBytes) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public byte[] getData(byte[] messageBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public byte[] getData(byte[] messageBytes) 
+    {
+        byte[] placeholder = new byte[1];
+        return placeholder;
     }
 
     @Override
@@ -228,7 +241,8 @@ public class HALP implements HALPInterface
     }
 
     @Override
-    public boolean isFinFlagSet(byte[] headerBytes) {
+    public boolean isFinFlagSet(byte[] headerBytes) 
+    {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -352,17 +366,6 @@ public class HALP implements HALPInterface
     public void assembleMessage() 
     {
         try {
-            //    private byte[] destIPBytes = new byte[DESTIP_LEN];
-//    private byte[] destPNBytes = new byte[DESTPN_LEN];
-//    private byte[] crcBytes = new byte[CRC_LEN];
-//    private byte[] seqBytes = new byte[SEQ_LEN];
-//    private byte[] ackBytes = new byte[ACK_LEN];
-//    private byte[] flagBytes = new byte[FLAG_LEN];
-//    private byte[] rsvdBytes = new byte[RSVD_LEN];
-//    private byte[] hedrBytes = new byte[HEDR_LEN];
-//    private byte[] dtrtBytes = new byte[DTRT_LEN];
-//    private byte[] dataBytes = new byte[DTRT_LEN];
-            
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
             outputStream.write(destIPBytes);
             outputStream.write(destPNBytes);
@@ -373,11 +376,47 @@ public class HALP implements HALPInterface
             outputStream.write(rsvdBytes);
             outputStream.write(dtrtBytes);
             outputStream.write(dataBytes);
-            currentMessage = outputStream.toByteArray();
-            messageQueue.add(currentMessage);
+            currMsg = outputStream.toByteArray();
+            currMsgLen = currMsg.length;
+            messageQueue.add(currMsg);
         } catch (IOException ex) {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    @Override
+    public void sendMessage() throws Exception 
+    {
+        DatagramPacket sendPacket = 
+                new DatagramPacket(currMsg, currMsgLen, igINAddr, igPortNum);
+
+        // Send a message
+        clntSocket.send(sendPacket);
+        
+        // Display the message
+        String sentMessage = new String(currMsg, 0, sendPacket.getLength());
+        System.out.println("Message echoed is: [" + sentMessage + "]");	
+    }
+    
+    @Override
+    public void receiveMessage()
+    {
+        byte[] receivedData = new byte[4096];
+
+        // Create a datagram
+        DatagramPacket receivedDatagram = 
+                new DatagramPacket(receivedData, receivedData.length);
+
+        try {
+            // Receive a message
+            clntSocket.receive(receivedDatagram);
+        } catch (IOException ex) {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        // Display the message
+        String echodMessage = new String(receivedData, 0, receivedDatagram.getLength());
+        System.out.println("Message echoed is: [" + echodMessage + "]");	
     }
 
     @Override
@@ -385,5 +424,24 @@ public class HALP implements HALPInterface
     {
         clntInputIGIP();
         clntInputServIP();
+        clntConvertDestIPToBytes();
+        clntConvertDestPNToBytes();
+        setData();
+        assembleMessage();
+        try {
+            sendMessage();
+            receiveMessage();
+        } catch (Exception ex) {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally
+        {
+            closeConnection();
+        }
+    }
+    
+    public void closeConnection()
+    {
+        clntSocket.close();
     }
 }

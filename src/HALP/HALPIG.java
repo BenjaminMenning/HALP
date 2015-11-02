@@ -9,7 +9,7 @@ public class HALPIG
 {
 
     static DatagramSocket igSocket;
-    private static final int PORT = 45666;
+    private static final int PORT = 54001;
 
     public static void main(String args[]) throws Exception
     {
