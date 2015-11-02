@@ -18,6 +18,9 @@ public class HALPIG
         int clientPortNumber = 0;
         InetAddress serverIP = null;
         int serverPort = 0;
+        
+//        HALP halpIG = new HALP(PORT, PORT, PORT);
+//        halpIG.runIG();
 
 
     // Request user input to retrieve the IG port number

@@ -29,6 +29,11 @@ public class HALP implements HALPInterface
     
     private boolean connectionActive = false;
     
+    // Hard coded IP addresses for testing
+    private String homeTestIP = "192.168.0."; // for testing at home
+    private String testIGIP = homeTestIP + "110";
+    private String testServIP = homeTestIP + "114";
+    
     private String clntIPAddr = "";
     private String igIPAddr = "";
     private String servIPAddr = "";
@@ -80,7 +85,6 @@ public class HALP implements HALPInterface
     private static final int DATA_OFFSET = 20;
     private static final int DTRT_OFFSET = 20; // data rate
     private static final int FILE_OFFSET = 22;
-    
     
     private DatagramSocket clntSocket;
     private DatagramSocket igSocket;
@@ -361,6 +365,16 @@ public class HALP implements HALPInterface
         destPNBytes[0] = (byte) part1;
         destPNBytes[1] = (byte) part2;
     }
+    
+    public void igConvertBytesToDestIP()
+    {
+        
+    }
+    
+    public void igConvertBytesToDestPN()
+    {
+        
+    }
 
     @Override
     public void assembleMessage() 
@@ -418,12 +432,35 @@ public class HALP implements HALPInterface
         String echodMessage = new String(receivedData, 0, receivedDatagram.getLength());
         System.out.println("Message echoed is: [" + echodMessage + "]");	
     }
+    
+    public void igReceiveMessage()
+    {
+        byte[] receivedData = new byte[4096];
+
+        // Create a datagram
+        DatagramPacket receivedDatagram = 
+                new DatagramPacket(receivedData, receivedData.length);
+
+        try {
+            // Receive a message
+            clntSocket.receive(receivedDatagram);
+        } catch (IOException ex) {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
 
     @Override
     public void runClient() 
     {
-        clntInputIGIP();
-        clntInputServIP();
+        // User input
+//        clntInputIGIP();
+//        clntInputServIP();
+        
+        // Hard coded values
+        setIGIP(testIGIP);
+        setServerIP(testServIP);
+        
         clntConvertDestIPToBytes();
         clntConvertDestPNToBytes();
         setData();
@@ -438,6 +475,25 @@ public class HALP implements HALPInterface
         {
             closeConnection();
         }
+    }
+    
+    public void runIG()
+    {
+        try {
+            receiveMessage();
+            
+        } catch (Exception ex) {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally
+        {
+            closeConnection();
+        }
+    }
+    
+    public void runServer()
+    {
+        
     }
     
     public void closeConnection()

@@ -102,6 +102,10 @@ public interface HALPInterface
     
     public void clntConvertDestPNToBytes();
     
+    public void igConvertBytesToDestIP();
+    
+    public void igConvertBytesToDestPN();
+    
     public void assembleMessage();
     
     public void sendMessage() throws Exception;
@@ -109,6 +113,10 @@ public interface HALPInterface
     public void receiveMessage();
     
     public void runClient();
+    
+    public void runIG();
+    
+    public void runServer();
     
     public void closeConnection();
     
