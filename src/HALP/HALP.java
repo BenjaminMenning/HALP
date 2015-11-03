@@ -8,6 +8,7 @@ package HALP;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import static java.lang.System.console;
+import java.lang.reflect.Array;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -199,19 +200,24 @@ public class HALP implements HALPInterface
     
     @Override
     public byte[] getHeader(byte[] messageBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        byte[] header = new byte[20];
+        System.arraycopy(messageBytes, 0, header, 0, 20);
+        return header;
     }
 
     @Override
     public byte[] getData(byte[] messageBytes) 
     {
-        byte[] placeholder = new byte[1];
-        return placeholder;
+        int originalLength = Array.getLength(messageBytes);
+        byte [] data = new byte[originalLength];
+        System.arraycopy(messageBytes, 20, data, 0, originalLength-20);
+        return data;
     }
 
     @Override
     public String getDestinationIP(byte[] messageBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         String destinationIP = messageBytes[0] + "." + messageBytes[1] + "." +messageBytes[2] + "." +messageBytes[3];
+        return destinationIP;
     }
 
     @Override
@@ -263,6 +269,18 @@ public class HALP implements HALPInterface
         else
         {
             return false;
+        }
+    }
+     
+    @Override
+    public boolean errorType(int n){
+        Random randomQ = new Random();
+        int q = randomQ.nextInt(100)/100;
+        if(q > n){
+            return true;  //if true then a random bit is flipped and messaged sent 
+        }
+        else{
+            return false;   //if false we do nothing with the packet, simulates a lost packet
         }
     }
     
