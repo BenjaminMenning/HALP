@@ -215,6 +215,14 @@ public interface HALPInterface
     public boolean errorGenerator();
     
     /**
+     * This method returns what type of error is to occur if there is to be an error
+     * 
+     * @param n the int between 0 and 1 that IG creates when starting up
+     * @return true for corrupted data, false for lost packet
+     */
+    public boolean errorType(int n);
+    
+    /**
      * This method returns a random index for a byte in the frame for an 
      * error to be placed.
      * 
