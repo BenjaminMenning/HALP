@@ -24,89 +24,73 @@ import java.util.logging.Logger;
  *
  * @author Ben
  */
-public class HALP implements HALPInterface
+public abstract class HALP implements HALPInterface
 {
-    private Scanner console = new Scanner(System.in);
+    protected Scanner console = new Scanner(System.in);
     
-    private boolean connectionActive = false;
+    protected boolean connectionActive = false;
     
     // Hard coded IP addresses for testing
-    private String homeTestIP = "192.168.0."; // for testing at home
-    private String testIGIP = homeTestIP + "110";
-    private String testServIP = homeTestIP + "114";
+    protected String homeTestIP = "192.168.0."; // for testing at home
+    protected String testIGIP = homeTestIP + "111";
+    protected String testServIP = homeTestIP + "105";
     
-    private String clntIPAddr = "";
-    private String igIPAddr = "";
-    private String servIPAddr = "";
+    protected String clntIPAddr = "";
+    protected String igIPAddr = "";
+    protected String servIPAddr = "";
     
-    private InetAddress servINAddr;
-    private InetAddress igINAddr;
+    protected InetAddress servINAddr;
+    protected InetAddress igINAddr;
     
-    private int clntPortNum = 0;
-    private int igPortNum = 0;
-    private int servPortNum = 0;
-    private int errorRate = 0;
+    protected int clntPortNum = 0;
+    protected int igPortNum = 0;
+    protected int servPortNum = 0;
+    protected int errorRate = 0;
     
-    private int currMsgLen = 0;
+    protected int currMsgLen = 0;
     
     // Byte arrays for message fields
-    private byte[] destIPBytes = new byte[DESTIP_LEN];
-    private byte[] destPNBytes = new byte[DESTPN_LEN];
-    private byte[] crcBytes = new byte[CRC_LEN];
-    private byte[] seqBytes = new byte[SEQ_LEN];
-    private byte[] ackBytes = new byte[ACK_LEN];
-    private byte[] flagBytes = new byte[FLAG_LEN];
-    private byte[] rsvdBytes = new byte[RSVD_LEN];
-    private byte[] hedrBytes = new byte[HEDR_LEN];
-    private byte[] dtrtBytes = new byte[DTRT_LEN];
-    private byte[] fileBytes = new byte[10]; // placeholder value
-    private byte[] dataBytes = new byte[DTRT_LEN];
-    private byte[] currMsg;
-    private ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
+    protected byte[] destIPBytes = new byte[DESTIP_LEN];
+    protected byte[] destPNBytes = new byte[DESTPN_LEN];
+    protected byte[] crcBytes = new byte[CRC_LEN];
+    protected byte[] seqBytes = new byte[SEQ_LEN];
+    protected byte[] ackBytes = new byte[ACK_LEN];
+    protected byte[] flagBytes = new byte[FLAG_LEN];
+    protected byte[] rsvdBytes = new byte[RSVD_LEN];
+    protected byte[] hedrBytes = new byte[HEDR_LEN];
+    protected byte[] dtrtBytes = new byte[DTRT_LEN];
+    protected byte[] fileBytes = new byte[10]; // placeholder value
+    protected byte[] dataBytes = new byte[DTRT_LEN];
+    protected byte[] currMsg;
+    protected ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
     
     // Constants for header field lengths in bytes
-    private static final int DESTIP_LEN = 4;
-    private static final int DESTPN_LEN = 2;
-    private static final int CRC_LEN = 2;
-    private static final int SEQ_LEN = 4;
-    private static final int ACK_LEN = 4;
-    private static final int FLAG_LEN = 1;
-    private static final int RSVD_LEN = 3;
-    private static final int HEDR_LEN = 20;
-    private static final int DTRT_LEN = 2;
+    protected static final int DESTIP_LEN = 4;
+    protected static final int DESTPN_LEN = 2;
+    protected static final int CRC_LEN = 2;
+    protected static final int SEQ_LEN = 4;
+    protected static final int ACK_LEN = 4;
+    protected static final int FLAG_LEN = 1;
+    protected static final int RSVD_LEN = 3;
+    protected static final int HEDR_LEN = 20;
+    protected static final int DTRT_LEN = 2;
 
     // Constants for header field byte offsets
-    private static final int DESTIP_OFFSET = 0;
-    private static final int DESTPN_OFFSET = 4;
-    private static final int CRC_OFFSET = 6;
-    private static final int SEQ_OFFSET = 8;
-    private static final int ACK_OFFSET = 12;
-    private static final int FLAG_OFFSET = 16;
-    private static final int RSVD_OFFSET = 17; 
-    private static final int DATA_OFFSET = 20;
-    private static final int DTRT_OFFSET = 20; // data rate
-    private static final int FILE_OFFSET = 22;
+    protected static final int DESTIP_OFFSET = 0;
+    protected static final int DESTPN_OFFSET = 4;
+    protected static final int CRC_OFFSET = 6;
+    protected static final int SEQ_OFFSET = 8;
+    protected static final int ACK_OFFSET = 12;
+    protected static final int FLAG_OFFSET = 16;
+    protected static final int RSVD_OFFSET = 17; 
+    protected static final int DATA_OFFSET = 20;
+    protected static final int DTRT_OFFSET = 20; // data rate
+    protected static final int FILE_OFFSET = 22;
     
-    private DatagramSocket clntSocket;
-    private DatagramSocket igSocket;
-    private DatagramSocket servSocket;
+    protected DatagramSocket clntSocket;
+    protected DatagramSocket igSocket;
+    protected DatagramSocket servSocket;
 
-    public HALP() throws SocketException
-    {
-        clntSocket = new DatagramSocket();
-        igSocket = new DatagramSocket();
-        servSocket = new DatagramSocket();
-    }
-    
-    public HALP(int clntPN, int igPN, int servPN) throws SocketException
-    {
-        clntPortNum = clntPN;
-        igPortNum = igPN;
-        servPortNum = servPN;
-        clntSocket = new DatagramSocket();
-        igSocket = new DatagramSocket();
-        servSocket = new DatagramSocket();
-    }
     
     @Override
     public void setClientIP(String ipAddr) 
@@ -215,17 +199,6 @@ public class HALP implements HALPInterface
     }
 
     @Override
-    public String getDestinationIP(byte[] messageBytes) {
-         String destinationIP = messageBytes[0] + "." + messageBytes[1] + "." +messageBytes[2] + "." +messageBytes[3];
-        return destinationIP;
-    }
-
-    @Override
-    public int getDestinationPort(byte[] messageBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public boolean isChecksumValid(byte[] headerBytes) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -256,143 +229,6 @@ public class HALP implements HALPInterface
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public boolean errorGenerator()
-    {
-        Random random = new Random();
-        int chanceMax = 100;
-        int randomChance = random.nextInt(chanceMax) + 1;
-        if(randomChance <= errorRate)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-     
-    @Override
-    public boolean errorType(int n){
-        Random randomQ = new Random();
-        int q = randomQ.nextInt(100)/100;
-        if(q > n){
-            return true;  //if true then a random bit is flipped and messaged sent 
-        }
-        else{
-            return false;   //if false we do nothing with the packet, simulates a lost packet
-        }
-    }
-    
-    @Override
-    public int randomIndex()
-    {
-        Random random = new Random();
-        int indexMax = 18;
-        int randomIndex = random.nextInt(indexMax);
-        return randomIndex;
-    }
-    
-    @Override
-    public byte generateByteError(byte oldByte)
-    {
-        Random random = new Random();
-        int bitMax = 7;
-        int randomBit = random.nextInt(bitMax);
-        byte errorByte = oldByte;
-        errorByte ^= 1 << randomBit; 
-//        System.out.println(errorByte);
-        return errorByte;
-    }
-    
-    @Override
-    public int errorNumber()
-    {
-        int errorNum;
-        Random random = new Random();
-        int chanceMax = 100;
-        int randomChance = random.nextInt(chanceMax) + 1;
-        if(randomChance <= 70)
-        {
-            errorNum = 1;
-            return errorNum;
-        }
-        else
-        {
-            errorNum = 2;
-            return errorNum;
-        }
-    }
-    
-    @Override
-    public void setErrorRate(int rate)
-    {
-        errorRate = rate;
-    }
-    
-    @Override
-    public int getErrorRate()
-    {
-        return errorRate;
-    }
-
-    @Override
-    public void clntInputIGIP() 
-    {
-        System.out.println("Please enter the internet gateway IP address: ");
-        String igIPAddress = console.nextLine();
-        setIGIP(igIPAddress);
-    }
-
-    @Override
-    public void clntInputServIP() 
-    {
-        System.out.println("Please enter the server IP address: ");
-        String servIPAddress = console.nextLine();
-        setServerIP(servIPAddress);
-    }
-
-    @Override
-    public void clntConvertDestIPToBytes() 
-    {
-        destIPBytes = servINAddr.getAddress();
-    }
-
-    @Override
-    public void clntConvertDestPNToBytes() 
-    {
-        // Creates a string containing the binary string of the
-        // port number integer
-        String serverPortBin = Integer.toBinaryString(servPortNum);
-
-        // Add 0's if length is less than 16 bits
-        if(serverPortBin.length() < 16)
-        {
-            int zeroCount = 16 - serverPortBin.length();
-            while (zeroCount > 0)
-            {
-                serverPortBin = "0" + serverPortBin;
-                zeroCount--;
-            }
-        }
-
-        // Parses binary string into two integers for two
-        // separate bytes and assigns them
-        int part1 = Integer.parseInt(serverPortBin.substring(0, 8), 2);
-        int part2 = Integer.parseInt(serverPortBin.substring(8, 16),2);
-        destPNBytes[0] = (byte) part1;
-        destPNBytes[1] = (byte) part2;
-    }
-    
-    public void igConvertBytesToDestIP()
-    {
-        
-    }
-    
-    public void igConvertBytesToDestPN()
-    {
-        
-    }
 
     @Override
     public void assembleMessage() 
@@ -414,108 +250,5 @@ public class HALP implements HALPInterface
         } catch (IOException ex) {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    
-    @Override
-    public void sendMessage() throws Exception 
-    {
-        DatagramPacket sendPacket = 
-                new DatagramPacket(currMsg, currMsgLen, igINAddr, igPortNum);
-
-        // Send a message
-        clntSocket.send(sendPacket);
-        
-        // Display the message
-        String sentMessage = new String(currMsg, 0, sendPacket.getLength());
-        System.out.println("Message echoed is: [" + sentMessage + "]");	
-    }
-    
-    @Override
-    public void receiveMessage()
-    {
-        byte[] receivedData = new byte[4096];
-
-        // Create a datagram
-        DatagramPacket receivedDatagram = 
-                new DatagramPacket(receivedData, receivedData.length);
-
-        try {
-            // Receive a message
-            clntSocket.receive(receivedDatagram);
-        } catch (IOException ex) {
-            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        // Display the message
-        String echodMessage = new String(receivedData, 0, receivedDatagram.getLength());
-        System.out.println("Message echoed is: [" + echodMessage + "]");	
-    }
-    
-    public void igReceiveMessage()
-    {
-        byte[] receivedData = new byte[4096];
-
-        // Create a datagram
-        DatagramPacket receivedDatagram = 
-                new DatagramPacket(receivedData, receivedData.length);
-
-        try {
-            // Receive a message
-            clntSocket.receive(receivedDatagram);
-        } catch (IOException ex) {
-            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
-
-    @Override
-    public void runClient() 
-    {
-        // User input
-//        clntInputIGIP();
-//        clntInputServIP();
-        
-        // Hard coded values
-        setIGIP(testIGIP);
-        setServerIP(testServIP);
-        
-        clntConvertDestIPToBytes();
-        clntConvertDestPNToBytes();
-        setData();
-        assembleMessage();
-        try {
-            sendMessage();
-            receiveMessage();
-        } catch (Exception ex) {
-            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        finally
-        {
-            closeConnection();
-        }
-    }
-    
-    public void runIG()
-    {
-        try {
-            receiveMessage();
-            
-        } catch (Exception ex) {
-            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        finally
-        {
-            closeConnection();
-        }
-    }
-    
-    public void runServer()
-    {
-        
-    }
-    
-    public void closeConnection()
-    {
-        clntSocket.close();
     }
 }

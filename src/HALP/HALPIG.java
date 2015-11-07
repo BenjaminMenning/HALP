@@ -3,13 +3,170 @@ package HALP;
 
 import java.io.*;
 import java.net.*;
+import java.util.Random;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class HALPIG 
+public class HALPIG extends HALP implements HALPIGInterface
 {
 
     static DatagramSocket igSocket;
     private static final int PORT = 54001;
+    
+    public HALPIG() throws SocketException
+    {
+        clntSocket = new DatagramSocket();
+        igSocket = new DatagramSocket();
+        servSocket = new DatagramSocket();
+    }
+    
+    public HALPIG(int clntPN, int igPN, int servPN) throws SocketException
+    {
+        clntPortNum = clntPN;
+        igPortNum = igPN;
+        servPortNum = servPN;
+        clntSocket = new DatagramSocket();
+        igSocket = new DatagramSocket();
+        servSocket = new DatagramSocket();
+    }
+    
+    @Override
+    public void convertBytesToDestIP()
+    {
+        
+    }
+    
+    @Override
+    public void convertBytesToDestPN()
+    {
+        
+    }
+    
+    @Override
+    public String getDestinationIP(byte[] messageBytes) {
+         String destinationIP = messageBytes[0] + "." + messageBytes[1] + "." +messageBytes[2] + "." +messageBytes[3];
+        return destinationIP;
+    }
+
+    @Override
+    public int getDestinationPort(byte[] messageBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public void sendMessage() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public void receiveMessage()
+    {
+        byte[] receivedData = new byte[4096];
+
+        // Create a datagram
+        DatagramPacket receivedDatagram = 
+                new DatagramPacket(receivedData, receivedData.length);
+
+        try {
+            // Receive a message
+            clntSocket.receive(receivedDatagram);
+        } catch (IOException ex) {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    @Override
+    public void closeConnection() 
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public boolean errorGenerator()
+    {
+        Random random = new Random();
+        int chanceMax = 100;
+        int randomChance = random.nextInt(chanceMax) + 1;
+        if(randomChance <= errorRate)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+     
+    @Override
+    public boolean errorType(int n){
+        Random randomQ = new Random();
+        int q = randomQ.nextInt(100)/100;
+        if(q > n){
+            return true;  //if true then a random bit is flipped and messaged sent 
+        }
+        else{
+            return false;   //if false we do nothing with the packet, simulates a lost packet
+        }
+    }
+    
+    @Override
+    public int randomIndex()
+    {
+        Random random = new Random();
+        int indexMax = 18;
+        int randomIndex = random.nextInt(indexMax);
+        return randomIndex;
+    }
+    
+    @Override
+    public byte generateByteError(byte oldByte)
+    {
+        Random random = new Random();
+        int bitMax = 7;
+        int randomBit = random.nextInt(bitMax);
+        byte errorByte = oldByte;
+        errorByte ^= 1 << randomBit; 
+//        System.out.println(errorByte);
+        return errorByte;
+    }
+    
+    @Override
+    public int errorNumber()
+    {
+        int errorNum;
+        Random random = new Random();
+        int chanceMax = 100;
+        int randomChance = random.nextInt(chanceMax) + 1;
+        if(randomChance <= 70)
+        {
+            errorNum = 1;
+            return errorNum;
+        }
+        else
+        {
+            errorNum = 2;
+            return errorNum;
+        }
+    }
+    
+    @Override
+    public void setErrorRate(int rate)
+    {
+        errorRate = rate;
+    }
+    
+    @Override
+    public int getErrorRate()
+    {
+        return errorRate;
+    }
 
     public static void main(String args[]) throws Exception
     {
