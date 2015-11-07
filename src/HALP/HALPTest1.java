@@ -15,6 +15,6 @@ public class HALPTest1
 {
    public static void main(String[] args) throws SocketException
    {
-       HALP halpClient = new HALP();
+       HALPClient halpClient = new HALPClient();
    }
 }
