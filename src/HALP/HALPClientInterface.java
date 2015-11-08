@@ -29,5 +29,7 @@ public interface HALPClientInterface extends HALPInterface
     public void convertDestIPToBytes();
     
     public void convertDestPNToBytes();
+    
+    public void initiateConnection();
 
 }

@@ -84,7 +84,12 @@ public interface HALPInterface
      */
     public int getServerPort();
     
-    
+    /**
+     * Just for testing right now.
+     * 
+     * @return
+     */
+    public byte[] getMessage();
     
     public void assembleMessage();
     
@@ -97,6 +102,16 @@ public interface HALPInterface
     public void closeConnection();
     
     public void setData();
+    
+    public void setRSTFlag(byte[] headerBytes, boolean isSet);
+    
+    public void setDRTFlag(byte[] headerBytes, boolean isSet);
+    
+    public void setACKFlag(byte[] headerBytes, boolean isSet);
+    
+    public void setSYNFlag(byte[] headerBytes, boolean isSet);
+    
+    public void setFINFlag(byte[] headerBytes, boolean isSet);
     
     /**
      * This method extracts the header from a message.
@@ -121,7 +136,7 @@ public interface HALPInterface
      * @return  returns true if valid, false otherwise
      */
     public boolean isChecksumValid(byte[] headerBytes);
-    
+        
     /**
      * This method determines if the RST flag has been set.
      * 
@@ -144,7 +159,7 @@ public interface HALPInterface
      * @param headerBytes   the byte array containing the header information
      * @return  returns true if set, false otherwise
      */
-    public boolean isAckFlagSet(byte[] headerBytes);
+    public boolean isACKFlagSet(byte[] headerBytes);
     
     /**
      * This method determines if the SYN flag has been set.
@@ -152,7 +167,7 @@ public interface HALPInterface
      * @param headerBytes   the byte array containing the header information
      * @return  returns true if set, false otherwise
      */
-    public boolean isSynFlagSet(byte[] headerBytes);
+    public boolean isSYNFlagSet(byte[] headerBytes);
     
     /**
      * This method determines if the FIN flag has been set.
@@ -160,6 +175,6 @@ public interface HALPInterface
      * @param headerBytes   the byte array containing the header information
      * @return  returns true if set, false otherwise
      */
-    public boolean isFinFlagSet(byte[] headerBytes);
+    public boolean isFINFlagSet(byte[] headerBytes);
     
 }

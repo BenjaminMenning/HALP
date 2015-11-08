@@ -18,9 +18,8 @@ public class HALPClient extends HALP implements HALPClientInterface
         clntSocket = new DatagramSocket();
     }
     
-    public HALPClient(int clntPN, int igPN, int servPN) throws SocketException
+    public HALPClient(int igPN, int servPN) throws SocketException
     {
-        clntPortNum = clntPN;
         igPortNum = igPN;
         servPortNum = servPN;
         clntSocket = new DatagramSocket();
@@ -74,12 +73,11 @@ public class HALPClient extends HALP implements HALPClientInterface
         destPNBytes[1] = (byte) part2;
     }
     
-    @Override
-    public void run() 
+    public void initiateConnection() 
     {
         // User input
-//        clntInputIGIP();
-//        clntInputServIP();
+//        inputIGIP();
+//        inputServIP();
         
         // Hard coded values
         setIGIP(testIGIP);
@@ -88,6 +86,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         convertDestIPToBytes();
         convertDestPNToBytes();
         setData();
+//        setSYNFlag(,true);
         assembleMessage();
         try {
             sendMessage();
@@ -99,6 +98,12 @@ public class HALPClient extends HALP implements HALPClientInterface
         {
             closeConnection();
         }
+    }
+    
+    @Override
+    public void run()
+    {
+        
     }
     
     @Override
@@ -119,7 +124,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     @Override
     public void receiveMessage()
     {
-        byte[] receivedData = new byte[4096];
+        byte[] receivedData = new byte[MSG_SIZE];
 
         // Create a datagram
         DatagramPacket receivedDatagram = 
@@ -146,8 +151,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     public static void main (String args[]) throws Exception 
     {	
         Scanner console = new Scanner(System.in);
-        HALPClient halpClient = new HALPClient(IG_PORT, IG_PORT, SERVER_PORT);
-        halpClient.run();
+        HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
+        halpClient.initiateConnection();
     }
-
 }

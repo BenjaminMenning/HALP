@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -46,6 +47,9 @@ public abstract class HALP implements HALPInterface
     protected int igPortNum = 0;
     protected int servPortNum = 0;
     protected int errorRate = 0;
+    
+    // For datagrams received
+    protected static final int MSG_SIZE = 4096;
     
     protected int currMsgLen = 0;
     
@@ -86,6 +90,8 @@ public abstract class HALP implements HALPInterface
     protected static final int DATA_OFFSET = 20;
     protected static final int DTRT_OFFSET = 20; // data rate
     protected static final int FILE_OFFSET = 22;
+    
+    protected DatagramPacket currDtgm;
     
     protected DatagramSocket clntSocket;
     protected DatagramSocket igSocket;
@@ -180,7 +186,56 @@ public abstract class HALP implements HALPInterface
         String dataStr = "Yoyoyoyoyo";
         dataBytes = dataStr.getBytes();
     }
-
+    
+    @Override
+    public void setRSTFlag(byte[] headerBytes, boolean isSet)
+    {
+        
+    }
+    
+    @Override
+    public void setDRTFlag(byte[] headerBytes, boolean isSet)
+    {
+        
+    }
+    
+    @Override
+    public void setACKFlag(byte[] headerBytes, boolean isSet)
+    {
+        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+            (FLAG_OFFSET + FLAG_LEN));
+        byte tempFlagByte = tempFlagBytes[0];
+        
+        // If the SYN flag is not already set to desired value, flip bit
+        if(isSet != isACKFlagSet(headerBytes))
+        {
+            tempFlagByte ^= 1 << 2; // 1 on the right is the bit position in byte
+            flagBytes[0] = tempFlagByte; 
+        }
+        System.out.println(Integer.toBinaryString((int)tempFlagByte));
+    }
+    
+    @Override
+    public void setSYNFlag(byte[] headerBytes, boolean isSet)
+    {
+        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+            (FLAG_OFFSET + FLAG_LEN));
+        byte tempFlagByte = tempFlagBytes[0];
+        
+        // If the SYN flag is not already set to desired value, flip bit
+        if(isSet != isSYNFlagSet(headerBytes))
+        {
+            tempFlagByte ^= 1 << 1; // 1 on the right is the bit position in byte
+            flagBytes[0] = tempFlagByte; 
+        }
+        System.out.println(Integer.toBinaryString((int)tempFlagByte));
+    }
+    
+    @Override
+    public void setFINFlag(byte[] headerBytes, boolean isSet)
+    {
+        
+    }
     
     @Override
     public byte[] getHeader(byte[] messageBytes) {
@@ -205,31 +260,64 @@ public abstract class HALP implements HALPInterface
 
     @Override
     public boolean isRSTFlagSet(byte[] headerBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        byte flagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+                (FLAG_OFFSET + FLAG_LEN));
+
+        int bitPosition = 4 % 8;  // Position of this bit in a byte
+
+        return (flagBytes[0] >> bitPosition & 1) == 1;
     }
 
     @Override
-    public boolean isDRTFlagSet(byte[] headerBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean isAckFlagSet(byte[] headerBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean isSynFlagSet(byte[] headerBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean isFinFlagSet(byte[] headerBytes) 
+    public boolean isDRTFlagSet(byte[] headerBytes) 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        byte flagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+                (FLAG_OFFSET + FLAG_LEN));
+
+        int bitPosition = 3 % 8;  // Position of this bit in a byte
+
+        return (flagBytes[0] >> bitPosition & 1) == 1;
+    }
+
+    @Override
+    public boolean isACKFlagSet(byte[] headerBytes) 
+    {
+        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+                (FLAG_OFFSET + FLAG_LEN));
+
+        int bitPosition = 2 % 8;  // Position of this bit in a byte
+
+        return (tempFlagBytes[0] >> bitPosition & 1) == 1;
+    }
+
+    @Override
+    public boolean isSYNFlagSet(byte[] headerBytes) 
+    {
+        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+                (FLAG_OFFSET + FLAG_LEN));
+
+        int bitPosition = 1 % 8;  // Position of this bit in a byte
+
+        return (tempFlagBytes[0] >> bitPosition & 1) == 1;
+    }
+
+    @Override
+    public boolean isFINFlagSet(byte[] headerBytes) 
+    {
+        byte flagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+                (FLAG_OFFSET + FLAG_LEN));
+
+        int bitPosition = 0 % 8;  // Position of this bit in a byte
+
+        return (flagBytes[0] >> bitPosition & 1) == 1;
     }
 
 
+    public byte[] getMessage()
+    {
+        return currMsg;
+    }
+    
     @Override
     public void assembleMessage() 
     {
