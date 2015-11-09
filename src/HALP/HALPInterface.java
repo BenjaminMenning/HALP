@@ -193,20 +193,25 @@ public interface HALPInterface
     /**
      * This method starts the timer used for the data transfer. Used in trace.
      * 
+     * @return time in seconds for the current time before transfer starts
      */
-    public void startTransferTimer();
+    public long startTransferTimer();
     
     /**
      * This method stops the timer used for the data transfer. Used in trace.
      * 
+     * @return time in seconds for the current time after transfer is complete
      */
-    public void stopTransferTimer();
+    public long stopTransferTimer();
     
     /**
      * This method retrieves the total file transfer time. 
      * 
+     * @param s long from startTransferTimer
+     * @param e long from stopTransferTimer
+     * @return String that says "The time to transfer file is " +(e-s) + " seconds."
      */
-    public double getTransferTime();
+    public String getTransferTime(long s, long e);
     
     /**
      * This method retrieves the total number of messages generated.
