@@ -5,6 +5,11 @@
  */
 package HALP;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Scanner;
+
 /**
  *
  * @author Ben
@@ -90,4 +95,11 @@ public interface HALPIGInterface extends HALPInterface
      * @return int  returns the int assigned as the error rate
      */
     public int getErrorRate();
+    
+    /**
+     * This method retrieves the expected number of retransmissions.
+     * 
+     * @return
+     */
+    public int getExpectedRetransmissions();
 }

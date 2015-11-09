@@ -3,7 +3,10 @@ package HALP;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -11,7 +14,6 @@ import java.util.logging.Logger;
 
 public class HALPIG extends HALP implements HALPIGInterface
 {
-
     private static final int IG_PORT = 54001;
     
     public HALPIG() throws SocketException
@@ -213,7 +215,12 @@ public class HALPIG extends HALP implements HALPIGInterface
     {
         return errorRate;
     }
-
+    
+    @Override
+    public int getExpectedRetransmissions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+            
     public static void main(String args[]) throws Exception
     {
         Scanner console = new Scanner(System.in);

@@ -16,6 +16,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -29,7 +31,10 @@ public abstract class HALP implements HALPInterface
 {
     protected Scanner console = new Scanner(System.in);
     
+    ArrayList<Integer> maxTransmissions = new ArrayList<>();
+    
     protected boolean connectionActive = false;
+    protected boolean isTraceOn = false;
     
     // Hard coded IP addresses for testing
     protected String homeTestIP = "192.168.0."; // for testing at home
@@ -65,7 +70,9 @@ public abstract class HALP implements HALPInterface
     protected byte[] dtrtBytes = new byte[DTRT_LEN];
     protected byte[] fileBytes = new byte[10]; // placeholder value
     protected byte[] dataBytes = new byte[DTRT_LEN];
-    protected byte[] currMsg;
+    
+    protected byte[] currMsg; // message to be sent
+    protected byte[] rcvdMsg; // received message
     protected ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
     
     // Constants for header field lengths in bytes
@@ -91,7 +98,7 @@ public abstract class HALP implements HALPInterface
     protected static final int DTRT_OFFSET = 20; // data rate
     protected static final int FILE_OFFSET = 22;
     
-    protected DatagramPacket currDtgm;
+    protected DatagramPacket currDtgm; // received datagram?
     
     protected DatagramSocket clntSocket;
     protected DatagramSocket igSocket;
@@ -339,5 +346,102 @@ public abstract class HALP implements HALPInterface
         } catch (IOException ex) {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    @Override
+    public void setTrace(boolean isTraceSet) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getFileSize() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void startTransferTimer() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void stopTransferTimer() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getTransferTime() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getMessagesGenerated() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getUDPDatagramsTransmitted() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getTotalRetransmissions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getPercentageOfRetransmissions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void printTraceStats() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void printMessage(byte[] messageBytes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    /** 
+     * This class is a comparator that compares transmissions. It orders them 
+     * in ascending order.
+     * 
+     * @author Benjamin Menning
+     * @version 04/21/2015
+     */
+    public class maxTransmissionsComparator implements Comparator<Integer>
+    {
+        @Override
+        public int compare(Integer x, Integer y)
+        {
+            if (x < y)
+            {
+                return 1;
+            }
+            if (x > y)
+            {
+                return -1;
+            }
+            return 0;
+        }
+    }    
+    
+    public void addMaxTransmission(int maxTransmission)
+    {
+        maxTransmissions.add(maxTransmission);
+    }
+    
+    public int getMaxTransmission()
+    {
+        Collections.sort(maxTransmissions, new maxTransmissionsComparator());
+        int maxTransmission = maxTransmissions.get(0);
+        return maxTransmission;
+    }
+    
+    public boolean isMaxTransmissionsEmpty()
+    {
+        boolean isEmpty = maxTransmissions.isEmpty();
+        return isEmpty;
     }
 }
