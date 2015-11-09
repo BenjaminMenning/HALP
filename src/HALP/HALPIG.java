@@ -38,8 +38,12 @@ public class HALPIG extends HALP implements HALPIGInterface
     }
     
     @Override
-    public String getDestinationIP(byte[] messageBytes) {
-         String destinationIP = messageBytes[0] + "." + messageBytes[1] + "." +messageBytes[2] + "." +messageBytes[3];
+    public String getDestinationIP(byte[] headerBytes) {
+        int byte1 = (headerBytes[0] & 0xff);
+        int byte2 = (headerBytes[1] & 0xff);
+        int byte3 = (headerBytes[2] & 0xff);
+        int byte4 = (headerBytes[3] & 0xff);
+         String destinationIP = byte1 + "." + byte2 + "." + byte3 + "." + byte4;
         return destinationIP;
     }
 
