@@ -98,7 +98,7 @@ public abstract class HALP implements HALPInterface
     protected static final int DTRT_OFFSET = 20; // data rate
     protected static final int FILE_OFFSET = 22;
     
-    protected DatagramPacket currDtgm;
+    protected DatagramPacket currDtgm; // received datagram?
     
     protected DatagramSocket clntSocket;
     protected DatagramSocket igSocket;
