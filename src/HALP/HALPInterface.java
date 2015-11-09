@@ -71,7 +71,7 @@ public interface HALPInterface
      * @param portNum
      */
     public void setServerPort(int portNum);
-    
+        
     /**
      *
      * @return
@@ -130,12 +130,12 @@ public interface HALPInterface
     public byte[] getData(byte[] messageBytes);
     
     /**
-     * This method determines if the checksum in the header is valid?
+     * This method determines if the checksum in the message is valid
      * 
-     * @param headerBytes   the byte array containing the header information
+     * @param messageBytes   the byte array containing the message information
      * @return  returns true if valid, false otherwise
      */
-    public boolean isChecksumValid(byte[] headerBytes);
+    public boolean isChecksumValid(byte[] messageBytes);
         
     /**
      * This method determines if the RST flag has been set.
@@ -177,4 +177,98 @@ public interface HALPInterface
      */
     public boolean isFINFlagSet(byte[] headerBytes);
     
+    /**
+     * This method sets whether or not the trace feature will be turned on.
+     * 
+     * @param isTraceSet
+     */
+    public void setTrace(boolean isTraceSet);
+    
+    /**
+     * This method retrieves the size of the file that is being transferred.
+     * 
+     */
+    public double getFileSize();
+    
+    /**
+     * This method starts the timer used for the data transfer. Used in trace.
+     * 
+     */
+    public void startTransferTimer();
+    
+    /**
+     * This method stops the timer used for the data transfer. Used in trace.
+     * 
+     */
+    public void stopTransferTimer();
+    
+    /**
+     * This method retrieves the total file transfer time. 
+     * 
+     */
+    public double getTransferTime();
+    
+    /**
+     * This method retrieves the total number of messages generated.
+     * 
+     */
+    public int getMessagesGenerated();
+    
+    /**
+     * This method retrieves the total number of UDP datagrams transmitted.
+     * 
+     */
+    public int getUDPDatagramsTransmitted();
+    
+    /**
+     * This method retrieves the total number of retransmissions
+     * 
+     */
+    public int getTotalRetransmissions();
+    
+    /**
+     * This method adds a maximum amount of re-transmissions for a single frame
+     * to an ArrayList.
+     * 
+     * @param maxTransmission the int to be assigned as the max transmissions
+     */
+    public void addMaxTransmission(int maxTransmission);
+    
+    /**
+     * This method retrieves the maximum number of transmissions for any single
+     * frame.
+     * 
+     * @return int  returns an int containing the max transmissions
+     */
+    public int getMaxTransmission();
+    
+    /**
+     * This method retrieves the status of the max transmission ArrayList of
+     * whether or not it is empty.
+     * 
+     * @return boolean  returns true if empty, false if otherwise
+     */
+    public boolean isMaxTransmissionsEmpty();
+    
+    /**
+     * This method retrieves the percentage of messages that were retransmitted.
+     * 
+     * @return
+     */
+    public double getPercentageOfRetransmissions();
+    
+    /**
+     * This method prints out the trace statistics after the file transfer is
+     * complete. Possibly a polymorhpic method?
+     * 
+     */
+    public void printTraceStats();
+        
+    /**
+     * This method prints out the contents of a message, including the contents
+     * of each individual field (except the actual data). Used for testing.
+     * 
+     * @param messageBytes  the byte array containing the message information
+     */
+    public void printMessage(byte [] messageBytes);
 }

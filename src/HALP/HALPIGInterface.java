@@ -95,28 +95,11 @@ public interface HALPIGInterface extends HALPInterface
      * @return int  returns the int assigned as the error rate
      */
     public int getErrorRate();
-        
-    /**
-     * This method adds a maximum amount of re-transmissions for a single frame
-     * to an ArrayList.
-     * 
-     * @param maxTransmission the int to be assigned as the max transmissions
-     */
-    public void addMaxTransmission(int maxTransmission);
     
     /**
-     * This method retrieves the maximum number of transmissions for any single
-     * frame.
+     * This method retrieves the expected number of retransmissions.
      * 
-     * @return int  returns an int containing the max transmissions
+     * @return
      */
-    public int getMaxTransmission();
-    
-    /**
-     * This method retrieves the status of the max transmission ArrayList of
-     * whether or not it is empty.
-     * 
-     * @return boolean  returns true if empty, false if otherwise
-     */
-    public boolean isMaxTransmissionsEmpty();
+    public int getExpectedRetransmissions();
 }
