@@ -349,8 +349,9 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
-    public void setTrace(boolean isTraceSet) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean setTrace(boolean isTraceSet) {
+        boolean trace = isTraceSet;
+        return trace;
     }
 
     @Override
@@ -359,18 +360,22 @@ public abstract class HALP implements HALPInterface
     }
 
     @Override
-    public void startTransferTimer() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public long startTransferTimer() {
+        long start = System.currentTimeMillis()/1000;
+        return start;
     }
 
     @Override
-    public void stopTransferTimer() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public long stopTransferTimer() {
+        long end = System.currentTimeMillis()/1000;
+        return end;
     }
 
     @Override
-    public double getTransferTime() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String getTransferTime(long start, long end) {
+        long time = end - start;
+        String output = "The time to transfer file was " + time + " secounds.";
+        return output;
     }
 
     @Override
