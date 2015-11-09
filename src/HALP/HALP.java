@@ -313,6 +313,7 @@ public abstract class HALP implements HALPInterface
     }
 
 
+    @Override
     public byte[] getMessage()
     {
         return currMsg;
