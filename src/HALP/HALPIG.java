@@ -3,7 +3,10 @@ package HALP;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -11,7 +14,7 @@ import java.util.logging.Logger;
 
 public class HALPIG extends HALP implements HALPIGInterface
 {
-
+    ArrayList<Integer> maxTransmissions = new ArrayList<>();
     private static final int IG_PORT = 54001;
     
     public HALPIG() throws SocketException
@@ -212,6 +215,48 @@ public class HALPIG extends HALP implements HALPIGInterface
     public int getErrorRate()
     {
         return errorRate;
+    }
+            
+    /** 
+     * This class is a comparator that compares transmissions. It orders them 
+     * in ascending order.
+     * 
+     * @author Benjamin Menning
+     * @version 04/21/2015
+     */
+    public class maxTransmissionsComparator implements Comparator<Integer>
+    {
+        @Override
+        public int compare(Integer x, Integer y)
+        {
+            if (x < y)
+            {
+                return 1;
+            }
+            if (x > y)
+            {
+                return -1;
+            }
+            return 0;
+        }
+    }    
+    
+    public void addMaxTransmission(int maxTransmission)
+    {
+        maxTransmissions.add(maxTransmission);
+    }
+    
+    public int getMaxTransmission()
+    {
+        Collections.sort(maxTransmissions, new maxTransmissionsComparator());
+        int maxTransmission = maxTransmissions.get(0);
+        return maxTransmission;
+    }
+    
+    public boolean isMaxTransmissionsEmpty()
+    {
+        boolean isEmpty = maxTransmissions.isEmpty();
+        return isEmpty;
     }
 
     public static void main(String args[]) throws Exception
