@@ -103,15 +103,16 @@ public interface HALPInterface
     
     public void setData();
     
-    public void setRSTFlag(byte[] headerBytes, boolean isSet);
+    // Do not implement RST unless we find we need it
+    public byte[] setRSTFlag(byte[] headerBytes, boolean isSet);
     
-    public void setDRTFlag(byte[] headerBytes, boolean isSet);
+    public byte[] setDRTFlag(byte[] headerBytes, boolean isSet);
     
-    public void setACKFlag(byte[] headerBytes, boolean isSet);
+    public byte[] setACKFlag(byte[] headerBytes, boolean isSet);
     
-    public void setSYNFlag(byte[] headerBytes, boolean isSet);
+    public byte[] setSYNFlag(byte[] headerBytes, boolean isSet);
     
-    public void setFINFlag(byte[] headerBytes, boolean isSet);
+    public byte[] setFINFlag(byte[] headerBytes, boolean isSet);
     
     /**
      * This method extracts the header from a message.
@@ -177,12 +178,14 @@ public interface HALPInterface
      */
     public boolean isFINFlagSet(byte[] headerBytes);
     
+    public void printFlagField(byte[] headerBytes);
+    
     /**
      * This method sets whether or not the trace feature will be turned on.
      * 
      * @param isTraceSet
      */
-    public void setTrace(boolean isTraceSet);
+    public boolean setTrace(boolean isTraceSet);
     
     /**
      * This method retrieves the size of the file that is being transferred.

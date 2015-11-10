@@ -195,36 +195,53 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
-    public void setRSTFlag(byte[] headerBytes, boolean isSet)
+    public byte[] setRSTFlag(byte[] headerBytes, boolean isSet)
     {
-        
+        return headerBytes;
     }
     
     @Override
-    public void setDRTFlag(byte[] headerBytes, boolean isSet)
+    public byte[] setDRTFlag(byte[] headerBytes, boolean isSet)
     {
-        
-    }
-    
-    @Override
-    public void setACKFlag(byte[] headerBytes, boolean isSet)
-    {
+        byte tempHdrBytes[] = headerBytes;
         byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
             (FLAG_OFFSET + FLAG_LEN));
         byte tempFlagByte = tempFlagBytes[0];
         
-        // If the SYN flag is not already set to desired value, flip bit
-        if(isSet != isACKFlagSet(headerBytes))
+        // If the DRT flag is not already set to desired value, flip bit
+        if(isSet != isDRTFlagSet(headerBytes))
         {
-            tempFlagByte ^= 1 << 2; // 1 on the right is the bit position in byte
-            flagBytes[0] = tempFlagByte; 
+            tempFlagByte ^= 1 << 3;
+            tempFlagBytes[0] = tempFlagByte; 
         }
-        System.out.println(Integer.toBinaryString((int)tempFlagByte));
+        
+        tempHdrBytes[FLAG_OFFSET] = tempFlagByte;
+        return tempHdrBytes;
     }
     
     @Override
-    public void setSYNFlag(byte[] headerBytes, boolean isSet)
+    public byte[] setACKFlag(byte[] headerBytes, boolean isSet)
     {
+        byte tempHdrBytes[] = headerBytes;
+        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+            (FLAG_OFFSET + FLAG_LEN));
+        byte tempFlagByte = tempFlagBytes[0];
+        
+        // If the ACK flag is not already set to desired value, flip bit
+        if(isSet != isACKFlagSet(headerBytes))
+        {
+            tempFlagByte ^= 1 << 2;
+            tempFlagBytes[0] = tempFlagByte; 
+        }
+        
+        tempHdrBytes[FLAG_OFFSET] = tempFlagByte;
+        return tempHdrBytes;
+    }
+    
+    @Override
+    public byte[] setSYNFlag(byte[] headerBytes, boolean isSet)
+    {
+        byte tempHdrBytes[] = headerBytes;
         byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
             (FLAG_OFFSET + FLAG_LEN));
         byte tempFlagByte = tempFlagBytes[0];
@@ -233,15 +250,30 @@ public abstract class HALP implements HALPInterface
         if(isSet != isSYNFlagSet(headerBytes))
         {
             tempFlagByte ^= 1 << 1; // 1 on the right is the bit position in byte
-            flagBytes[0] = tempFlagByte; 
+            tempFlagBytes[0] = tempFlagByte; 
         }
-        System.out.println(Integer.toBinaryString((int)tempFlagByte));
+        
+        tempHdrBytes[FLAG_OFFSET] = tempFlagByte;
+        return tempHdrBytes;
     }
     
     @Override
-    public void setFINFlag(byte[] headerBytes, boolean isSet)
+    public byte[] setFINFlag(byte[] headerBytes, boolean isSet)
     {
+        byte tempHdrBytes[] = headerBytes;
+        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+            (FLAG_OFFSET + FLAG_LEN));
+        byte tempFlagByte = tempFlagBytes[0];
         
+        // If the FIN flag is not already set to desired value, flip bit
+        if(isSet != isFINFlagSet(headerBytes))
+        {
+            tempFlagByte ^= 1 << 0;
+            tempFlagBytes[0] = tempFlagByte; 
+        }
+        
+        tempHdrBytes[FLAG_OFFSET] = tempFlagByte;
+        return tempHdrBytes;
     }
     
     @Override
@@ -318,8 +350,7 @@ public abstract class HALP implements HALPInterface
 
         return (flagBytes[0] >> bitPosition & 1) == 1;
     }
-
-
+    
     @Override
     public byte[] getMessage()
     {
@@ -404,8 +435,20 @@ public abstract class HALP implements HALPInterface
     }
 
     @Override
-    public void printMessage(byte[] messageBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void printFlagField(byte[] headerBytes)
+    {
+        String flagInfo = "\nFlag Bits: ";
+        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+            (FLAG_OFFSET + FLAG_LEN));
+        byte tempFlagByte = tempFlagBytes[0];
+        flagInfo += Integer.toBinaryString((int)tempFlagByte);
+        System.out.println(flagInfo);
+    }
+    
+    @Override
+    public void printMessage(byte[] messageBytes) 
+    {
+        printFlagField(messageBytes);
     }
     
     /** 
