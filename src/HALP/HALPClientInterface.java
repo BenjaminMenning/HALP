@@ -5,6 +5,8 @@
  */
 package HALP;
 
+import java.net.InetAddress;
+
 /**
  *
  * @author Ben
@@ -26,10 +28,13 @@ public interface HALPClientInterface extends HALPInterface
      */
     public void inputServIP();
     
+    public byte[] setDestIP(byte[] headerBytes, InetAddress destIN);
+    
+    public byte[] setDestPN(byte[] headerBytes, int portNum);
+    
     public void convertDestIPToBytes();
     
     public void convertDestPNToBytes();
     
     public void initiateConnection();
-
 }

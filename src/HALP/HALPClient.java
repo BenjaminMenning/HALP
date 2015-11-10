@@ -2,8 +2,10 @@ package HALP;
 
 // Simple echo client.
 
+import static HALP.HALP.FLAG_OFFSET;
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +41,40 @@ public class HALPClient extends HALP implements HALPClientInterface
         System.out.println("Please enter the server IP address: ");
         String servIPAddress = console.nextLine();
         setServerIP(servIPAddress);
+    }
+    
+    public byte[] setDestIP(byte[] headerBytes, InetAddress destIN)
+    {
+        // for future use?
+//        byte tempHdrBytes[] = new byte[HEDR_LEN];
+//        tempHdrBytes = headerBytes;
+        
+        byte tempHdrBytes[] = headerBytes;
+        byte tempIPBytes[] = new byte[DESTIP_LEN];
+        tempIPBytes = servINAddr.getAddress();
+//        tempHdrBytes[DESTIP_OFFSET] = tempIPBytes;
+        System.arraycopy(tempIPBytes, 0, tempHdrBytes, DESTIP_OFFSET, 
+                DESTIP_LEN);        
+        
+//        byte tempHdrBytes[] = headerBytes;
+//        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
+//            (FLAG_OFFSET + FLAG_LEN));
+//        byte tempFlagByte = tempFlagBytes[0];
+//        
+//        // If the ACK flag is not already set to desired value, flip bit
+//        if(isSet != isACKFlagSet(headerBytes))
+//        {
+//            tempFlagByte ^= 1 << 2;
+//            tempFlagBytes[0] = tempFlagByte; 
+//        }
+//        
+//        tempHdrBytes[FLAG_OFFSET] = tempFlagByte;
+//        return tempHdrBytes;
+    }
+    
+    public byte[] setDestPN(byte[] headerBytes, int portNum)
+    {
+        
     }
 
     @Override
@@ -78,13 +114,17 @@ public class HALPClient extends HALP implements HALPClientInterface
         // User input
 //        inputIGIP();
 //        inputServIP();
+
         
+        byte[] tempHeader = new byte[HEDR_LEN];
+
         // Hard coded values
         setIGIP(testIGIP);
         setServerIP(testServIP);
-        
-        convertDestIPToBytes();
-        convertDestPNToBytes();
+        tempHeader = setDestIP(tempHeader, servINAddr);
+        tempHeader = setDestPN(tempHeader, servPortNum);
+//        convertDestIPToBytes();
+//        convertDestPNToBytes();
         setData();
 //        setSYNFlag(,true);
         assembleMessage();
