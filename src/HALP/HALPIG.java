@@ -53,7 +53,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     public int getDestinationPort(byte[] messageBytes) 
     {
         // Create and assign port bytes
-        byte[] portBytes = Arrays.copyOfRange(currMsg, DESTPN_OFFSET, 
+        byte[] portBytes = Arrays.copyOfRange(messageBytes, DESTPN_OFFSET, 
                 (DESTPN_OFFSET + DESTPN_LEN));
 
         // Assign port number bytes as ints

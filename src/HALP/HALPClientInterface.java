@@ -28,13 +28,13 @@ public interface HALPClientInterface extends HALPInterface
      */
     public void inputServIP();
     
-    public byte[] setDestIP(byte[] headerBytes, InetAddress destIN);
+    public byte[] setDestIP(byte[] headerBytes, String destIP);
     
     public byte[] setDestPN(byte[] headerBytes, int portNum);
     
-    public void convertDestIPToBytes();
+    public byte[] convertIPToBytes(String ipAddr);
     
-    public void convertDestPNToBytes();
+    public byte[] convertPNToBytes(int portNum);
     
     public void initiateConnection();
 }

@@ -130,6 +130,27 @@ public interface HALPInterface
      */
     public byte[] getData(byte[] messageBytes);
     
+    
+    /**
+     * This method extracts the destination IP address formatted as a String 
+     * from a message. This method might need to be changed later on if we 
+     * alter our header format.
+     * 
+     * @param messageBytes  the byte array containing the message
+     * @return  String  returns String containing the IP address
+     */
+    public String getDestinationIP(byte[] messageBytes);
+    
+    /**
+     * This method extracts the destination port number formatted as an integer
+     * from a message. This method might need to be changed later on if we 
+     * alter our header format.
+     * 
+     * @param messageBytes  the byte array containing the message
+     * @return  int returns int containing the port number
+     */
+    public int getDestinationPort(byte[] messageBytes);    
+    
     /**
      * This method determines if the checksum in the message is valid
      * 
@@ -177,6 +198,10 @@ public interface HALPInterface
      * @return  returns true if set, false otherwise
      */
     public boolean isFINFlagSet(byte[] headerBytes);
+    
+    public void printDestIPField(byte[] headerBytes);
+    
+    public void printDestPNField(byte[] headerBytes);
     
     public void printFlagField(byte[] headerBytes);
     

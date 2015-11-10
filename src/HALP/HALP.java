@@ -291,7 +291,61 @@ public abstract class HALP implements HALPInterface
         System.arraycopy(messageBytes, 20, data, 0, originalLength-20);
         return data;
     }
+    
+    @Override
+    public String getDestinationIP(byte[] headerBytes) {
+        int byte1 = (headerBytes[0] & 0xff);
+        int byte2 = (headerBytes[1] & 0xff);
+        int byte3 = (headerBytes[2] & 0xff);
+        int byte4 = (headerBytes[3] & 0xff);
+         String destinationIP = byte1 + "." + byte2 + "." + byte3 + "." + byte4;
+        return destinationIP;
+    }
 
+    @Override
+    public int getDestinationPort(byte[] messageBytes) 
+    {
+        // Create and assign port bytes
+        byte[] portBytes = Arrays.copyOfRange(currMsg, DESTPN_OFFSET, 
+                (DESTPN_OFFSET + DESTPN_LEN));
+
+        // Assign port number bytes as ints
+        int firstPNByteInt = portBytes[0];
+        int secondPNByteInt = portBytes[1];
+
+        // Convert byte ints to strings
+        String firstPNByteStr = Integer.toBinaryString((int) firstPNByteInt);
+        String secondPNByteStr = Integer.toBinaryString((int) secondPNByteInt);
+
+        // Add 0's if length is less than 8 bits
+        if(firstPNByteStr.length() < 8){
+            int zeroCount = 8 - firstPNByteStr.length();
+            while (zeroCount > 0){
+                firstPNByteStr = "0" + firstPNByteStr;
+                zeroCount--;
+            }
+        }
+        if(secondPNByteStr.length() < 8){
+            int zeroCount = 8 - secondPNByteStr.length();
+            while (zeroCount > 0){
+                secondPNByteStr = "0" + secondPNByteStr;
+                zeroCount--;
+            }
+        }
+
+        // Parse to 8 bit strings
+        String firstPNByteBits = firstPNByteStr.substring(firstPNByteStr.length() - 8);
+        String secondPNByteBits = secondPNByteStr.substring(secondPNByteStr.length() - 8);
+
+        // Combines 8 bit strings into one complete string
+        String completePNStr = firstPNByteBits + "" + secondPNByteBits;
+
+        // Converts complete String from unsigned integer to int
+       // int completePN = Integer.parseUnsignedInt(completePNStr, 2);  //requres java 8 to run this coding
+        int completePN= (int) Long.parseLong(completePNStr, 2);    //equivalent of above coding for non java8
+        return completePN;
+    }
+    
     @Override
     public boolean isChecksumValid(byte[] headerBytes) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -433,11 +487,37 @@ public abstract class HALP implements HALPInterface
     public void printTraceStats() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    @Override
+    public void printDestIPField(byte[] headerBytes)
+    {
+        String flagInfo = "Destination IP: ";
+        String destIPStr = getDestinationIP(headerBytes);
+        flagInfo += destIPStr;
+//        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, DESTIP_OFFSET, 
+//            (DESTIP_OFFSET + DESTIP_LEN));
+//        byte tempFlagByte = tempFlagBytes[0];
+//        flagInfo += Integer.toBinaryString((int)tempFlagByte);
+        System.out.println(flagInfo);
+    }
+    
+    @Override
+    public void printDestPNField(byte[] headerBytes)
+    {
+        String flagInfo = "Destination IP: ";
+        int destIPStr = getDestinationPort(headerBytes);
+        flagInfo += destIPStr;
+//        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, DESTIP_OFFSET, 
+//            (DESTIP_OFFSET + DESTIP_LEN));
+//        byte tempFlagByte = tempFlagBytes[0];
+//        flagInfo += Integer.toBinaryString((int)tempFlagByte);
+        System.out.println(flagInfo);
+    }
 
     @Override
     public void printFlagField(byte[] headerBytes)
     {
-        String flagInfo = "\nFlag Bits: ";
+        String flagInfo = "Flag Bits: ";
         byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
             (FLAG_OFFSET + FLAG_LEN));
         byte tempFlagByte = tempFlagBytes[0];
@@ -448,7 +528,10 @@ public abstract class HALP implements HALPInterface
     @Override
     public void printMessage(byte[] messageBytes) 
     {
+        printDestIPField(messageBytes);
+        printDestPNField(messageBytes);
         printFlagField(messageBytes);
+        System.out.println();
     }
     
     /** 
