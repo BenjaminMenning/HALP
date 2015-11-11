@@ -139,8 +139,10 @@ public class HALPClient extends HALP implements HALPClientInterface
         // Hard coded values
         setIGIP(testIGIP);
         setServerIP(testServIP);
-        tempHeader = setDestIP(tempHeader, servINAddr);
+        tempHeader = setDestIP(tempHeader, servIPAddr);
         tempHeader = setDestPN(tempHeader, servPortNum);
+        printMessage(tempHeader);
+        hedrBytes = tempHeader;
 //        convertDestIPToBytes();
 //        convertDestPNToBytes();
         setData();

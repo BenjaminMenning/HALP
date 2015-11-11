@@ -38,8 +38,8 @@ public abstract class HALP implements HALPInterface
     
     // Hard coded IP addresses for testing
     protected String homeTestIP = "192.168.0."; // for testing at home
-    protected String testIGIP = homeTestIP + "111";
-    protected String testServIP = homeTestIP + "105";
+    protected String testIGIP = homeTestIP + "110";
+    protected String testServIP = homeTestIP + "112";
     
     protected String clntIPAddr = "";
     protected String igIPAddr = "";
@@ -306,7 +306,7 @@ public abstract class HALP implements HALPInterface
     public int getDestinationPort(byte[] messageBytes) 
     {
         // Create and assign port bytes
-        byte[] portBytes = Arrays.copyOfRange(currMsg, DESTPN_OFFSET, 
+        byte[] portBytes = Arrays.copyOfRange(messageBytes, DESTPN_OFFSET, 
                 (DESTPN_OFFSET + DESTPN_LEN));
 
         // Assign port number bytes as ints
@@ -416,14 +416,15 @@ public abstract class HALP implements HALPInterface
     {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-            outputStream.write(destIPBytes);
-            outputStream.write(destPNBytes);
-            outputStream.write(crcBytes);
-            outputStream.write(seqBytes);
-            outputStream.write(ackBytes);
-            outputStream.write(flagBytes);
-            outputStream.write(rsvdBytes);
-            outputStream.write(dtrtBytes);
+//            outputStream.write(destIPBytes);
+//            outputStream.write(destPNBytes);
+//            outputStream.write(crcBytes);
+//            outputStream.write(seqBytes);
+//            outputStream.write(ackBytes);
+//            outputStream.write(flagBytes);
+//            outputStream.write(rsvdBytes);
+//            outputStream.write(dtrtBytes);
+            outputStream.write(hedrBytes);
             outputStream.write(dataBytes);
             currMsg = outputStream.toByteArray();
             currMsgLen = currMsg.length;
