@@ -135,7 +135,9 @@ public class HALPClient extends HALP implements HALPClientInterface
 
         
         byte[] tempHeader = new byte[HEDR_LEN];
-
+        byte[] tempData = null; // change later
+        byte[] tempMsg = null;
+        
         // Hard coded values
         setIGIP(testIGIP);
         setServerIP(testServIP);
@@ -145,9 +147,11 @@ public class HALPClient extends HALP implements HALPClientInterface
         hedrBytes = tempHeader;
 //        convertDestIPToBytes();
 //        convertDestPNToBytes();
-        setData();
+        setData(); // remove later?
+        String testStr = "Yoyoyoyoyo";
+        tempData = testStr.getBytes();
 //        setSYNFlag(,true);
-        assembleMessage();
+        tempMsg = assembleMessage(tempHeader, tempData);
         try {
             sendMessage();
             receiveMessage();

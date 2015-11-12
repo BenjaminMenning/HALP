@@ -412,8 +412,11 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
-    public void assembleMessage() 
+    public byte[] assembleMessage(byte[] headerBytes, byte[] dataBytes) 
     {
+        byte[] tempHdrBytes = headerBytes;
+        byte[] tempDtaBytes = dataBytes;
+        byte[] tempMsgBytes = null;
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
 //            outputStream.write(destIPBytes);
@@ -424,14 +427,15 @@ public abstract class HALP implements HALPInterface
 //            outputStream.write(flagBytes);
 //            outputStream.write(rsvdBytes);
 //            outputStream.write(dtrtBytes);
-            outputStream.write(hedrBytes);
+            outputStream.write(tempHdrBytes);
             outputStream.write(dataBytes);
-            currMsg = outputStream.toByteArray();
-            currMsgLen = currMsg.length;
-            messageQueue.add(currMsg);
+            tempMsgBytes = outputStream.toByteArray();
+            currMsgLen = currMsg.length; // remove later?
+//            messageQueue.add(currMsg); // remove later?
         } catch (IOException ex) {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return tempMsgBytes;
     }
     
     @Override
