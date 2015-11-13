@@ -95,7 +95,7 @@ public interface HALPInterface
     
     public void sendMessage(byte[] messageBytes) throws Exception;
     
-    public void receiveMessage();
+    public byte[] receiveMessage();
     
     public void run();
 

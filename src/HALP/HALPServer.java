@@ -6,12 +6,13 @@ import java.io.*;
 import java.net.*;
 import java.lang.*;
 
-public class HALPServer {
+public class HALPServer 
+{
 
 
-	static DatagramSocket serverSocket;
+    static DatagramSocket serverSocket;
 
-	private static final int PORT = 54001;
+    private static final int PORT = 54001;
 
 	public static void main(String args[]) throws Exception
 	{

@@ -14,6 +14,12 @@ import java.util.logging.Logger;
 
 public class HALPIG extends HALP implements HALPIGInterface
 {
+    private String ingoingIP;
+    private String outgoingIP;
+    private int ingoingPN;
+    private int outgoingPN;
+    private InetAddress outgoingIN;
+    
     private static final int IG_PORT = 54001;
     
     public HALPIG() throws SocketException
@@ -26,92 +32,51 @@ public class HALPIG extends HALP implements HALPIGInterface
         igPortNum = igPN;
         igSocket = new DatagramSocket(igPN);
     }
-    
-    @Override
-    public void convertBytesToDestIP()
-    {
-        
-    }
-    
-    @Override
-    public void convertBytesToDestPN()
-    {
-        
-    }
-    
-    @Override
-    public String getDestinationIP(byte[] headerBytes) {
-        int byte1 = (headerBytes[0] & 0xff);
-        int byte2 = (headerBytes[1] & 0xff);
-        int byte3 = (headerBytes[2] & 0xff);
-        int byte4 = (headerBytes[3] & 0xff);
-         String destinationIP = byte1 + "." + byte2 + "." + byte3 + "." + byte4;
-        return destinationIP;
-    }
-
-    @Override
-    public int getDestinationPort(byte[] messageBytes) 
-    {
-        // Create and assign port bytes
-        byte[] portBytes = Arrays.copyOfRange(messageBytes, DESTPN_OFFSET, 
-                (DESTPN_OFFSET + DESTPN_LEN));
-
-        // Assign port number bytes as ints
-        int firstPNByteInt = portBytes[0];
-        int secondPNByteInt = portBytes[1];
-
-        // Convert byte ints to strings
-        String firstPNByteStr = Integer.toBinaryString((int) firstPNByteInt);
-        String secondPNByteStr = Integer.toBinaryString((int) secondPNByteInt);
-
-        // Add 0's if length is less than 8 bits
-        if(firstPNByteStr.length() < 8){
-            int zeroCount = 8 - firstPNByteStr.length();
-            while (zeroCount > 0){
-                firstPNByteStr = "0" + firstPNByteStr;
-                zeroCount--;
-            }
-        }
-        if(secondPNByteStr.length() < 8){
-            int zeroCount = 8 - secondPNByteStr.length();
-            while (zeroCount > 0){
-                secondPNByteStr = "0" + secondPNByteStr;
-                zeroCount--;
-            }
-        }
-
-        // Parse to 8 bit strings
-        String firstPNByteBits = firstPNByteStr.substring(firstPNByteStr.length() - 8);
-        String secondPNByteBits = secondPNByteStr.substring(secondPNByteStr.length() - 8);
-
-        // Combines 8 bit strings into one complete string
-        String completePNStr = firstPNByteBits + "" + secondPNByteBits;
-
-        // Converts complete String from unsigned integer to int
-       // int completePN = Integer.parseUnsignedInt(completePNStr, 2);  //requres java 8 to run this coding
-        int completePN= (int) Long.parseLong(completePNStr, 2);    //equivalent of above coding for non java8
-        return completePN;
-    }
-    
-    @Override
-    public void sendMessage(byte[] messageBytes) throws Exception{
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public void run() 
     {
         while(true)
         {
-            receiveMessage();
-            clntIPAddr = currDtgm.getAddress().getHostAddress();
-            servIPAddr = getDestinationIP(currMsg);
-            servPortNum = getDestinationPort(currMsg);
+            try {
+                byte[] rcvdMsg = receiveMessage();
+                if(isSYNFlagSet(rcvdMsg)) 
+                {
+                    ingoingIP = currDtgm.getAddress().getHostAddress();
+                    ingoingPN = currDtgm.getPort();
+                    outgoingIP = getDestinationIP(rcvdMsg);
+                    outgoingPN = getDestinationPort(rcvdMsg);
+                    outgoingIN = InetAddress.getByName(outgoingIP);
+                }
+//                else if(isSYNFlagSet(rcvdMsg))
+                printMessage(rcvdMsg);
+                sendMessage(rcvdMsg);
+            } 
+            catch (Exception ex)
+            {
+                Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null,
+                        ex);
+            }
         }
     }
     
     @Override
-    public void receiveMessage()
+    public void sendMessage(byte[] messageBytes) throws Exception 
+    {
+        byte[] msgBytes = messageBytes;
+        int msgLen = msgBytes.length;
+        DatagramPacket sendPacket = 
+                new DatagramPacket(msgBytes, msgLen, outgoingIN, outgoingPN);
+
+        // Send a message
+        igSocket.send(sendPacket);
+        
+        // Display the message
+        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
+        System.out.println("Message sent is: [" + sentMessage + "]");	
+    }
+    
+    public byte[] receiveMessage()
     {
         byte[] receivedData = new byte[MSG_SIZE];
 
@@ -119,15 +84,18 @@ public class HALPIG extends HALP implements HALPIGInterface
         DatagramPacket receivedDatagram = 
                 new DatagramPacket(receivedData, receivedData.length);
 
-        try {
+        try 
+        {
             // Receive a message
             igSocket.receive(receivedDatagram);
-        } catch (IOException ex) {
+        } 
+        catch (IOException ex) {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }        
         
         currDtgm = receivedDatagram;
-        currMsg = receivedDatagram.getData();
+//        currMsg = receivedDatagram.getData();
+        return receivedData;
     }
     
     @Override

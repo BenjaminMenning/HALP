@@ -17,9 +17,9 @@ import java.util.Scanner;
 public interface HALPIGInterface extends HALPInterface
 {
     
-    public void convertBytesToDestIP();
-
-    public void convertBytesToDestPN();
+//    public void convertBytesToDestIP();
+//
+//    public void convertBytesToDestPN();
     
     /**
      * This method generates errors based off of the error rate entered by the

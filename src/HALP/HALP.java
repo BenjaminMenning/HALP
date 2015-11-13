@@ -66,8 +66,8 @@ public abstract class HALP implements HALPInterface
     protected byte[] fileBytes = new byte[10]; // placeholder value
     protected byte[] dataBytes = new byte[DTRT_LEN];
     
-    protected byte[] currMsg; // message to be sent
-    protected byte[] rcvdMsg; // received message
+//    protected byte[] currMsg; // message to be sent
+//    protected byte[] rcvdMsg; // received message
     protected ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
     
     // Constants for header field lengths in bytes
@@ -98,6 +98,7 @@ public abstract class HALP implements HALPInterface
     protected DatagramSocket clntSocket;
     protected DatagramSocket igSocket;
     protected DatagramSocket servSocket;
+    protected DatagramSocket deviceSocket;
 
     
     @Override
@@ -412,7 +413,7 @@ public abstract class HALP implements HALPInterface
     @Override
     public byte[] getMessage()
     {
-        return currMsg;
+        return crcBytes; // placeholder
     }
     
     @Override
@@ -513,7 +514,7 @@ public abstract class HALP implements HALPInterface
     @Override
     public void printDestPNField(byte[] headerBytes)
     {
-        String flagInfo = "Destination IP: ";
+        String flagInfo = "Destination Port Number: ";
         int destIPStr = getDestinationPort(headerBytes);
         flagInfo += destIPStr;
 //        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, DESTIP_OFFSET, 

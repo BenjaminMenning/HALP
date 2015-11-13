@@ -14,8 +14,9 @@ public class HALPClient extends HALP implements HALPClientInterface
 {
         // Hard coded IP addresses for testing
     protected String homeTestIP = "192.168.0."; // for testing at home
-    protected String testIGIP = homeTestIP + "110";
-    protected String testServIP = homeTestIP + "112";
+    protected String testIGIP = homeTestIP + "101";
+    protected String testServIP = homeTestIP + "110";
+    protected String testFileName = "alice.txt";
     
     private static final int SERVER_PORT = 54001;  
     private static final int IG_PORT = 54001;
@@ -163,33 +164,38 @@ public class HALPClient extends HALP implements HALPClientInterface
     
     public void initiateConnection() 
     {
-        // User input
-//        inputIGIP();
-//        inputServIP();
-        
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = null; // change later
         byte[] tempMsg = null;
         
+        // User input
+//        inputIGIP();
+//        inputServIP();
+        
         // Hard coded values for testing
         setIGIP(testIGIP);
         setServerIP(testServIP);
+        setFileName(testFileName);
         
         tempHeader = setDestIP(tempHeader, servIPAddr);
         tempHeader = setDestPN(tempHeader, servPortNum);
+        tempHeader = setSYNFlag(tempHeader, true);
         printMessage(tempHeader);
-        hedrBytes = tempHeader;
-//        convertDestIPToBytes();
-//        convertDestPNToBytes();
-        setData(); // remove later?
-        String testStr = "Yoyoyoyoyo";
-        tempData = testStr.getBytes();
-//        setSYNFlag(,true);
+        
+        int dataLen = fileName.length() + DTRT_LEN;
+        tempData = new byte[dataLen];
+        System.out.println("Length of data field: " + dataLen);
         tempMsg = assembleMessage(tempHeader, tempData);
-        try {
+        tempMsg = setFileNameField(tempMsg, fileName);
+        printFileNameField(tempMsg);
+        
+        try 
+        {
             sendMessage(tempMsg);
-            receiveMessage();
-        } catch (Exception ex) {
+            byte[] rcvdMsg = receiveMessage();
+        } 
+        catch (Exception ex) 
+        {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
         finally
@@ -217,12 +223,13 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Display the message
         String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
-        System.out.println("Message echoed is: [" + sentMessage + "]");	
+        System.out.println("Message sent is: [" + sentMessage + "]");	
     }
 
     
+    
     @Override
-    public void receiveMessage()
+    public byte[] receiveMessage()
     {
         byte[] receivedData = new byte[MSG_SIZE];
 
@@ -230,16 +237,20 @@ public class HALPClient extends HALP implements HALPClientInterface
         DatagramPacket receivedDatagram = 
                 new DatagramPacket(receivedData, receivedData.length);
 
-        try {
+        try 
+        {
             // Receive a message
             clntSocket.receive(receivedDatagram);
-        } catch (IOException ex) {
+        } 
+        catch (IOException ex) 
+        {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         // Display the message
         String echodMessage = new String(receivedData, 0, receivedDatagram.getLength());
         System.out.println("Message echoed is: [" + echodMessage + "]");	
+        return receivedData;
     }
         
     @Override
