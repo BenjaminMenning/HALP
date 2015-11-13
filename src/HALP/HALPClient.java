@@ -12,8 +12,14 @@ import java.util.logging.Logger;
 
 public class HALPClient extends HALP implements HALPClientInterface
 {
+        // Hard coded IP addresses for testing
+    protected String homeTestIP = "192.168.0."; // for testing at home
+    protected String testIGIP = homeTestIP + "110";
+    protected String testServIP = homeTestIP + "112";
+    
     private static final int SERVER_PORT = 54001;  
     private static final int IG_PORT = 54001;
+    private String fileName = "";
     
     public HALPClient() throws SocketException
     {
@@ -43,6 +49,49 @@ public class HALPClient extends HALP implements HALPClientInterface
         setServerIP(servIPAddress);
     }
     
+    public void inputTransferDirection()
+    {
+        
+    }
+   
+    public void inputFileName()
+    {
+        System.out.println("Please enter the name of the file you wish to "
+                + "download / upload: ");
+        String tempFileName = console.nextLine();
+        setFileName(tempFileName);
+    }
+    
+    public void inputDataRate()
+    {
+        
+    }
+    
+    public void setTransferDirection()
+    {
+        
+    }
+    
+    public void setFileName(String fileNameStr)
+    {
+        fileName = fileNameStr;
+    }
+    
+    public void setDataRate()
+    {
+        
+    }
+    
+    public byte[] setFileNameField(byte[] messageBytes, String fileNameStr)
+    {
+        byte tempMsgBytes[] = messageBytes;
+        byte tempFlNmBytes[] = fileNameStr.getBytes();
+        int fileNameLen = fileNameStr.length();
+        System.arraycopy(tempFlNmBytes, 0, tempMsgBytes, FILE_OFFSET, 
+                fileNameLen);   
+        return tempMsgBytes;
+    }
+            
     public byte[] setDestIP(byte[] headerBytes, String destIP)
     {
         // for future use?
@@ -57,21 +106,6 @@ public class HALPClient extends HALP implements HALPClientInterface
         System.arraycopy(tempIPBytes, 0, tempHdrBytes, DESTIP_OFFSET, 
                 DESTIP_LEN);   
         return tempHdrBytes;
-        
-//        byte tempHdrBytes[] = headerBytes;
-//        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, FLAG_OFFSET, 
-//            (FLAG_OFFSET + FLAG_LEN));
-//        byte tempFlagByte = tempFlagBytes[0];
-//        
-//        // If the ACK flag is not already set to desired value, flip bit
-//        if(isSet != isACKFlagSet(headerBytes))
-//        {
-//            tempFlagByte ^= 1 << 2;
-//            tempFlagBytes[0] = tempFlagByte; 
-//        }
-//        
-//        tempHdrBytes[FLAG_OFFSET] = tempFlagByte;
-//        return tempHdrBytes;
     }
     
     public byte[] setDestPN(byte[] headerBytes, int portNum)
@@ -132,15 +166,15 @@ public class HALPClient extends HALP implements HALPClientInterface
         // User input
 //        inputIGIP();
 //        inputServIP();
-
         
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = null; // change later
         byte[] tempMsg = null;
         
-        // Hard coded values
+        // Hard coded values for testing
         setIGIP(testIGIP);
         setServerIP(testServIP);
+        
         tempHeader = setDestIP(tempHeader, servIPAddr);
         tempHeader = setDestPN(tempHeader, servPortNum);
         printMessage(tempHeader);
@@ -153,7 +187,7 @@ public class HALPClient extends HALP implements HALPClientInterface
 //        setSYNFlag(,true);
         tempMsg = assembleMessage(tempHeader, tempData);
         try {
-            sendMessage();
+            sendMessage(tempMsg);
             receiveMessage();
         } catch (Exception ex) {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
@@ -171,16 +205,18 @@ public class HALPClient extends HALP implements HALPClientInterface
     }
     
     @Override
-    public void sendMessage() throws Exception 
+    public void sendMessage(byte[] messageBytes) throws Exception 
     {
+        byte[] msgBytes = messageBytes;
+        int msgLen = msgBytes.length;
         DatagramPacket sendPacket = 
-                new DatagramPacket(currMsg, currMsgLen, igINAddr, igPortNum);
+                new DatagramPacket(msgBytes, msgLen, igINAddr, igPortNum);
 
         // Send a message
         clntSocket.send(sendPacket);
         
         // Display the message
-        String sentMessage = new String(currMsg, 0, sendPacket.getLength());
+        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
         System.out.println("Message echoed is: [" + sentMessage + "]");	
     }
 

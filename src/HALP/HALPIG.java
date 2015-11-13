@@ -94,7 +94,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     }
     
     @Override
-    public void sendMessage() throws Exception {
+    public void sendMessage(byte[] messageBytes) throws Exception{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

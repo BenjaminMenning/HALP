@@ -21,6 +21,7 @@ public class HALPTest1
         HALPIG halpIG = new HALPIG();
 
         byte[] testHeader = new byte[20];
+        byte[] testData = new byte[100];
         
 //        InetAddress testINAddr;
 //        testINAddr = InetAddress.getByName(testIPAddr);
@@ -30,11 +31,21 @@ public class HALPTest1
         System.out.println("\n\nTesting Destination IP...");
         testHeader = halpClient.setDestIP(testHeader, testIPAddr);
         halpIG.printMessage(testHeader);  
+        System.out.println(halpIG.getDestinationIP(testHeader));
         
         int testPortNum = 55555;
         System.out.println("\n\nTesting Destination Port Number...");
         testHeader = halpClient.setDestPN(testHeader, testPortNum);
         halpIG.printMessage(testHeader);
+        System.out.println(halpIG.getDestinationPort(testHeader));
+        
+        byte[] testMessage = halpClient.assembleMessage(testHeader, testData);
+        
+        String testFileName = "TestFile.txt";
+        System.out.println("\n\nTesting File Name...");
+        testMessage = halpClient.setFileNameField(testMessage, testFileName);
+        halpClient.printFileNameField(testMessage);
+        System.out.println(halpIG.getFileNameField(testMessage));
         
         System.out.println("\n\nTesting Flags...");
         testHeader = halpIG.setFINFlag(testHeader, true);
@@ -52,6 +63,8 @@ public class HALPTest1
         testHeader = halpIG.setDRTFlag(testHeader, true);
         halpIG.printMessage(testHeader);
         System.out.println(halpIG.isDRTFlagSet(testHeader));
+        
+        
 
 //        
 //        System.out.println("\n\nTesting FIN...");

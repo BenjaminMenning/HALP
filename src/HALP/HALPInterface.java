@@ -71,7 +71,7 @@ public interface HALPInterface
      * @param portNum
      */
     public void setServerPort(int portNum);
-        
+            
     /**
      *
      * @return
@@ -93,7 +93,7 @@ public interface HALPInterface
     
     public byte[] assembleMessage(byte[] headerBytes, byte[] dataBytes);
     
-    public void sendMessage() throws Exception;
+    public void sendMessage(byte[] messageBytes) throws Exception;
     
     public void receiveMessage();
     
@@ -149,7 +149,9 @@ public interface HALPInterface
      * @param messageBytes  the byte array containing the message
      * @return  int returns int containing the port number
      */
-    public int getDestinationPort(byte[] messageBytes);    
+    public int getDestinationPort(byte[] messageBytes);  
+    
+    public String getFileNameField(byte[] messageBytes);
     
     /**
      * This method determines if the checksum in the message is valid
@@ -204,6 +206,10 @@ public interface HALPInterface
     public void printDestPNField(byte[] headerBytes);
     
     public void printFlagField(byte[] headerBytes);
+    
+    public void printFileNameField(byte[] messageBytes);
+    
+    public void printDataField(byte[] messageBytes);
     
     /**
      * This method sets whether or not the trace feature will be turned on.

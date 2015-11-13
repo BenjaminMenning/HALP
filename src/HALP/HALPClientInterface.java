@@ -28,10 +28,22 @@ public interface HALPClientInterface extends HALPInterface
      */
     public void inputServIP();
     
+    public void inputTransferDirection();
+    
+    public void inputFileName();
+    
+    public void inputDataRate();
+    
+    public void setTransferDirection();
+    
+    public void setFileName(String fileName);
+    
+    public void setDataRate();
+    
     public byte[] setDestIP(byte[] headerBytes, String destIP);
     
     public byte[] setDestPN(byte[] headerBytes, int portNum);
-    
+        
     public byte[] convertIPToBytes(String ipAddr);
     
     public byte[] convertPNToBytes(int portNum);

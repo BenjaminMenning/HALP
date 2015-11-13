@@ -35,12 +35,7 @@ public abstract class HALP implements HALPInterface
     
     protected boolean connectionActive = false;
     protected boolean isTraceOn = false;
-    
-    // Hard coded IP addresses for testing
-    protected String homeTestIP = "192.168.0."; // for testing at home
-    protected String testIGIP = homeTestIP + "110";
-    protected String testServIP = homeTestIP + "112";
-    
+        
     protected String clntIPAddr = "";
     protected String igIPAddr = "";
     protected String servIPAddr = "";
@@ -54,7 +49,7 @@ public abstract class HALP implements HALPInterface
     protected int errorRate = 0;
     
     // For datagrams received
-    protected static final int MSG_SIZE = 4096;
+    protected static final int MSG_SIZE = 84;
     
     protected int currMsgLen = 0;
     
@@ -346,6 +341,15 @@ public abstract class HALP implements HALPInterface
         return completePN;
     }
     
+    public String getFileNameField(byte[] messageBytes)
+    {
+        int fileNameLen = messageBytes.length - HEDR_LEN - DTRT_LEN;
+        byte fileNameBytes[] = Arrays.copyOfRange(messageBytes, FILE_OFFSET, 
+                (FILE_OFFSET + fileNameLen));
+        String fileNameStr = new String(fileNameBytes);
+        return fileNameStr;
+    }
+    
     @Override
     public boolean isChecksumValid(byte[] headerBytes) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -430,7 +434,7 @@ public abstract class HALP implements HALPInterface
             outputStream.write(tempHdrBytes);
             outputStream.write(dataBytes);
             tempMsgBytes = outputStream.toByteArray();
-            currMsgLen = currMsg.length; // remove later?
+//            currMsgLen = currMsg.length; // remove later?
 //            messageQueue.add(currMsg); // remove later?
         } catch (IOException ex) {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
@@ -528,6 +532,29 @@ public abstract class HALP implements HALPInterface
         byte tempFlagByte = tempFlagBytes[0];
         flagInfo += Integer.toBinaryString((int)tempFlagByte);
         System.out.println(flagInfo);
+    }
+    
+    @Override
+    public void printFileNameField(byte[] messageBytes)
+    {
+        String flNmInfo = "File name: ";
+        int fileNameLen = messageBytes.length - HEDR_LEN - DTRT_LEN;
+        byte tempFlNmBytes[] = Arrays.copyOfRange(messageBytes, FILE_OFFSET, 
+                (FILE_OFFSET + fileNameLen));
+        String fileNameStr = new String(tempFlNmBytes);
+        flNmInfo += fileNameStr;
+        System.out.println(flNmInfo);
+    }
+    
+    @Override
+    public void printDataField(byte[] messageBytes)
+    {
+        String dataInfo = "Data: ";
+        int dataLen = messageBytes.length - HEDR_LEN;
+        byte tempDataBytes[] = Arrays.copyOfRange(messageBytes, DATA_OFFSET, 
+                (DATA_OFFSET + dataLen));
+        dataInfo += tempDataBytes;
+        System.out.println(dataInfo);
     }
     
     @Override
