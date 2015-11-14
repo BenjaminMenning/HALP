@@ -29,6 +29,7 @@ public class HALPServer extends HALP implements HALPServerInterface
     @Override
     public void run() 
     {
+        System.out.println("Server has started.");
         while(true)
         {
             try {

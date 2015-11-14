@@ -37,6 +37,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     @Override
     public void run() 
     {
+        System.out.println("Internet gateway has started.");
         while(true)
         {
             try {
