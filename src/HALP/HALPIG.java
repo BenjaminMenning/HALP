@@ -18,6 +18,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     private String outgoingIP;
     private int ingoingPN;
     private int outgoingPN;
+    private InetAddress ingoingIN;
     private InetAddress outgoingIN;
     
     private static final int IG_PORT = 54001;
@@ -40,16 +41,42 @@ public class HALPIG extends HALP implements HALPIGInterface
         {
             try {
                 byte[] rcvdMsg = receiveMessage();
-                if(isSYNFlagSet(rcvdMsg)) 
+                boolean isSyn = isSYNFlagSet(rcvdMsg);
+                boolean isAck = isACKFlagSet(rcvdMsg);
+                if(isSyn && !isAck) 
                 {
+                    // Retrieves the ingoing connection info from the datagram
                     ingoingIP = currDtgm.getAddress().getHostAddress();
                     ingoingPN = currDtgm.getPort();
+                    ingoingIN = InetAddress.getByName(ingoingIP);
+                    
+                    // Assigns ingoing info to the client
+                    clntIPAddr = ingoingIP;
+                    clntPortNum = ingoingPN;
+                    clntINAddr = ingoingIN;
+                    
+                    // Retrieves the outgoing connection info from the datagram
                     outgoingIP = getDestinationIP(rcvdMsg);
                     outgoingPN = getDestinationPort(rcvdMsg);
                     outgoingIN = InetAddress.getByName(outgoingIP);
+
+                    // Assigns the outgoing info to the client
+                    servIPAddr = outgoingIP;
+                    servPortNum = outgoingPN;
+                    servINAddr = outgoingIN;
                 }
+                else if(isSyn && isAck)
+                {
+                    outgoingIN = clntINAddr;
+                    outgoingPN = clntPortNum;
+//                    ingoingIP = currDtgm.getAddress().getHostAddress();
+//                    ingoingPN = currDtgm.getPort();
+//                    outgoingIP = getDestinationIP(rcvdMsg);
+//                    outgoingPN = getDestinationPort(rcvdMsg);
+//                    outgoingIN = InetAddress.getByName(outgoingIP);
+                }
+                
 //                else if(isSYNFlagSet(rcvdMsg))
-                printMessage(rcvdMsg);
                 sendMessage(rcvdMsg);
             } 
             catch (Exception ex)
@@ -73,7 +100,8 @@ public class HALPIG extends HALP implements HALPIGInterface
         
         // Display the message
         String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
-        System.out.println("Message sent is: [" + sentMessage + "]");	
+        System.out.println("Message sent is: [" + sentMessage + "]");
+        printMessage(msgBytes);
     }
     
     @Override

@@ -40,6 +40,7 @@ public abstract class HALP implements HALPInterface
     protected String igIPAddr = "";
     protected String servIPAddr = "";
     
+    protected InetAddress clntINAddr;
     protected InetAddress servINAddr;
     protected InetAddress igINAddr;
     
@@ -457,6 +458,7 @@ public abstract class HALP implements HALPInterface
         // Display the message
         String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
         System.out.println("Message sent is: [" + sentMessage + "]");	
+        printMessage(msgBytes);
     }
     
     @Override
@@ -482,7 +484,8 @@ public abstract class HALP implements HALPInterface
         
         // Display the message
         String echodMessage = new String(receivedData, 0, receivedDatagram.getLength());
-        System.out.println("Message echoed is: [" + echodMessage + "]");	
+        System.out.println("Message received is: [" + echodMessage + "]");
+        printMessage(receivedData);
         return receivedData;
     }
     
