@@ -14,8 +14,8 @@ public class HALPClient extends HALP implements HALPClientInterface
 {
         // Hard coded IP addresses for testing
     protected String homeTestIP = "192.168.0."; // for testing at home
-    protected String testIGIP = homeTestIP + "101";
-    protected String testServIP = homeTestIP + "110";
+    protected String testIGIP = homeTestIP + "110";
+    protected String testServIP = homeTestIP + "101";
     protected String testFileName = "alice.txt";
     
     private static final int SERVER_PORT = 54001;  
@@ -24,14 +24,14 @@ public class HALPClient extends HALP implements HALPClientInterface
     
     public HALPClient() throws SocketException
     {
-        clntSocket = new DatagramSocket();
+        deviceSocket = new DatagramSocket();
     }
     
     public HALPClient(int igPN, int servPN) throws SocketException
     {
         igPortNum = igPN;
         servPortNum = servPN;
-        clntSocket = new DatagramSocket();
+        deviceSocket = new DatagramSocket();
     }
     
     @Override
@@ -208,55 +208,6 @@ public class HALPClient extends HALP implements HALPClientInterface
     public void run()
     {
         
-    }
-    
-    @Override
-    public void sendMessage(byte[] messageBytes) throws Exception 
-    {
-        byte[] msgBytes = messageBytes;
-        int msgLen = msgBytes.length;
-        DatagramPacket sendPacket = 
-                new DatagramPacket(msgBytes, msgLen, igINAddr, igPortNum);
-
-        // Send a message
-        clntSocket.send(sendPacket);
-        
-        // Display the message
-        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
-        System.out.println("Message sent is: [" + sentMessage + "]");	
-    }
-
-    
-    
-    @Override
-    public byte[] receiveMessage()
-    {
-        byte[] receivedData = new byte[MSG_SIZE];
-
-        // Create a datagram
-        DatagramPacket receivedDatagram = 
-                new DatagramPacket(receivedData, receivedData.length);
-
-        try 
-        {
-            // Receive a message
-            clntSocket.receive(receivedDatagram);
-        } 
-        catch (IOException ex) 
-        {
-            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        // Display the message
-        String echodMessage = new String(receivedData, 0, receivedDatagram.getLength());
-        System.out.println("Message echoed is: [" + echodMessage + "]");	
-        return receivedData;
-    }
-        
-    @Override
-    public void closeConnection() 
-    {
-        clntSocket.close();
     }
 
     public static void main (String args[]) throws Exception 

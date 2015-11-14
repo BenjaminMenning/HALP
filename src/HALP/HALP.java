@@ -95,9 +95,9 @@ public abstract class HALP implements HALPInterface
     
     protected DatagramPacket currDtgm; // received datagram?
     
-    protected DatagramSocket clntSocket;
-    protected DatagramSocket igSocket;
-    protected DatagramSocket servSocket;
+//    protected DatagramSocket clntSocket;
+//    protected DatagramSocket igSocket;
+//    protected DatagramSocket servSocket;
     protected DatagramSocket deviceSocket;
 
     
@@ -441,6 +441,55 @@ public abstract class HALP implements HALPInterface
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
         return tempMsgBytes;
+    }
+    
+    @Override
+    public void sendMessage(byte[] messageBytes) throws Exception 
+    {
+        byte[] msgBytes = messageBytes;
+        int msgLen = msgBytes.length;
+        DatagramPacket sendPacket = 
+                new DatagramPacket(msgBytes, msgLen, igINAddr, igPortNum);
+
+        // Send a message
+        deviceSocket.send(sendPacket);
+        
+        // Display the message
+        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
+        System.out.println("Message sent is: [" + sentMessage + "]");	
+    }
+    
+    @Override
+    public byte[] receiveMessage()
+    {
+        byte[] receivedData = new byte[MSG_SIZE];
+
+        // Create a datagram
+        DatagramPacket receivedDatagram = 
+                new DatagramPacket(receivedData, receivedData.length);
+
+        try 
+        {
+            // Receive a message
+            deviceSocket.receive(receivedDatagram);
+        } 
+        catch (IOException ex) 
+        {
+            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        currDtgm = receivedDatagram;
+        
+        // Display the message
+        String echodMessage = new String(receivedData, 0, receivedDatagram.getLength());
+        System.out.println("Message echoed is: [" + echodMessage + "]");	
+        return receivedData;
+    }
+    
+    @Override
+    public void closeConnection() 
+    {
+        deviceSocket.close();
     }
     
     @Override

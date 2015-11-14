@@ -24,13 +24,13 @@ public class HALPIG extends HALP implements HALPIGInterface
     
     public HALPIG() throws SocketException
     {
-        igSocket = new DatagramSocket();
+        deviceSocket = new DatagramSocket();
     }
     
     public HALPIG(int igPN) throws SocketException
     {
         igPortNum = igPN;
-        igSocket = new DatagramSocket(igPN);
+        deviceSocket = new DatagramSocket(igPN);
     }
 
     @Override
@@ -69,39 +69,11 @@ public class HALPIG extends HALP implements HALPIGInterface
                 new DatagramPacket(msgBytes, msgLen, outgoingIN, outgoingPN);
 
         // Send a message
-        igSocket.send(sendPacket);
+        deviceSocket.send(sendPacket);
         
         // Display the message
         String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
         System.out.println("Message sent is: [" + sentMessage + "]");	
-    }
-    
-    public byte[] receiveMessage()
-    {
-        byte[] receivedData = new byte[MSG_SIZE];
-
-        // Create a datagram
-        DatagramPacket receivedDatagram = 
-                new DatagramPacket(receivedData, receivedData.length);
-
-        try 
-        {
-            // Receive a message
-            igSocket.receive(receivedDatagram);
-        } 
-        catch (IOException ex) {
-            Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
-        }        
-        
-        currDtgm = receivedDatagram;
-//        currMsg = receivedDatagram.getData();
-        return receivedData;
-    }
-    
-    @Override
-    public void closeConnection() 
-    {
-        igSocket.close();
     }
     
     @Override
