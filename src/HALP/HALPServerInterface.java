@@ -11,7 +11,7 @@ package HALP;
  */
 public interface HALPServerInterface extends HALPInterface
 {
-    public void runAsDownloader();
-    
-    public void runAsUploader();
+//    public void runAsSender();
+//    
+//    public void runAsReceiver();
 }

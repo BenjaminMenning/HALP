@@ -21,6 +21,12 @@ public class HALPClient extends HALP implements HALPClientInterface
     private static final int SERVER_PORT = 54001;  
     private static final int IG_PORT = 54001;
     private String fileName = "";
+    private int dataRate = 64;
+    
+    private File inputFile = null;
+    private File outputFile = null;
+    private FileInputStream fInStr = null;
+    private FileOutputStream fOutStr = null;
     
     public HALPClient() throws SocketException
     {
@@ -164,35 +170,49 @@ public class HALPClient extends HALP implements HALPClientInterface
     
     public void initiateConnection() 
     {
-        byte[] tempHeader = new byte[HEDR_LEN];
-        byte[] tempData = null; // change later
-        byte[] tempMsg = null;
-        
-        // User input
-//        inputIGIP();
-//        inputServIP();
-        
-        // Hard coded values for testing
-        setIGIP(testIGIP);
-        setServerIP(testServIP);
-        setFileName(testFileName);
-        
-        tempHeader = setDestIP(tempHeader, servIPAddr);
-        tempHeader = setDestPN(tempHeader, servPortNum);
-        tempHeader = setSYNFlag(tempHeader, true);
-        printMessage(tempHeader);
-        
-        int dataLen = fileName.length() + DTRT_LEN;
-        tempData = new byte[dataLen];
-        System.out.println("Length of data field: " + dataLen);
-        tempMsg = assembleMessage(tempHeader, tempData);
-        tempMsg = setFileNameField(tempMsg, fileName);
-        printFileNameField(tempMsg);
-        
         try 
         {
+            System.out.println("Client has requested a connection.");
+            byte[] tempHeader = new byte[HEDR_LEN];
+            byte[] tempData = null; // change later
+            byte[] tempMsg = null;
+
+            // User input
+    //        inputIGIP();
+    //        inputServIP();
+
+            // Hard coded values for testing
+            setIGIP(testIGIP);
+            setServerIP(testServIP);
+            setFileName(testFileName);
+
+            tempHeader = setDestIP(tempHeader, servIPAddr);
+            tempHeader = setDestPN(tempHeader, servPortNum);
+            tempHeader = setSYNFlag(tempHeader, true);
+            tempHeader = setDRTFlag(tempHeader, true);
+            printMessage(tempHeader);
+
+            int dataLen = fileName.length() + DTRT_LEN;
+            tempData = new byte[dataLen];
+            System.out.print("Length of data field: " + dataLen + "\n");
+            tempMsg = assembleMessage(tempHeader, tempData);
+            tempMsg = setFileNameField(tempMsg, fileName);
+            printFileNameField(tempMsg);
+            System.out.println();
+
             sendMessage(tempMsg);
             byte[] rcvdMsg = receiveMessage();
+            boolean isSyn = isSYNFlagSet(rcvdMsg);
+            boolean isAck = isACKFlagSet(rcvdMsg);
+            boolean isDrt = isDRTFlagSet(rcvdMsg);
+            if(isSyn && isAck && isDrt)
+            {
+                runAsSender();
+            }
+            else if(isSyn && isAck && !isDrt)
+            {
+                runAsReceiver();
+            }
         } 
         catch (Exception ex) 
         {
@@ -208,6 +228,50 @@ public class HALPClient extends HALP implements HALPClientInterface
     public void run()
     {
         
+    }
+    
+    public void runAsSender() throws FileNotFoundException, IOException, Exception 
+    {
+        System.out.println("Client has started upload to server.");
+        inputFile = new File(fileName);
+        fInStr = new FileInputStream(fileName);
+        
+        byte[] tempHeader = new byte[HEDR_LEN];
+        byte[] tempData = new byte[dataRate]; // change later
+        byte[] tempMsg = null;
+        while(fInStr.available() != 0)
+        {
+            tempHeader = setDestIP(tempHeader, servIPAddr);
+            tempHeader = setDestPN(tempHeader, servPortNum);
+            tempHeader = setDRTFlag(tempHeader, true);
+            printMessage(tempHeader);
+            fInStr.read(tempData, 0, dataRate);
+            tempMsg = assembleMessage(tempHeader, tempData);
+            
+            sendMessage(tempMsg);
+            byte[] rcvdMsg = receiveMessage();
+            boolean isAck = isACKFlagSet(rcvdMsg);
+//            if(!isAck)
+//            {
+//                runAsReceiver();
+//            }
+        }
+    }
+
+    public void runAsReceiver() throws FileNotFoundException 
+    {
+        System.out.println("Client has started upload to server.");
+        boolean isFin = false;
+        outputFile = new File(fileName);
+        fOutStr = new FileOutputStream(fileName);
+        
+        byte[] tempHeader = new byte[HEDR_LEN];
+        byte[] tempData = new byte[1]; // change later
+        byte[] tempMsg = null;
+        while(isFin == false)
+        {
+            
+        }
     }
 
     public static void main (String args[]) throws Exception 

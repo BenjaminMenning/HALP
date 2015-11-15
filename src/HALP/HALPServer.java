@@ -9,7 +9,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class HALPServer extends HALP implements HALPServerInterface
+public class HALPServer extends HALPClient implements HALPServerInterface
 {
     static DatagramSocket serverSocket;
 
@@ -46,6 +46,7 @@ public class HALPServer extends HALP implements HALPServerInterface
                     igPortNum = currDtgm.getPort();
                 }
                 sendMessage(rcvdMsg);
+                runAsReceiver();
             } 
             catch (Exception ex)
             {
@@ -55,17 +56,17 @@ public class HALPServer extends HALP implements HALPServerInterface
         }
     }
     
-    @Override
-    public void runAsDownloader() 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void runAsUploader() 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public void runAsSender() 
+//    {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+//
+//    @Override
+//    public void runAsReceiver() 
+//    {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 
     public static void main(String args[]) throws Exception
     {

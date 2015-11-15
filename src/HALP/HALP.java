@@ -480,13 +480,17 @@ public abstract class HALP implements HALPInterface
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        byte[] data = new byte[receivedDatagram.getLength()];
+        System.arraycopy(receivedDatagram.getData(), 
+                receivedDatagram.getOffset(), data, 0, 
+                receivedDatagram.getLength());        
         currDtgm = receivedDatagram;
         
         // Display the message
-        String echodMessage = new String(receivedData, 0, receivedDatagram.getLength());
+        String echodMessage = new String(data, 0, receivedDatagram.getLength());
         System.out.println("Message received is: [" + echodMessage + "]");
-        printMessage(receivedData);
-        return receivedData;
+        printMessage(data);
+        return data;
     }
     
     @Override
