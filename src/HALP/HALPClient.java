@@ -20,7 +20,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     
     private static final int SERVER_PORT = 54001;  
     private static final int IG_PORT = 54001;
-    private String fileName = "";
+    protected String fileName = "";
     private int dataRate = 64;
     
     private File inputFile = null;
@@ -241,6 +241,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         byte[] tempMsg = null;
         while(fInStr.available() != 0)
         {
+            tempData = new byte[dataRate];
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
 //            tempHeader = setDRTFlag(tempHeader, true);

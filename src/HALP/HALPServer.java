@@ -34,6 +34,7 @@ public class HALPServer extends HALPClient implements HALPServerInterface
         {
             try {
                 byte[] rcvdMsg = receiveMessage();
+                fileName = "dl-" + getFileNameField(rcvdMsg);
                 boolean isSyn = isSYNFlagSet(rcvdMsg);
                 boolean isAck = isACKFlagSet(rcvdMsg);
                 if(isSyn && !isAck) 

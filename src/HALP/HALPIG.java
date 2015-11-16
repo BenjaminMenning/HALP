@@ -76,12 +76,12 @@ public class HALPIG extends HALP implements HALPIGInterface
 //                    outgoingPN = getDestinationPort(rcvdMsg);
 //                    outgoingIN = InetAddress.getByName(outgoingIP);
                 }
-                else if(currDtgm.getAddress() == servINAddr)
+                else if(currDtgm.getAddress().equals(servINAddr))
                 {
                     outgoingIN = clntINAddr;
                     outgoingPN = clntPortNum;
                 }
-                else if(currDtgm.getAddress() == clntINAddr)
+                else if(currDtgm.getAddress().equals(clntINAddr))
                 {
                     outgoingIN = servINAddr;
                     outgoingPN = servPortNum;
