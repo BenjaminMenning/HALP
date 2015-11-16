@@ -29,8 +29,9 @@ public class HALPServer extends HALPClient implements HALPServerInterface
     @Override
     public void run() 
     {
+        boolean placeholderCondition = false;
         System.out.println("Server has started.");
-        while(true)
+        while(placeholderCondition == false)
         {
             try {
                 byte[] rcvdMsg = receiveMessage();
@@ -48,6 +49,7 @@ public class HALPServer extends HALPClient implements HALPServerInterface
                 }
                 sendMessage(rcvdMsg);
                 runAsReceiver();
+                placeholderCondition = true;
             } 
             catch (Exception ex)
             {

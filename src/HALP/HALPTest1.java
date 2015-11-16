@@ -47,6 +47,12 @@ public class HALPTest1
         halpClient.printFileNameField(testMessage);
         System.out.println(halpIG.getFileNameField(testMessage));
         
+        int testDataRate = 1024;
+        System.out.println("\n\nTesting Data Rate...");
+        testMessage = halpClient.setDataRateField(testMessage, testDataRate);
+        halpClient.printDataRateField(testMessage);
+        System.out.println(halpIG.getDataRateField(testMessage));
+        
         System.out.println("\n\nTesting Flags...");
         testHeader = halpIG.setFINFlag(testHeader, true);
         halpIG.printMessage(testHeader);

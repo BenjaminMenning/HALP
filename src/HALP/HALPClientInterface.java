@@ -34,11 +34,13 @@ public interface HALPClientInterface extends HALPInterface
     
     public void inputDataRate();
     
-    public void setTransferDirection();
+    public void setTransferDirection(boolean trfrDir);
     
-    public void setFileName(String fileName);
+    public void setFileName(String fileNameStr);
     
-    public void setDataRate();
+    public void setDataRate(int rate);
+    
+    public byte[] setFileNameField(byte[] messageBytes, String fileNameStr);
     
     public byte[] setDestIP(byte[] headerBytes, String destIP);
     

@@ -185,6 +185,34 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
+    public byte[] convertPNToBytes(int portNum) 
+    {
+        // Creates a string containing the binary string of the
+        // port number integer
+        byte[] tempPNBytes = new byte[2];
+        String serverPortBin = Integer.toBinaryString(portNum);
+
+        // Add 0's if length is less than 16 bits
+        if(serverPortBin.length() < 16)
+        {
+            int zeroCount = 16 - serverPortBin.length();
+            while (zeroCount > 0)
+            {
+                serverPortBin = "0" + serverPortBin;
+                zeroCount--;
+            }
+        }
+
+        // Parses binary string into two integers for two
+        // separate bytes and assigns them
+        int part1 = Integer.parseInt(serverPortBin.substring(0, 8), 2);
+        int part2 = Integer.parseInt(serverPortBin.substring(8, 16),2);
+        tempPNBytes[0] = (byte) part1;
+        tempPNBytes[1] = (byte) part2;
+        return tempPNBytes;
+    }
+    
+    @Override
     public void setData() 
     {
         String dataStr = "Yoyoyoyoyo";
@@ -274,6 +302,18 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
+    public byte[] setDataRateField(byte[] messageBytes, int rate)
+    {
+        byte tempMsgBytes[] = messageBytes;
+        byte tempDRBytes[] = new byte[DTRT_LEN];
+        tempDRBytes = convertPNToBytes(rate);
+//        tempHdrBytes[DESTIP_OFFSET] = tempIPBytes;
+        System.arraycopy(tempDRBytes, 0, tempMsgBytes, DTRT_OFFSET, 
+                DTRT_LEN);   
+        return tempMsgBytes;
+    }
+    
+    @Override
     public byte[] getHeader(byte[] messageBytes) {
         byte[] header = new byte[20];
         System.arraycopy(messageBytes, 0, header, 0, HEDR_LEN);
@@ -343,6 +383,7 @@ public abstract class HALP implements HALPInterface
         return completePN;
     }
     
+    @Override
     public String getFileNameField(byte[] messageBytes)
     {
         int fileNameLen = messageBytes.length - HEDR_LEN - DTRT_LEN;
@@ -350,6 +391,50 @@ public abstract class HALP implements HALPInterface
                 (FILE_OFFSET + fileNameLen));
         String fileNameStr = new String(fileNameBytes);
         return fileNameStr;
+    }
+    
+    @Override
+    public int getDataRateField(byte[] messageBytes) 
+    {
+        // Create and assign port bytes
+        byte[] portBytes = Arrays.copyOfRange(messageBytes, DTRT_OFFSET, 
+                (DTRT_OFFSET + DTRT_LEN));
+
+        // Assign port number bytes as ints
+        int firstPNByteInt = portBytes[0];
+        int secondPNByteInt = portBytes[1];
+
+        // Convert byte ints to strings
+        String firstPNByteStr = Integer.toBinaryString((int) firstPNByteInt);
+        String secondPNByteStr = Integer.toBinaryString((int) secondPNByteInt);
+
+        // Add 0's if length is less than 8 bits
+        if(firstPNByteStr.length() < 8){
+            int zeroCount = 8 - firstPNByteStr.length();
+            while (zeroCount > 0){
+                firstPNByteStr = "0" + firstPNByteStr;
+                zeroCount--;
+            }
+        }
+        if(secondPNByteStr.length() < 8){
+            int zeroCount = 8 - secondPNByteStr.length();
+            while (zeroCount > 0){
+                secondPNByteStr = "0" + secondPNByteStr;
+                zeroCount--;
+            }
+        }
+
+        // Parse to 8 bit strings
+        String firstPNByteBits = firstPNByteStr.substring(firstPNByteStr.length() - 8);
+        String secondPNByteBits = secondPNByteStr.substring(secondPNByteStr.length() - 8);
+
+        // Combines 8 bit strings into one complete string
+        String completePNStr = firstPNByteBits + "" + secondPNByteBits;
+
+        // Converts complete String from unsigned integer to int
+       // int completePN = Integer.parseUnsignedInt(completePNStr, 2);  //requres java 8 to run this coding
+        int completePN= (int) Long.parseLong(completePNStr, 2);    //equivalent of above coding for non java8
+        return completePN;
     }
     
     @Override
@@ -601,6 +686,16 @@ public abstract class HALP implements HALPInterface
         String fileNameStr = new String(tempFlNmBytes);
         flNmInfo += fileNameStr;
         System.out.println(flNmInfo);
+    }
+    
+    @Override
+    public void printDataRateField(byte[] messageBytes)
+    {
+        String flagInfo = "Data rate: ";
+        int dataRateStr = getDataRateField(messageBytes);
+        flagInfo += dataRateStr;
+        flagInfo += " KBps";
+        System.out.println(flagInfo);
     }
     
     @Override

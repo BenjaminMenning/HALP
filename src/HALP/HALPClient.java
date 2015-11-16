@@ -22,6 +22,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     private static final int IG_PORT = 54001;
     protected String fileName = "";
     private int dataRate = 64;
+    private boolean isUpload = false;
     
     private File inputFile = null;
     private File outputFile = null;
@@ -56,39 +57,64 @@ public class HALPClient extends HALP implements HALPClientInterface
         setServerIP(servIPAddress);
     }
     
+    @Override
     public void inputTransferDirection()
     {
-        
+        int trfrInput = 0;
+        // Requests user to input transfer direction
+        System.out.println("Please enter '1' to upload to the server, or '0' to"
+                + " download from the server: ");
+        trfrInput = console.nextInt();
+
+        // Turns trace on or off based on user input
+        if(trfrInput == 1)
+        {
+            isUpload = true;
+        }
+        else
+        {
+            isUpload = false;
+        }
     }
    
+    @Override
     public void inputFileName()
     {
         System.out.println("Please enter the name of the file you wish to "
                 + "download / upload: ");
         String tempFileName = console.nextLine();
-        setFileName(tempFileName);
+//        setFileName(tempFileName);
+        fileName = tempFileName;
     }
     
+    @Override
     public void inputDataRate()
     {
-        
+        // Requests user to input transfer direction
+        System.out.println("Please enter the preferred data rate for the "
+                + "connection: ");
+        dataRate = console.nextInt();
     }
     
-    public void setTransferDirection()
+    @Override
+    public void setTransferDirection(boolean trfrDir)
     {
-        
+        isUpload = trfrDir;
     }
     
+    @Override
     public void setFileName(String fileNameStr)
     {
         fileName = fileNameStr;
     }
     
-    public void setDataRate()
+    @Override
+    public void setDataRate(int rate)
     {
-        
+        dataRate = rate;
     }
     
+    @Override
     public byte[] setFileNameField(byte[] messageBytes, String fileNameStr)
     {
         byte tempMsgBytes[] = messageBytes;
@@ -98,7 +124,9 @@ public class HALPClient extends HALP implements HALPClientInterface
                 fileNameLen);   
         return tempMsgBytes;
     }
-            
+           
+    
+    @Override
     public byte[] setDestIP(byte[] headerBytes, String destIP)
     {
         // for future use?
@@ -115,6 +143,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         return tempHdrBytes;
     }
     
+    @Override
     public byte[] setDestPN(byte[] headerBytes, int portNum)
     {
         byte tempHdrBytes[] = headerBytes;
@@ -139,35 +168,8 @@ public class HALPClient extends HALP implements HALPClientInterface
         byte[] blankBytes = new byte[4];
         return blankBytes;
     }
-
-    @Override
-    public byte[] convertPNToBytes(int portNum) 
-    {
-        // Creates a string containing the binary string of the
-        // port number integer
-        byte[] tempPNBytes = new byte[2];
-        String serverPortBin = Integer.toBinaryString(portNum);
-
-        // Add 0's if length is less than 16 bits
-        if(serverPortBin.length() < 16)
-        {
-            int zeroCount = 16 - serverPortBin.length();
-            while (zeroCount > 0)
-            {
-                serverPortBin = "0" + serverPortBin;
-                zeroCount--;
-            }
-        }
-
-        // Parses binary string into two integers for two
-        // separate bytes and assigns them
-        int part1 = Integer.parseInt(serverPortBin.substring(0, 8), 2);
-        int part2 = Integer.parseInt(serverPortBin.substring(8, 16),2);
-        tempPNBytes[0] = (byte) part1;
-        tempPNBytes[1] = (byte) part2;
-        return tempPNBytes;
-    }
     
+    @Override
     public void initiateConnection() 
     {
         try 
@@ -197,7 +199,9 @@ public class HALPClient extends HALP implements HALPClientInterface
             System.out.print("Length of data field: " + dataLen + "\n");
             tempMsg = assembleMessage(tempHeader, tempData);
             tempMsg = setFileNameField(tempMsg, fileName);
+            tempMsg = setDataRateField(tempMsg, dataRate);
             printFileNameField(tempMsg);
+            printDataRateField(tempMsg);
             System.out.println();
 
             sendMessage(tempMsg);
@@ -257,6 +261,11 @@ public class HALPClient extends HALP implements HALPClientInterface
                 isAck = isACKFlagSet(rcvdMsg);
             }
         }
+        tempHeader = setFINFlag(tempHeader, true);
+        tempData = new byte[1];
+        tempMsg = assembleMessage(tempHeader, tempData);
+        sendMessage(tempMsg);
+        
         fInStr.close();
         closeConnection();
     }
@@ -275,6 +284,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         while(isFin == false)
         {
             byte[] rcvdMsg = receiveMessage();
+            isFin = isFINFlagSet(rcvdMsg);
 //            tempHeader = getHeader(rcvdMsg);
             rcvdData = getData(rcvdMsg);
             fOutStr.write(rcvdData);
@@ -282,7 +292,6 @@ public class HALPClient extends HALP implements HALPClientInterface
             tempHeader = setACKFlag(tempHeader, true);
             tempMsg = assembleMessage(tempHeader, tempData);
             sendMessage(tempMsg);
-            isFin = isACKFlagSet(rcvdMsg);
         }
         fOutStr.close();
         closeConnection();

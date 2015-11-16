@@ -101,6 +101,8 @@ public interface HALPInterface
 
     public void closeConnection();
     
+    public byte[] convertPNToBytes(int portNum);
+    
     public void setData();
     
     // Do not implement RST unless we find we need it
@@ -113,6 +115,8 @@ public interface HALPInterface
     public byte[] setSYNFlag(byte[] headerBytes, boolean isSet);
     
     public byte[] setFINFlag(byte[] headerBytes, boolean isSet);
+    
+    public byte[] setDataRateField(byte[] messageBytes, int rate);
     
     /**
      * This method extracts the header from a message.
@@ -152,6 +156,8 @@ public interface HALPInterface
     public int getDestinationPort(byte[] messageBytes);  
     
     public String getFileNameField(byte[] messageBytes);
+    
+    public int getDataRateField(byte[] messageBytes); 
     
     /**
      * This method determines if the checksum in the message is valid
@@ -200,7 +206,7 @@ public interface HALPInterface
      * @return  returns true if set, false otherwise
      */
     public boolean isFINFlagSet(byte[] headerBytes);
-    
+        
     public void printDestIPField(byte[] headerBytes);
     
     public void printDestPNField(byte[] headerBytes);
@@ -208,6 +214,8 @@ public interface HALPInterface
     public void printFlagField(byte[] headerBytes);
     
     public void printFileNameField(byte[] messageBytes);
+    
+    public void printDataRateField(byte[] messageBytes);
     
     public void printDataField(byte[] messageBytes);
     
