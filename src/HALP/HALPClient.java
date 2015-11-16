@@ -243,22 +243,24 @@ public class HALPClient extends HALP implements HALPClientInterface
         {
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
-            tempHeader = setDRTFlag(tempHeader, true);
+//            tempHeader = setDRTFlag(tempHeader, true);
             printMessage(tempHeader);
             fInStr.read(tempData, 0, dataRate);
             tempMsg = assembleMessage(tempHeader, tempData);
             
-            sendMessage(tempMsg);
-            byte[] rcvdMsg = receiveMessage();
-            boolean isAck = isACKFlagSet(rcvdMsg);
-//            if(!isAck)
-//            {
-//                runAsReceiver();
-//            }
+            boolean isAck = false;
+            while(!isAck)
+            {
+                sendMessage(tempMsg);
+                byte[] rcvdMsg = receiveMessage();
+                isAck = isACKFlagSet(rcvdMsg);
+            }
         }
+        fInStr.close();
+        closeConnection();
     }
 
-    public void runAsReceiver() throws FileNotFoundException 
+    public void runAsReceiver() throws FileNotFoundException, IOException, Exception 
     {
         System.out.println("Client has started upload to server.");
         boolean isFin = false;
@@ -267,11 +269,22 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = new byte[1]; // change later
+        byte[] rcvdData = null;
         byte[] tempMsg = null;
         while(isFin == false)
         {
+            byte[] rcvdMsg = receiveMessage();
+//            tempHeader = getHeader(rcvdMsg);
+            rcvdData = getData(rcvdMsg);
+            fOutStr.write(rcvdData);
             
+            tempHeader = setACKFlag(tempHeader, true);
+            tempMsg = assembleMessage(tempHeader, tempData);
+            sendMessage(tempMsg);
+            isFin = isACKFlagSet(rcvdMsg);
         }
+        fOutStr.close();
+        closeConnection();
     }
 
     public static void main (String args[]) throws Exception 

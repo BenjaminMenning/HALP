@@ -276,7 +276,7 @@ public abstract class HALP implements HALPInterface
     @Override
     public byte[] getHeader(byte[] messageBytes) {
         byte[] header = new byte[20];
-        System.arraycopy(messageBytes, 0, header, 0, 20);
+        System.arraycopy(messageBytes, 0, header, 0, HEDR_LEN);
         return header;
     }
 
@@ -285,7 +285,7 @@ public abstract class HALP implements HALPInterface
     {
         int originalLength = Array.getLength(messageBytes);
         byte [] data = new byte[originalLength];
-        System.arraycopy(messageBytes, 20, data, 0, originalLength-20);
+        System.arraycopy(messageBytes, HEDR_LEN, data, 0, originalLength-HEDR_LEN);
         return data;
     }
     
