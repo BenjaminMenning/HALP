@@ -35,9 +35,12 @@ public class HALPServer extends HALPClient implements HALPServerInterface
         {
             try {
                 byte[] rcvdMsg = receiveMessage();
-                fileName = "dl-" + getFileNameField(rcvdMsg);
+                printDataRateField(rcvdMsg);
+                fileName = getFileNameField(rcvdMsg);
+                dataRate = getDataRateField(rcvdMsg);
                 boolean isSyn = isSYNFlagSet(rcvdMsg);
                 boolean isAck = isACKFlagSet(rcvdMsg);
+                boolean isUpld = isDRTFlagSet(rcvdMsg);
                 if(isSyn && !isAck) 
                 {
                     rcvdMsg = setACKFlag(rcvdMsg, true);
@@ -48,7 +51,14 @@ public class HALPServer extends HALPClient implements HALPServerInterface
                     igPortNum = currDtgm.getPort();
                 }
                 sendMessage(rcvdMsg);
-                runAsReceiver();
+                if(isUpld)
+                {
+                    runAsReceiver();
+                }
+                else
+                {
+                    runAsSender();
+                }
                 placeholderCondition = true;
             } 
             catch (Exception ex)

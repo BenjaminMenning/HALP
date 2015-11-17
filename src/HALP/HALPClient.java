@@ -17,11 +17,13 @@ public class HALPClient extends HALP implements HALPClientInterface
     protected String testIGIP = homeTestIP + "110";
     protected String testServIP = homeTestIP + "101";
     protected String testFileName = "alice.txt";
+    protected boolean testTransDirec = false;
+    protected int testDataRate = 90;
     
     private static final int SERVER_PORT = 54001;  
     private static final int IG_PORT = 54001;
     protected String fileName = "";
-    private int dataRate = 64;
+    protected int dataRate = 64;
     private boolean isUpload = false;
     
     private File inputFile = null;
@@ -187,11 +189,13 @@ public class HALPClient extends HALP implements HALPClientInterface
             setIGIP(testIGIP);
             setServerIP(testServIP);
             setFileName(testFileName);
+            setTransferDirection(testTransDirec);
+            setDataRate(testDataRate);
 
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
             tempHeader = setSYNFlag(tempHeader, true);
-            tempHeader = setDRTFlag(tempHeader, true);
+            tempHeader = setDRTFlag(tempHeader, testTransDirec);
             printMessage(tempHeader);
 
             int dataLen = fileName.length() + DTRT_LEN;
@@ -209,11 +213,11 @@ public class HALPClient extends HALP implements HALPClientInterface
             boolean isSyn = isSYNFlagSet(rcvdMsg);
             boolean isAck = isACKFlagSet(rcvdMsg);
             boolean isDrt = isDRTFlagSet(rcvdMsg);
-            if(isSyn && isAck && isDrt)
+            if(isSyn && isAck && isUpload)
             {
                 runAsSender();
             }
-            else if(isSyn && isAck && !isDrt)
+            else if(isSyn && isAck && !isUpload)
             {
                 runAsReceiver();
             }
@@ -236,7 +240,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     
     public void runAsSender() throws FileNotFoundException, IOException, Exception 
     {
-        System.out.println("Client has started upload to server.");
+        System.out.println("Begin sending data");
         inputFile = new File(fileName);
         fInStr = new FileInputStream(fileName);
         
@@ -249,7 +253,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
 //            tempHeader = setDRTFlag(tempHeader, true);
-            printMessage(tempHeader);
+//            printMessage(tempHeader);
             fInStr.read(tempData, 0, dataRate);
             tempMsg = assembleMessage(tempHeader, tempData);
             
@@ -272,8 +276,9 @@ public class HALPClient extends HALP implements HALPClientInterface
 
     public void runAsReceiver() throws FileNotFoundException, IOException, Exception 
     {
-        System.out.println("Client has started upload to server.");
+        System.out.println("Begin receiving data");
         boolean isFin = false;
+        fileName = "new-" + fileName;
         outputFile = new File(fileName);
         fOutStr = new FileOutputStream(fileName);
         
