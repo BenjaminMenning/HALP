@@ -331,10 +331,13 @@ public abstract class HALP implements HALPInterface
     
     @Override
     public String getDestinationIP(byte[] headerBytes) {
-        int byte1 = (headerBytes[0] & 0xff);
-        int byte2 = (headerBytes[1] & 0xff);
-        int byte3 = (headerBytes[2] & 0xff);
-        int byte4 = (headerBytes[3] & 0xff);
+        byte[] destIP = new byte[4];
+        System.arraycopy(headerBytes, 0, destIP, 0, DESTIP_LEN );
+        
+        int byte1 = (destIP[0] & 0xff);
+        int byte2 = (destIP[1] & 0xff);
+        int byte3 = (destIP[2] & 0xff);
+        int byte4 = (destIP[3] & 0xff);
          String destinationIP = byte1 + "." + byte2 + "." + byte3 + "." + byte4;
         return destinationIP;
     }
