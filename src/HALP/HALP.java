@@ -50,7 +50,7 @@ public abstract class HALP implements HALPInterface
     protected int errorRate = 0;
     
     // For datagrams received
-    protected static final int MSG_SIZE = 84;
+    protected static final int MSG_SIZE = 110;
     
     protected int currMsgLen = 0;
     
