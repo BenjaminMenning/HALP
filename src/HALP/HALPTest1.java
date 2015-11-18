@@ -8,6 +8,7 @@ package HALP;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Random;
 
 /**
  *
@@ -23,10 +24,45 @@ public class HALPTest1
         byte[] testHeader = new byte[20];
         byte[] testData = new byte[100];
         
+        
+        
+//        // testing for creation of random number to start sequence numbers-STILL WORKING ON
+//        Random ran = new Random();
+//        byte[] testSequ = new byte[4];
+//        
+//        
+//        
+////        int value = .... ;
+////        byte b = new byte[4];
+////        for (int i=0; i < 4; ++i)
+////         {
+////          b[i] = (byte) (value & 0xFF);
+////             value = value >> 8;
+////          }
+//        
+//        long sequence = 4294967296; //Math.abs(ran.nextInt());
+//        System.out.println("sequence = " + sequence);
+//        
+//               for(int j=0; j<4; j++){
+//                   testSequ[j] = (byte) (sequence & 0xff);
+//                   System.out.println(" h " + sequence);
+//                   sequence = sequence <<8;
+//               }
+//        
+//               
+//        
+//        int sequence1= (testSequ[0]<<24)&0xff000000|
+//       (testSequ[1]<<16)&0x00ff0000|
+//       (testSequ[2]<< 8)&0x0000ff00|
+//       (testSequ[3])&0x000000ff;
+//        System.out.println(" sequence number: " + sequence1);
+//        
+        
+//        
 //        InetAddress testINAddr;
 //        testINAddr = InetAddress.getByName(testIPAddr);
 //        System.out.println(testINAddr.getCanonicalHostName());
-        
+//        
         String testIPAddr = "127.0.0.1";
         System.out.println("\n\nTesting Destination IP...");
         testHeader = halpClient.setDestIP(testHeader, testIPAddr);
