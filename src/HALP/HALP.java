@@ -745,11 +745,13 @@ public abstract class HALP implements HALPInterface
         }
     }    
     
+    @Override
     public void addMaxTransmission(int maxTransmission)
     {
         maxTransmissions.add(maxTransmission);
     }
     
+    @Override
     public int getMaxTransmission()
     {
         Collections.sort(maxTransmissions, new maxTransmissionsComparator());
@@ -757,9 +759,38 @@ public abstract class HALP implements HALPInterface
         return maxTransmission;
     }
     
+    @Override
     public boolean isMaxTransmissionsEmpty()
     {
         boolean isEmpty = maxTransmissions.isEmpty();
         return isEmpty;
     }
+    
+    public byte[] genSeguenceNumber(byte[] headerBytes){//generates the first sequence number and sets it in the header, only used for syncing
+        Random ran = new Random();
+        int sequence = Math.abs(ran.nextInt());  //max int = 2147483647
+        System.out.println("sequence = " + sequence);
+        
+               headerBytes[SEQ_OFFSET] = (byte) ((sequence>>24) & 0xFF);                 
+               headerBytes[SEQ_OFFSET + 1] = (byte) ((sequence>>16) & 0xFF);
+               headerBytes[SEQ_OFFSET + 2] = (byte) ((sequence>>8) & 0xFF);
+               headerBytes[SEQ_OFFSET + 3] = (byte) (sequence & 0xFF);
+               
+       return headerBytes;
+              
+               
+   }
+    
+   public int getSequenceNumber(byte[] headerBytes){
+        
+        int sequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
+       (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
+       (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
+       (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
+        System.out.println(" sequence number: " + sequenceNum);
+        
+        return sequenceNum;
+       
+   }
+    
 }
