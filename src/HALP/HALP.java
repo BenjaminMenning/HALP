@@ -766,7 +766,7 @@ public abstract class HALP implements HALPInterface
         return isEmpty;
     }
     
-    public byte[] genSeguenceNumber(byte[] headerBytes){//generates the first sequence number and sets it in the header, only used for syncing
+    public byte[] generateSeguenceNumber(byte[] headerBytes){//generates the first sequence number and sets it in the header, only used for syncing
         Random ran = new Random();
         int sequence = Math.abs(ran.nextInt());  //max int = 2147483647
         System.out.println("sequence = " + sequence);
@@ -781,6 +781,17 @@ public abstract class HALP implements HALPInterface
                
    }
     
+   public byte[] setSequenceNumber(int number){ //takes incremented sequence number and places in a 4 byte array to be copied into header
+       byte[] sequenceArray = new byte[4];
+       
+       sequenceArray[0] = (byte) ((number>>24) & 0xFF);                 
+       sequenceArray[1] = (byte) ((number>>16) & 0xFF);
+       sequenceArray[2] = (byte) ((number>>8) & 0xFF);
+       sequenceArray[3] = (byte) (number & 0xFF);
+       
+       return sequenceArray;
+   }
+    
    public int getSequenceNumber(byte[] headerBytes){
         
         int sequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
@@ -792,5 +803,8 @@ public abstract class HALP implements HALPInterface
         return sequenceNum;
        
    }
+   
+   
+   
     
 }
