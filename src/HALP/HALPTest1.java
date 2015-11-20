@@ -83,10 +83,12 @@ public class HALPTest1
         String dataStr = new String(testData, 0, Array.getLength(testData));
         System.out.println(dataStr);
         
-        crc.update(testMessage, 6, 2);
+        crc.update(testMessage, 0, testMessage.length);
         System.out.println(crc.getValue());
-        testMessage[0] = halpIG.generateByteError(testMessage[0]);
-        crc2.update(testMessage, 6, 2);
+        byte blankByte = 0;
+        byte errorByte = halpIG.generateByteError(blankByte);
+        testMessage[0] = errorByte;
+        crc2.update(testMessage, 0, testMessage.length);
         System.out.println(crc2.getValue());
 
         
