@@ -712,6 +712,7 @@ public abstract class HALP implements HALPInterface
         System.out.println(dataInfo);
     }
     
+    @Override
     public void printSequenceNumber(byte[] headerBytes){
         int printSequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
        (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
@@ -720,6 +721,7 @@ public abstract class HALP implements HALPInterface
         System.out.println(" sequence number: " + printSequenceNum);
     }
     
+    @Override
      public void printAcknowledgmentNumber(byte[] headerBytes){
          int printAcknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
        (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
@@ -786,7 +788,8 @@ public abstract class HALP implements HALPInterface
         return isEmpty;
     }
     
-    public int generateSeguenceNumber(){//generates the first sequence number and sets it in the header, only used for syncing
+    @Override
+    public int generateSeguenceNumber(){
         Random ran = new Random();
         int sequence = Math.abs(ran.nextInt());  //max int = 2147483647
                
@@ -794,6 +797,7 @@ public abstract class HALP implements HALPInterface
                      
    }
     
+    @Override
    public byte[] setSequenceNumber(byte[] headerBytes, int number){ //takes incremented sequence number and places in a 4 byte array to be copied into header
        
         headerBytes[SEQ_OFFSET] = (byte) ((number>>24) & 0xFF);                 
@@ -804,6 +808,7 @@ public abstract class HALP implements HALPInterface
        return headerBytes;
    }
     
+    @Override
    public int getSequenceNumber(byte[] headerBytes){
         
         int sequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
@@ -816,6 +821,7 @@ public abstract class HALP implements HALPInterface
        
    }
    
+    @Override
    public byte[] setAcknowledgmentNumber(byte[] headerBytes){
        int acknowledgment = (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
        (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
@@ -837,6 +843,7 @@ public abstract class HALP implements HALPInterface
        return headerBytes;
    }
    
+    @Override
    public int getAcknowledgmentNumber(byte[] headerBytes){
        
        int acknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
