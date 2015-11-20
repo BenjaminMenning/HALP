@@ -720,6 +720,15 @@ public abstract class HALP implements HALPInterface
         System.out.println(" sequence number: " + printSequenceNum);
     }
     
+     public void printAcknowledgmentNumber(byte[] headerBytes){
+         int printAcknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
+       (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
+       (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
+       (headerBytes[ACK_OFFSET + 3])&0x000000ff;
+         
+        System.out.println(" sequence number: " + printAcknowledgment);
+    }
+    
     
     @Override
     public void printMessage(byte[] messageBytes) 
@@ -728,6 +737,7 @@ public abstract class HALP implements HALPInterface
         printDestPNField(messageBytes);
         printFlagField(messageBytes);
         printSequenceNumber(messageBytes);
+        printAcknowledgmentNumber(messageBytes);
         System.out.println();
     }
     
@@ -806,7 +816,36 @@ public abstract class HALP implements HALPInterface
        
    }
    
+   public byte[] setAcknowledgmentNumber(byte[] headerBytes){
+       int acknowledgment = (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
+       (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
+       (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
+       (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
+       
+       if(acknowledgment == 2147483647){
+           acknowledgment = 0;
+       }
+       else{
+           acknowledgment++; 
+       }
+       
+        headerBytes[ACK_OFFSET] = (byte) ((acknowledgment>>24) & 0xFF);                 
+        headerBytes[ACK_OFFSET + 1] = (byte) ((acknowledgment>>16) & 0xFF);
+        headerBytes[ACK_OFFSET + 2] = (byte) ((acknowledgment>>8) & 0xFF);
+        headerBytes[ACK_OFFSET + 3] = (byte) (acknowledgment & 0xFF);
+       
+       return headerBytes;
+   }
    
+   public int getAcknowledgmentNumber(byte[] headerBytes){
+       
+       int acknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
+       (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
+       (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
+       (headerBytes[ACK_OFFSET + 3])&0x000000ff;
+       
+       return acknowledgment;
+   }
    
     
 }
