@@ -21,6 +21,8 @@ public class HALPTest1
    {
         HALPClient halpClient = new HALPClient();
         HALPIG halpIG = new HALPIG();
+        CRC16 crc = new CRC16();
+        CRC16 crc2 = new CRC16();
 
         byte[] testHeader = new byte[20];
         byte[] testData = new byte[100];
@@ -80,7 +82,14 @@ public class HALPTest1
         testData = halpClient.getData(testMessage);
         String dataStr = new String(testData, 0, Array.getLength(testData));
         System.out.println(dataStr);
+        
+        crc.update(testMessage, 6, 2);
+        System.out.println(crc.getValue());
+        testMessage[0] = halpIG.generateByteError(testMessage[0]);
+        crc2.update(testMessage, 6, 2);
+        System.out.println(crc2.getValue());
 
+        
 //        
 //        System.out.println("\n\nTesting FIN...");
 //        testHeader = halpIG.setFINFlag(testHeader, true);
