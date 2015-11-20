@@ -223,6 +223,7 @@ public interface HALPInterface
      * This method sets whether or not the trace feature will be turned on.
      * 
      * @param isTraceSet
+     * @return trace true or false depending what is passed in
      */
     public boolean setTrace(boolean isTraceSet);
     
@@ -318,4 +319,54 @@ public interface HALPInterface
      * @param messageBytes  the byte array containing the message information
      */
     public void printMessage(byte [] messageBytes);
+    
+    /**
+     * generates the first sequence number, only used for syncing
+     * @return sequence integer between 0-2147483647
+     */
+    public int generateSeguenceNumber();
+    
+    /**
+     * This method takes a byte[] containing header information and modifies the sequence number bytes to the correct 
+     * sequence number representation and then returns the array back out 
+     * @param headerBytes pass in byte[] that contains the header information
+     * @param number pass in the sequence number for the segment that is to be sent
+     * @return headerBytes but the sequence number bytes are now setup for the message to be sent
+     */
+    public byte[] setSequenceNumber(byte[] headerBytes, int number);
+    
+    /**
+     * Takes byte[] containing header information and returns an integer that is the acknowledgment number
+     * @param headerBytes byte[] that contains header information
+     * @return sequenceNum integer that is the sequence number
+     */
+    public int getSequenceNumber(byte[] headerBytes);
+    
+    /**
+     * Takes byte[] containing header information, generates the acknowledgment number and 
+     * then sets the acknowledgment bytes, and returns the new array 
+     * @param headerBytes byte[]containing header information
+     * @return headerBytes  byte[] that now has the acknowledgment bytes set 
+     */
+    public byte[] setAcknowledgmentNumber(byte[] headerBytes);
+    
+    /**
+     * 
+     * @param headerBytes byte[] containing header information
+     * @return acknowledgment integer that is the acknowledgment number from header
+     */
+    public int getAcknowledgmentNumber(byte[] headerBytes);
+    
+    /**
+     * Takes byte[] containing header information, and prints a string with the sequence number
+     * @param headerBytes byte[] containing header information
+     */
+    public void printSequenceNumber(byte[] headerBytes);
+    
+    /**
+     * Takes byte[] containing header information, and prints a string with the acknowledgment number
+     * @param headerBytes byte[] containing header information
+     */
+    public void printAcknowledgmentNumber(byte[] headerBytes);
+    
 }
