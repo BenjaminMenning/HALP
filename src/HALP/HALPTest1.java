@@ -5,6 +5,7 @@
  */
 package HALP;
 
+import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -23,6 +24,7 @@ public class HALPTest1
 
         byte[] testHeader = new byte[20];
         byte[] testData = new byte[100];
+        byte[] testMsg = null;
         
         
 //        
@@ -73,7 +75,11 @@ public class HALPTest1
         halpIG.printMessage(testHeader);
         System.out.println(halpIG.isDRTFlagSet(testHeader));
         
-        
+        testMessage = halpClient.assembleMessage(testMessage, testData);
+        halpClient.printMessage(testMessage);
+        testData = halpClient.getData(testMessage);
+        String dataStr = new String(testData, 0, Array.getLength(testData));
+        System.out.println(dataStr);
 
 //        
 //        System.out.println("\n\nTesting FIN...");

@@ -315,7 +315,7 @@ public abstract class HALP implements HALPInterface
     
     @Override
     public byte[] getHeader(byte[] messageBytes) {
-        byte[] header = new byte[20];
+        byte[] header = new byte[HEDR_LEN];
         System.arraycopy(messageBytes, 0, header, 0, HEDR_LEN);
         return header;
     }
@@ -324,8 +324,9 @@ public abstract class HALP implements HALPInterface
     public byte[] getData(byte[] messageBytes) 
     {
         int originalLength = Array.getLength(messageBytes);
-        byte [] data = new byte[originalLength];
-        System.arraycopy(messageBytes, HEDR_LEN, data, 0, originalLength-HEDR_LEN);
+        int dataLen = originalLength - HEDR_LEN;
+        byte [] data = new byte[dataLen];
+        System.arraycopy(messageBytes, HEDR_LEN, data, 0, dataLen);
         return data;
     }
     
@@ -708,7 +709,8 @@ public abstract class HALP implements HALPInterface
         int dataLen = messageBytes.length - HEDR_LEN;
         byte tempDataBytes[] = Arrays.copyOfRange(messageBytes, DATA_OFFSET, 
                 (DATA_OFFSET + dataLen));
-        dataInfo += tempDataBytes;
+        String dataStr = new String(tempDataBytes, 0, Array.getLength(tempDataBytes));
+        dataInfo += dataStr;
         System.out.println(dataInfo);
     }
     
@@ -730,17 +732,18 @@ public abstract class HALP implements HALPInterface
          
         System.out.println(" sequence number: " + printAcknowledgment);
     }
-    
-    
+        
     @Override
     public void printMessage(byte[] messageBytes) 
     {
+        int msgLen = Array.getLength(messageBytes);
         printDestIPField(messageBytes);
         printDestPNField(messageBytes);
         printFlagField(messageBytes);
         printSequenceNumber(messageBytes);
         printAcknowledgmentNumber(messageBytes);
-        System.out.println();
+        printDataField(messageBytes);
+        System.out.println("Message length: " + msgLen + " bytes\n");
     }
     
     /** 

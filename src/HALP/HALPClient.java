@@ -14,8 +14,8 @@ public class HALPClient extends HALP implements HALPClientInterface
 {
         // Hard coded IP addresses for testing
     protected String homeTestIP = "192.168.0."; // for testing at home
-    protected String testIGIP = homeTestIP + "110";
-    protected String testServIP = homeTestIP + "101";
+    protected String testIGIP = homeTestIP + "111";
+    protected String testServIP = homeTestIP + "110";
     protected String testFileName = "alice.txt";
     protected boolean testTransDirec = false;
     protected int testDataRate = 90;
