@@ -46,20 +46,6 @@ public class HALPTest1
         halpIG.printMessage(testHeader);
         System.out.println(halpIG.getDestinationPort(testHeader));
         
-        byte[] testMessage = halpClient.assembleMessage(testHeader, testData);
-        
-        String testFileName = "TestFile.txt";
-        System.out.println("\n\nTesting File Name...");
-        testMessage = halpClient.setFileNameField(testMessage, testFileName);
-        halpClient.printFileNameField(testMessage);
-        System.out.println(halpIG.getFileNameField(testMessage));
-        
-        int testDataRate = 1024;
-        System.out.println("\n\nTesting Data Rate...");
-        testMessage = halpClient.setDataRateField(testMessage, testDataRate);
-        halpClient.printDataRateField(testMessage);
-        System.out.println(halpIG.getDataRateField(testMessage));
-        
         System.out.println("\n\nTesting Flags...");
         testHeader = halpIG.setFINFlag(testHeader, true);
         halpIG.printMessage(testHeader);
@@ -77,139 +63,54 @@ public class HALPTest1
         halpIG.printMessage(testHeader);
         System.out.println(halpIG.isDRTFlagSet(testHeader));
         
+        int randSeqNum = halpClient.generateSeguenceNumber();
+        System.out.println(randSeqNum);
+        testHeader = halpClient.setSequenceNumber(testHeader, randSeqNum);
+        halpClient.printMessage(testHeader);
+        System.out.println(halpClient.getSequenceNumber(testHeader));
+        
+        int ackNum = halpClient.getSequenceNumber(testHeader);
+        System.out.println(ackNum);
+        testHeader = halpClient.setAcknowledgmentNumber(testHeader);
+        halpClient.printMessage(testHeader);
+        System.out.println(halpClient.getAcknowledgmentNumber(testHeader));
+        
+        byte[] testMessage = halpClient.assembleMessage(testHeader, testData);
+        
+        String testFileName = "TestFile.txt";
+        System.out.println("\n\nTesting File Name...");
+        testMessage = halpClient.setFileNameField(testMessage, testFileName);
+        halpClient.printFileNameField(testMessage);
+        System.out.println(halpIG.getFileNameField(testMessage));
+        
+        int testDataRate = 1024;
+        System.out.println("\n\nTesting Data Rate...");
+        testMessage = halpClient.setDataRateField(testMessage, testDataRate);
+        halpClient.printDataRateField(testMessage);
+        System.out.println(halpIG.getDataRateField(testMessage));
+        
         testMessage = halpClient.assembleMessage(testMessage, testData);
         halpClient.printMessage(testMessage);
         testData = halpClient.getData(testMessage);
         String dataStr = new String(testData, 0, Array.getLength(testData));
         System.out.println(dataStr);
         
-        crc.update(testMessage, 0, testMessage.length);
-        System.out.println(crc.getValue());
-        byte blankByte = 0;
-        byte errorByte = halpIG.generateByteError(blankByte);
-        testMessage[0] = errorByte;
-        crc2.update(testMessage, 0, testMessage.length);
-        System.out.println(crc2.getValue());
-
+//        crc.update(testMessage, 0, testMessage.length);
+//        System.out.println(crc.getValue());
+        testMessage = halpClient.setChecksum(testMessage);
+        boolean test = halpClient.isChecksumValid(testMessage);
+        System.out.println(halpClient.getChecksum(testMessage));
+        halpClient.printMessage(testMessage);
+        System.out.println(halpClient.getChecksum(testMessage));
+//        halpClient.printMessage(testMessage);
         
-//        
-//        System.out.println("\n\nTesting FIN...");
-//        testHeader = halpIG.setFINFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isFINFlagSet(testHeader));
-//
-//        testHeader = halpIG.setFINFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isFINFlagSet(testHeader));
-//
-//        testHeader = halpIG.setFINFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isFINFlagSet(testHeader));
-//
-//        testHeader = halpIG.setFINFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isFINFlagSet(testHeader));
-//
-//        testHeader = halpIG.setFINFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isFINFlagSet(testHeader));
-//
-//        testHeader = halpIG.setFINFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isFINFlagSet(testHeader));
-//
-//        testHeader = halpIG.setFINFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isFINFlagSet(testHeader));
-//
-//        
-//        System.out.println("\n\nTesting SYN...");
-//        testHeader = halpIG.setSYNFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isSYNFlagSet(testHeader));
-//
-//        testHeader = halpIG.setSYNFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isSYNFlagSet(testHeader));
-//
-//        testHeader = halpIG.setSYNFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isSYNFlagSet(testHeader));
-//
-//        testHeader = halpIG.setSYNFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isSYNFlagSet(testHeader));
-//
-//        testHeader = halpIG.setSYNFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isSYNFlagSet(testHeader));
-//
-//        testHeader = halpIG.setSYNFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isSYNFlagSet(testHeader));
-//
-//        testHeader = halpIG.setSYNFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isSYNFlagSet(testHeader));
-//        
-//        
-//        System.out.println("\n\nTesting ACK...");
-//        testHeader = halpIG.setACKFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isACKFlagSet(testHeader));
-//
-//        testHeader = halpIG.setACKFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isACKFlagSet(testHeader));
-//
-//        testHeader = halpIG.setACKFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isACKFlagSet(testHeader));
-//
-//        testHeader = halpIG.setACKFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isACKFlagSet(testHeader));
-//
-//        testHeader = halpIG.setACKFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isACKFlagSet(testHeader));
-//
-//        testHeader = halpIG.setACKFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isACKFlagSet(testHeader));
-//
-//        testHeader = halpIG.setACKFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isACKFlagSet(testHeader));
-//        
-//        
-//        System.out.println("\n\nTesting DRT...");
-//        testHeader = halpIG.setDRTFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isDRTFlagSet(testHeader));
-//
-//        testHeader = halpIG.setDRTFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isDRTFlagSet(testHeader));
-//
-//        testHeader = halpIG.setDRTFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isDRTFlagSet(testHeader));
-//
-//        testHeader = halpIG.setDRTFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isDRTFlagSet(testHeader));
-//
-//        testHeader = halpIG.setDRTFlag(testHeader, true);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isDRTFlagSet(testHeader));
-//
-//        testHeader = halpIG.setDRTFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isDRTFlagSet(testHeader));
-//
-//        testHeader = halpIG.setDRTFlag(testHeader, false);
-//        halpIG.printMessage(testHeader);
-//        System.out.println(halpIG.isDRTFlagSet(testHeader));
+        
+//        byte blankByte = 0;
+//        testMessage[6] = blankByte;
+//        testMessage[7] = blankByte;
+//        byte errorByte = halpIG.generateByteError(blankByte);
+//        testMessage[0] = errorByte;
+//        crc2.update(testMessage, 0, testMessage.length);
+//        System.out.println(crc2.getValue());
    }
 }

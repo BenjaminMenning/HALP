@@ -70,6 +70,7 @@ public abstract class HALP implements HALPInterface
 //    protected byte[] currMsg; // message to be sent
 //    protected byte[] rcvdMsg; // received message
     protected ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
+//    protected CRC16 crc16 = new CRC16();
     
     // Constants for header field lengths in bytes
     protected static final int DESTIP_LEN = 4;
@@ -314,6 +315,36 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
+    public byte[] setChecksum(byte[] messageBytes)
+    {
+        CRC16 crc16 = new CRC16();
+        byte tempMsgBytes[] = messageBytes;
+        crc16.update(tempMsgBytes, 0, tempMsgBytes.length);
+        int checksum = (int) crc16.getValue();
+        byte tempChkSumBytes[] = convertPNToBytes(checksum);
+        System.arraycopy(tempChkSumBytes, 0, tempMsgBytes, CRC_OFFSET, 
+                CRC_LEN);   
+        return tempMsgBytes;
+        
+//        crc.update(testMessage, 0, testMessage.length);
+//        System.out.println(crc.getValue());
+//        byte blankByte = 0;
+//        byte errorByte = halpIG.generateByteError(blankByte);
+////        testMessage[0] = errorByte;
+//        crc2.update(testMessage, 0, testMessage.length);
+//        System.out.println(crc2.getValue());
+//        
+//                byte tempMsgBytes[] = messageBytes;
+//        byte tempDRBytes[] = new byte[DTRT_LEN];
+//        tempDRBytes = convertPNToBytes(rate);
+////        tempHdrBytes[DESTIP_OFFSET] = tempIPBytes;
+//        System.arraycopy(tempDRBytes, 0, tempMsgBytes, DTRT_OFFSET, 
+//                DTRT_LEN);   
+//        return tempMsgBytes;
+//
+    }
+    
+    @Override
     public byte[] getHeader(byte[] messageBytes) {
         byte[] header = new byte[HEDR_LEN];
         System.arraycopy(messageBytes, 0, header, 0, HEDR_LEN);
@@ -442,8 +473,70 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
-    public boolean isChecksumValid(byte[] headerBytes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int getChecksum(byte[] messageBytes) 
+    {
+        // Create and assign port bytes
+        byte[] portBytes = Arrays.copyOfRange(messageBytes, CRC_OFFSET, 
+                (CRC_OFFSET + CRC_LEN));
+
+        // Assign port number bytes as ints
+        int firstPNByteInt = portBytes[0];
+        int secondPNByteInt = portBytes[1];
+
+        // Convert byte ints to strings
+        String firstPNByteStr = Integer.toBinaryString((int) firstPNByteInt);
+        String secondPNByteStr = Integer.toBinaryString((int) secondPNByteInt);
+
+        // Add 0's if length is less than 8 bits
+        if(firstPNByteStr.length() < 8){
+            int zeroCount = 8 - firstPNByteStr.length();
+            while (zeroCount > 0){
+                firstPNByteStr = "0" + firstPNByteStr;
+                zeroCount--;
+            }
+        }
+        if(secondPNByteStr.length() < 8){
+            int zeroCount = 8 - secondPNByteStr.length();
+            while (zeroCount > 0){
+                secondPNByteStr = "0" + secondPNByteStr;
+                zeroCount--;
+            }
+        }
+
+        // Parse to 8 bit strings
+        String firstPNByteBits = firstPNByteStr.substring(firstPNByteStr.length() - 8);
+        String secondPNByteBits = secondPNByteStr.substring(secondPNByteStr.length() - 8);
+
+        // Combines 8 bit strings into one complete string
+        String completePNStr = firstPNByteBits + "" + secondPNByteBits;
+
+        // Converts complete String from unsigned integer to int
+       // int completePN = Integer.parseUnsignedInt(completePNStr, 2);  //requres java 8 to run this coding
+        int completePN= (int) Long.parseLong(completePNStr, 2);    //equivalent of above coding for non java8
+        return completePN;
+    }
+        
+    @Override
+    public boolean isChecksumValid(byte[] messageBytes) 
+    {
+        CRC16 crc16 = new CRC16();
+        byte[] tempMsgBytes = new byte[messageBytes.length];
+        System.arraycopy(messageBytes, 0, tempMsgBytes, 0, messageBytes.length);
+        int checksum = getChecksum(tempMsgBytes);
+        byte emptyBytes[] = new byte[2];
+        System.arraycopy(emptyBytes, 0, tempMsgBytes, CRC_OFFSET, 
+                CRC_LEN);   
+        crc16.update(tempMsgBytes, 0, tempMsgBytes.length);
+        int newChecksum = (int) crc16.getValue();
+        
+        if(checksum == newChecksum)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     @Override
@@ -720,7 +813,7 @@ public abstract class HALP implements HALPInterface
        (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
        (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
        (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
-        System.out.println(" sequence number: " + printSequenceNum);
+        System.out.println("Sequence number: " + printSequenceNum);
     }
     
     @Override
@@ -730,18 +823,28 @@ public abstract class HALP implements HALPInterface
        (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
        (headerBytes[ACK_OFFSET + 3])&0x000000ff;
          
-        System.out.println(" sequence number: " + printAcknowledgment);
+        System.out.println("Acknowledgment number: " + printAcknowledgment);
     }
         
+    @Override
+    public void printChecksum(byte[] messageBytes)
+    {
+        int checksum = getChecksum(messageBytes);
+        boolean isChkSumValid = isChecksumValid(messageBytes);
+        System.out.println("Checksum value: " + checksum);
+        System.out.println("Checksum valid: " + isChkSumValid);
+    }
+    
     @Override
     public void printMessage(byte[] messageBytes) 
     {
         int msgLen = Array.getLength(messageBytes);
         printDestIPField(messageBytes);
         printDestPNField(messageBytes);
-        printFlagField(messageBytes);
+        printChecksum(messageBytes);
         printSequenceNumber(messageBytes);
         printAcknowledgmentNumber(messageBytes);
+        printFlagField(messageBytes);
         printDataField(messageBytes);
         System.out.println("Message length: " + msgLen + " bytes\n");
     }
@@ -818,7 +921,7 @@ public abstract class HALP implements HALPInterface
        (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
        (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
        (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
-        System.out.println(" sequence number: " + sequenceNum);
+//        System.out.println("Sequence number: " + sequenceNum);
         
         return sequenceNum;
        
@@ -856,6 +959,4 @@ public abstract class HALP implements HALPInterface
        
        return acknowledgment;
    }
-   
-    
 }

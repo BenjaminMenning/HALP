@@ -118,6 +118,8 @@ public interface HALPInterface
     
     public byte[] setDataRateField(byte[] messageBytes, int rate);
     
+    public byte[] setChecksum(byte[] messageBytes);
+    
     /**
      * This method extracts the header from a message.
      * 
@@ -158,6 +160,8 @@ public interface HALPInterface
     public String getFileNameField(byte[] messageBytes);
     
     public int getDataRateField(byte[] messageBytes); 
+    
+    public int getChecksum(byte[] messageBytes);
     
     /**
      * This method determines if the checksum in the message is valid
@@ -218,6 +222,8 @@ public interface HALPInterface
     public void printDataRateField(byte[] messageBytes);
     
     public void printDataField(byte[] messageBytes);
+    
+    public void printChecksum(byte[] messageBytes);
     
     /**
      * This method sets whether or not the trace feature will be turned on.
