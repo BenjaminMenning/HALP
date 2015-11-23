@@ -67,7 +67,7 @@ public class Connection implements ConnectionInterface
 
     @Override
     public String toString() {
-        return "Connection{" + "ipClient=" + ipClient + ", portClient=" + portClient + ", ipServer=" + ipServer + ", portServer=" + portServer + ", rate=" + rate + '}';
+        return "Connection{" + "Client IP = " + ipClient + ", Client port = " + portClient + ", Server IP = " + ipServer + ", Server port = " + portServer + ", Data rate = " + rate + '}';
     }
     
     
