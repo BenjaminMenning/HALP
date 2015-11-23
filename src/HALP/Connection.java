@@ -17,6 +17,9 @@ public class Connection implements ConnectionInterface
  int portServer;
  int rate;
 
+    public Connection(){  
+    }
+ 
     public Connection(String ipClient, int portClient, String ipServer, int portServer, int rate) {
         this.ipClient = ipClient;
         this.portClient = portClient;
