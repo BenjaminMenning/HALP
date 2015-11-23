@@ -18,6 +18,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     private String outgoingIP;
     private int ingoingPN;
     private int outgoingPN;
+    private int maxDataRate;
     private InetAddress ingoingIN;
     private InetAddress outgoingIN;
     
@@ -37,6 +38,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     @Override
     public void run() 
     {
+        msgSize = HEDR_LEN + maxDataRate;
         System.out.println("Internet gateway has started.");
         while(true)
         {
@@ -65,6 +67,7 @@ public class HALPIG extends HALP implements HALPIGInterface
                     servIPAddr = outgoingIP;
                     servPortNum = outgoingPN;
                     servINAddr = outgoingIN;
+                    
                 }
                 else if(isSyn && isAck)
                 {
@@ -96,6 +99,22 @@ public class HALPIG extends HALP implements HALPIGInterface
                         ex);
             }
         }
+    }
+    
+    @Override
+    public void inputDataRate()
+    {
+        // Requests user to input transfer direction
+        System.out.println("Please enter the preferred data rate for the "
+                + "connection: ");
+        int tempDataRate = console.nextInt();
+        setMaxDataRate(tempDataRate);
+    }
+    
+    @Override
+    public void setMaxDataRate(int dataRate)
+    {
+        maxDataRate = dataRate;
     }
     
     @Override
@@ -204,6 +223,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     {
         Scanner console = new Scanner(System.in);
         HALPIG halpIG = new HALPIG(IG_PORT);
+        halpIG.setMaxDataRate(65000);
         halpIG.run();
     }
 }

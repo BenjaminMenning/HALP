@@ -50,7 +50,7 @@ public abstract class HALP implements HALPInterface
     protected int errorRate = 0;
     
     // For datagrams received
-    protected static final int MSG_SIZE = 110;
+    protected int msgSize = 0;
     
     protected int currMsgLen = 0;
     
@@ -646,7 +646,7 @@ public abstract class HALP implements HALPInterface
     @Override
     public byte[] receiveMessage()
     {
-        byte[] receivedData = new byte[MSG_SIZE];
+        byte[] receivedData = new byte[msgSize];
 
         // Create a datagram
         DatagramPacket receivedDatagram = 

@@ -20,12 +20,12 @@ public class HALPClient extends HALP implements HALPClientInterface
     protected String testServIP = homeTestIP + "110";
     protected String testFileName = "alice.txt";
     protected boolean testIsUpload = false;
-    protected int testDataRate = 90;
+    protected int testDataRate = 500;
     
     private static final int SERVER_PORT = 54001;  
     private static final int IG_PORT = 54001;
     protected String fileName = "";
-    protected int dataRate = 64;
+    protected int dataRate = 0;
     private boolean isUpload = false;
     
     private File inputFile = null;
@@ -193,6 +193,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             setFileName(testFileName);
             setTransferDirection(testIsUpload);
             setDataRate(testDataRate);
+            msgSize = HEDR_LEN + testDataRate;
 
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
@@ -215,6 +216,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             boolean isSyn = isSYNFlagSet(rcvdMsg);
             boolean isAck = isACKFlagSet(rcvdMsg);
             boolean isDrt = isDRTFlagSet(rcvdMsg);
+            
             if(isSyn && isAck && isUpload)
             {
                 runAsSender();
@@ -243,6 +245,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     @Override
     public void runAsServer() 
     {
+        msgSize = 65000;
         // Added for new server implementation
         try {
             deviceSocket = new DatagramSocket(servPortNum);

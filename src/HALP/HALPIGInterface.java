@@ -21,6 +21,10 @@ public interface HALPIGInterface extends HALPInterface
 //
 //    public void convertBytesToDestPN();
     
+    public void inputDataRate();
+    
+    public void setMaxDataRate(int dataRate);
+    
     /**
      * This method generates errors based off of the error rate entered by the
      * user.
