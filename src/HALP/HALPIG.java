@@ -68,6 +68,12 @@ public class HALPIG extends HALP implements HALPIGInterface
                     servPortNum = outgoingPN;
                     servINAddr = outgoingIN;
                     
+                    // Retrieves client data rate and changes if above max
+                    int clntDataRate = getDataRateField(rcvdMsg);
+                    if(clntDataRate > maxDataRate)
+                    {
+                        rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
+                    }
                 }
                 else if(isSyn && isAck)
                 {
@@ -223,7 +229,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     {
         Scanner console = new Scanner(System.in);
         HALPIG halpIG = new HALPIG(IG_PORT);
-        halpIG.setMaxDataRate(65000);
+        halpIG.setMaxDataRate(10000);
         halpIG.run();
     }
 }

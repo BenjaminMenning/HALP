@@ -845,8 +845,9 @@ public abstract class HALP implements HALPInterface
         printSequenceNumber(messageBytes);
         printAcknowledgmentNumber(messageBytes);
         printFlagField(messageBytes);
+        System.out.println("Message length: " + msgLen + " bytes");
         printDataField(messageBytes);
-        System.out.println("Message length: " + msgLen + " bytes\n");
+        System.out.println();
     }
     
     /** 

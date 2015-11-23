@@ -19,8 +19,8 @@ public class HALPClient extends HALP implements HALPClientInterface
     protected String testIGIP = homeTestIP + "111";
     protected String testServIP = homeTestIP + "110";
     protected String testFileName = "alice.txt";
-    protected boolean testIsUpload = false;
-    protected int testDataRate = 500;
+    protected boolean testIsUpload = true;
+    protected int testDataRate = 10;
     
     private static final int SERVER_PORT = 54001;  
     private static final int IG_PORT = 54001;
@@ -217,6 +217,11 @@ public class HALPClient extends HALP implements HALPClientInterface
             boolean isAck = isACKFlagSet(rcvdMsg);
             boolean isDrt = isDRTFlagSet(rcvdMsg);
             
+            // Sets data rate based on what IG places in data rate field
+            int igDataRate = getDataRateField(rcvdMsg);
+            setDataRate(igDataRate);
+            msgSize = HEDR_LEN + igDataRate;
+            
             if(isSyn && isAck && isUpload)
             {
                 runAsSender();
@@ -262,6 +267,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                 printDataRateField(rcvdMsg);
                 fileName = getFileNameField(rcvdMsg);
                 dataRate = getDataRateField(rcvdMsg);
+                msgSize = HEDR_LEN + dataRate;
                 boolean isSyn = isSYNFlagSet(rcvdMsg);
                 boolean isAck = isACKFlagSet(rcvdMsg);
                 boolean isUpld = isDRTFlagSet(rcvdMsg);
@@ -324,6 +330,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         tempHeader = setFINFlag(tempHeader, true);
         tempData = new byte[1];
         tempMsg = assembleMessage(tempHeader, tempData);
+        Thread.sleep(1000);
         sendMessage(tempMsg);
         
         fInStr.close();
