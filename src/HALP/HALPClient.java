@@ -5,7 +5,9 @@ package HALP;
 import static HALP.HALP.FLAG_OFFSET;
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +19,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     protected String testIGIP = homeTestIP + "111";
     protected String testServIP = homeTestIP + "110";
     protected String testFileName = "alice.txt";
-    protected boolean testTransDirec = false;
+    protected boolean testIsUpload = false;
     protected int testDataRate = 90;
     
     private static final int SERVER_PORT = 54001;  
@@ -189,13 +191,13 @@ public class HALPClient extends HALP implements HALPClientInterface
             setIGIP(testIGIP);
             setServerIP(testServIP);
             setFileName(testFileName);
-            setTransferDirection(testTransDirec);
+            setTransferDirection(testIsUpload);
             setDataRate(testDataRate);
 
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
             tempHeader = setSYNFlag(tempHeader, true);
-            tempHeader = setDRTFlag(tempHeader, testTransDirec);
+            tempHeader = setDRTFlag(tempHeader, testIsUpload);
             printMessage(tempHeader);
 
             int dataLen = fileName.length() + DTRT_LEN;
@@ -238,6 +240,57 @@ public class HALPClient extends HALP implements HALPClientInterface
         
     }
     
+    @Override
+    public void runAsServer() 
+    {
+        // Added for new server implementation
+        try {
+            deviceSocket = new DatagramSocket(servPortNum);
+        } catch (SocketException ex) {
+            Logger.getLogger(HALPClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        boolean placeholderCondition = false;
+        System.out.println("Server has started.");
+        while(placeholderCondition == false)
+        {
+            try {
+                byte[] rcvdMsg = receiveMessage();
+                printDataRateField(rcvdMsg);
+                fileName = getFileNameField(rcvdMsg);
+                dataRate = getDataRateField(rcvdMsg);
+                boolean isSyn = isSYNFlagSet(rcvdMsg);
+                boolean isAck = isACKFlagSet(rcvdMsg);
+                boolean isUpld = isDRTFlagSet(rcvdMsg);
+                if(isSyn && !isAck) 
+                {
+                    rcvdMsg = setACKFlag(rcvdMsg, true);
+                    
+                    // Retrieves the outgoing connection info from the datagram
+                    igIPAddr = currDtgm.getAddress().getHostAddress();
+                    igINAddr = InetAddress.getByName(igIPAddr);
+                    igPortNum = currDtgm.getPort();
+                }
+                sendMessage(rcvdMsg);
+                if(isUpld)
+                {
+                    runAsReceiver();
+                }
+                else
+                {
+                    runAsSender();
+                }
+                placeholderCondition = true;
+            } 
+            catch (Exception ex)
+            {
+                Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null,
+                        ex);
+            }
+        }
+    }
+    
+    @Override
     public void runAsSender() throws FileNotFoundException, IOException, Exception 
     {
         System.out.println("Begin sending data");
@@ -274,13 +327,21 @@ public class HALPClient extends HALP implements HALPClientInterface
         closeConnection();
     }
 
+    @Override
     public void runAsReceiver() throws FileNotFoundException, IOException, Exception 
     {
         System.out.println("Begin receiving data");
         boolean isFin = false;
-        fileName = "new-" + fileName;
-        outputFile = new File(fileName);
-        fOutStr = new FileOutputStream(fileName);
+        String desktopStr = System.getProperty("user.home") + "/Desktop/";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Date now = new Date();
+        String strDate = sdf.format(now);
+//        File desktopFile = new File(desktopStr + fileName);
+        
+        fileName = strDate + "-" + fileName;
+        outputFile = new File(desktopStr + fileName);
+        fOutStr = new FileOutputStream(outputFile);
         
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = new byte[1]; // change later

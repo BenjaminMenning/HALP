@@ -5,6 +5,8 @@
  */
 package HALP;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetAddress;
 
 /**
@@ -51,4 +53,10 @@ public interface HALPClientInterface extends HALPInterface
     public byte[] convertPNToBytes(int portNum);
     
     public void initiateConnection();
+    
+    public void runAsServer();
+    
+    public void runAsSender() throws FileNotFoundException, IOException, Exception;
+
+    public void runAsReceiver() throws FileNotFoundException, IOException, Exception;
 }
