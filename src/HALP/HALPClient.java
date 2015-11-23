@@ -20,7 +20,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     protected String testServIP = homeTestIP + "110";
     protected String testFileName = "alice.txt";
     protected boolean testIsUpload = true;
-    protected int testDataRate = 10;
+    protected int testDataRate = 5000;
     
     private static final int SERVER_PORT = 54001;  
     private static final int IG_PORT = 54001;
@@ -322,6 +322,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             boolean isAck = false;
             while(!isAck)
             {
+                Thread.sleep(1000);
                 sendMessage(tempMsg);
                 byte[] rcvdMsg = receiveMessage();
                 isAck = isACKFlagSet(rcvdMsg);
@@ -330,7 +331,6 @@ public class HALPClient extends HALP implements HALPClientInterface
         tempHeader = setFINFlag(tempHeader, true);
         tempData = new byte[1];
         tempMsg = assembleMessage(tempHeader, tempData);
-        Thread.sleep(1000);
         sendMessage(tempMsg);
         
         fInStr.close();
