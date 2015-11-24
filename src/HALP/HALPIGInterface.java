@@ -39,7 +39,7 @@ public interface HALPIGInterface extends HALPInterface
      * @param n the int between 0 and 1 that IG creates when starting up
      * @return true for corrupted data, false for lost packet
      */
-    public boolean errorType(int n);
+    public boolean isCorrupt();
     
     /**
      * This method returns a random index for a byte in the frame for an 
@@ -47,7 +47,7 @@ public interface HALPIGInterface extends HALPInterface
      * 
      * @return int  returns an int containing the byte index for the error
      */
-    public int randomIndex();
+    public int randomIndex(int index);
 
     /**
      * This error generates an error within a byte by flipping a random bit 
@@ -56,7 +56,7 @@ public interface HALPIGInterface extends HALPInterface
      * @param oldByte the byte where the error is to be generated
      * @return byte returns a byte containing the new error.
      */
-    public byte generateByteError(byte oldByte);
+    public byte[] generateByteError(byte[] messageBytes);
     
     /**
      * This method generates the number of errors based on the chance of the
@@ -71,14 +71,28 @@ public interface HALPIGInterface extends HALPInterface
      * 
      * @param rate  the int to be assigned as the error rate
      */
-    public void setErrorRate(int rate);
+    public void setErrorRate(double rate);
     
     /**
      * This method retrieves the error rate for the data transmission
      * 
      * @return int  returns the int assigned as the error rate
      */
-    public int getErrorRate();
+    public double getErrorRate();
+    
+    /**
+     * This method assigns the error rate for the data transmission.
+     * 
+     * @param rate  the int to be assigned as the error rate
+     */
+    public void setCorruptRate(double rate);
+    
+    /**
+     * This method retrieves the error rate for the data transmission
+     * 
+     * @return int  returns the int assigned as the error rate
+     */
+    public double getCorruptRate();
     
     /**
      * This method retrieves the expected number of retransmissions.

@@ -95,14 +95,63 @@ public class HALPTest1
         String dataStr = new String(testData, 0, Array.getLength(testData));
         System.out.println(dataStr);
         
-//        crc.update(testMessage, 0, testMessage.length);
-//        System.out.println(crc.getValue());
+        crc.update(testMessage, 0, testMessage.length);
+        System.out.println(crc.getValue());
+        System.out.println("\n\nTesting Checksum...");
         testMessage = halpClient.setChecksum(testMessage);
         boolean test = halpClient.isChecksumValid(testMessage);
         System.out.println(halpClient.getChecksum(testMessage));
         halpClient.printMessage(testMessage);
         System.out.println(halpClient.getChecksum(testMessage));
+        crc2.update(testMessage, 0, testMessage.length);
+        System.out.println(crc2.getValue());
 //        halpClient.printMessage(testMessage);
+        
+        // Error testing
+        System.out.println("\n\nTesting Error Rate...");
+        double errRate = .9;
+        double crptRate = .9;
+        boolean isError = false;
+        boolean isCorrupt = false;
+        halpIG.setErrorRate(errRate);
+        halpIG.setCorruptRate(crptRate);
+        
+        isError = halpIG.errorGenerator();
+        System.out.println("Is error: " + isError);
+        if(isError)
+        {
+            isCorrupt = halpIG.isCorrupt();
+            System.out.println("Is corrupt: " + isCorrupt);
+            if(isCorrupt)
+            {
+                testMessage = halpIG.generateByteError(testMessage);
+            }
+            else
+            {
+                // do nothing
+            }
+        }
+        
+        crc2.update(testMessage, 0, testMessage.length);
+        System.out.println(crc2.getValue());
+        System.out.println("\n\nTesting checksum again...");
+//        testMessage = halpClient.setChecksum(testMessage);
+        test = halpClient.isChecksumValid(testMessage);
+        System.out.println(halpClient.getChecksum(testMessage));
+        halpClient.printMessage(testMessage);
+        System.out.println(halpClient.getChecksum(testMessage));
+        crc2.update(testMessage, 0, testMessage.length);
+        System.out.println(crc2.getValue());
+
+//        int i = 0;
+//        while(i < 1000)
+//        {
+//            isError = halpIG.errorGenerator();
+//            isCorrupt = halpIG.isCorrupt();
+//            System.out.println("Is error: " + isError);
+//            System.out.println("Is corrupt: " + isCorrupt);
+//        }
+
         
         
 //        byte blankByte = 0;

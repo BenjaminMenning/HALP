@@ -2,6 +2,7 @@ package HALP;
 
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +20,9 @@ public class HALPIG extends HALP implements HALPIGInterface
     private int ingoingPN;
     private int outgoingPN;
     private int maxDataRate;
-    protected int errorRate = 0;
+    protected double errorRate = 0; // p
+    protected double corruptRate = 0; // q
+    protected double lossRate = 0; // q - 1
     private InetAddress ingoingIN;
     private InetAddress outgoingIN;
     
@@ -147,7 +150,7 @@ public class HALPIG extends HALP implements HALPIGInterface
         Random random = new Random();
         int chanceMax = 100;
         int randomChance = random.nextInt(chanceMax) + 1;
-        if(randomChance <= errorRate)
+        if(randomChance <= (errorRate * 100))
         {
             return true;
         }
@@ -158,36 +161,45 @@ public class HALPIG extends HALP implements HALPIGInterface
     }
      
     @Override
-    public boolean errorType(int n){
-        Random randomQ = new Random();
-        int q = randomQ.nextInt(100)/100;
-        if(q > n){
+    public boolean isCorrupt()
+    {
+        Random random = new Random();
+        int chanceMax = 100;
+        int randomChance = random.nextInt(chanceMax) + 1;
+        if(randomChance <= (corruptRate * 100))
+        {
             return true;  //if true then a random bit is flipped and messaged sent 
         }
-        else{
+        else
+        {
             return false;   //if false we do nothing with the packet, simulates a lost packet
         }
     }
     
     @Override
-    public int randomIndex()
+    public int randomIndex(int index)
     {
         Random random = new Random();
-        int indexMax = 18;
+        int indexMax = index;
         int randomIndex = random.nextInt(indexMax);
         return randomIndex;
     }
     
     @Override
-    public byte generateByteError(byte oldByte)
+    public byte[] generateByteError(byte[] messageBytes)
     {
+        byte[] tempMsgBytes = messageBytes;
+        int msgLen = Array.getLength(messageBytes);
+        int maxIndex = msgLen - 1;
+        int randomIndex = randomIndex(maxIndex);
+        byte errorByte = tempMsgBytes[randomIndex];
         Random random = new Random();
         int bitMax = 7;
         int randomBit = random.nextInt(bitMax);
-        byte errorByte = oldByte;
         errorByte ^= 1 << randomBit; 
-//        System.out.println(errorByte);
-        return errorByte;
+        System.out.println(errorByte);
+        tempMsgBytes[randomIndex] = errorByte;
+        return tempMsgBytes;
     }
     
     @Override
@@ -210,15 +222,28 @@ public class HALPIG extends HALP implements HALPIGInterface
     }
     
     @Override
-    public void setErrorRate(int rate)
+    public void setErrorRate(double rate)
     {
         errorRate = rate;
     }
     
     @Override
-    public int getErrorRate()
+    public double getErrorRate()
     {
         return errorRate;
+    }
+    
+    @Override
+    public void setCorruptRate(double rate)
+    {
+        corruptRate = rate;
+        lossRate = corruptRate - 1;
+    }
+    
+    @Override
+    public double getCorruptRate()
+    {
+        return corruptRate;
     }
     
     @Override
