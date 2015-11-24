@@ -1,4 +1,4 @@
-package HALP;
+package DiscardedClasses;
 
 import HALP.CS313Project.*;
 import java.util.*;
