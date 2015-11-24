@@ -19,6 +19,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     private int ingoingPN;
     private int outgoingPN;
     private int maxDataRate;
+    protected int errorRate = 0;
     private InetAddress ingoingIN;
     private InetAddress outgoingIN;
     

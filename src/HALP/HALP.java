@@ -47,7 +47,6 @@ public abstract class HALP implements HALPInterface
     protected int clntPortNum = 0;
     protected int igPortNum = 0;
     protected int servPortNum = 0;
-    protected int errorRate = 0;
     
     // For datagrams received
     protected int msgSize = 0;
