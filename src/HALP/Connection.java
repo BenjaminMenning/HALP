@@ -17,6 +17,9 @@ public class Connection implements ConnectionInterface
  int portServer;
  int rate;
 
+    public Connection(){  
+    }
+ 
     public Connection(String ipClient, int portClient, String ipServer, int portServer, int rate) {
         this.ipClient = ipClient;
         this.portClient = portClient;
@@ -67,7 +70,7 @@ public class Connection implements ConnectionInterface
 
     @Override
     public String toString() {
-        return "Connection{" + "ipClient=" + ipClient + ", portClient=" + portClient + ", ipServer=" + ipServer + ", portServer=" + portServer + ", rate=" + rate + '}';
+        return "Connection{" + "Client IP = " + ipClient + ", Client port = " + portClient + ", Server IP = " + ipServer + ", Server port = " + portServer + ", Data rate = " + rate + '}';
     }
     
     

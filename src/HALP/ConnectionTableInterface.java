@@ -17,9 +17,18 @@ public interface ConnectionTableInterface
     // It's probably best to choose a data structure that's easy to search
     // so we can retrieve the connection information without much hassle
     
-    public void addConnection();
+    /**
+     *
+     * @param e
+     */
+        
+    public void addConnection(Connection e);
     
-    public void removeConnection();
+    /**
+     *
+     * @param e
+     */
+    public void removeConnection(Connection e);
     
     /**
      * Wait to implement.
