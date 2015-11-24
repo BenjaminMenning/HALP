@@ -28,7 +28,25 @@ public class HALPTest1
         byte[] testData = new byte[100];
         byte[] testMsg = null;
         
-        
+          
+//       Connection tempCon1 = new Connection("172.1.2.3", 1234, "172.2.3.6",2345,5);
+//       Connection tempCon2 = new Connection("172.1.2.4", 5678, "172.2.3.7",6789,7);
+//       Connection tempCon3 = new Connection("172.1.2.5", 9123, "172.2.3.8",123,9);
+//       
+//       
+//       ConnectionTable tempTable = new ConnectionTable();
+//       tempTable.addConnection(tempCon1);
+//       tempTable.addConnection(tempCon2);
+//       tempTable.addConnection(tempCon3);
+//       
+//       System.out.println(tempTable.printTable());
+//       
+//       System.out.println("should find: ");
+//       System.out.println(tempTable.getCorrespondingConnection("172.1.2.5", 9123));
+//       
+//       System.out.println("wont find: ");
+//       System.out.println(tempTable.getCorrespondingConnection("172.1.2.3", 5678));
+       
 //        
 //        InetAddress testINAddr;
 //        testINAddr = InetAddress.getByName(testIPAddr);
