@@ -68,8 +68,8 @@ public class Connection implements ConnectionInterface
         this.rate = rate;
     }
 
-    @Override
-    public String toString() {
+    //@Override
+    public String ContoString() {
         return "Connection{" + "Client IP = " + ipClient + ", Client port = " + portClient + ", Server IP = " + ipServer + ", Server port = " + portServer + ", Data rate = " + rate + '}';
     }
     

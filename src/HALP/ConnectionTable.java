@@ -27,33 +27,34 @@ public class ConnectionTable implements ConnectionTableInterface
     }
 
     @Override
-    public Connection getCorrespondingConnection(String ipAddr, int portNum) {
-       int search = table.indexOf(ipAddr.equals(connect.getIpClient()) && portNum == connect.getPortClient());
-        
-             if(search != -1){
-                 Connection temp = table.get(search);
-                 return temp;
+    public String getCorrespondingConnection(String ipAddr, int portNum) {
+        String tempOut = "not found";
+        for(int i = 0; i<table.size(); i++){
+            connect = table.get(i);
+            
+             if(ipAddr.equals(connect.getIpClient()) && portNum == connect.getPortClient()){
+              tempOut = connect.ContoString();
              }
-         
-             else{
-                int search2 = table.indexOf(ipAddr.equals(connect.getIpServer()) && portNum == connect.getPortServer()); 
-                
-                   if(search2 != -1){
-                       Connection temp = table.get(search);
-                      return temp;
-                   }
-                   
-                   else{
-                       
-                   }
-                   
-             }
-        return null;
+        }
+        return tempOut;
     }
 
     @Override
-    public void printTable() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String printTable() {
+        String printOut = null;
+        
+        for(int i =0; i<table.size(); i++){
+           Connection tempPrint = table.get(i);
+           String ipClient = tempPrint.getIpClient();
+           int portClient = tempPrint.getPortClient();
+           String ipServer = tempPrint.getIpServer();
+           int portServer = tempPrint.getPortServer();
+           int rate = tempPrint.getRate();
+           
+           printOut += "\nConnection " + i + ": \n" + "Client IP: " + ipClient + "\nClient port: " + 
+                       portClient + "\nServer IP: " + ipServer + "\nServer port: " + portServer + "\nData rate: " + rate;
+        }
+        return printOut;
     }
 
   

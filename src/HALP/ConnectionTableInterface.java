@@ -39,14 +39,15 @@ public interface ConnectionTableInterface
      * can determine which to send to after extracting the IP address and port
      * number from the datagram.
      * 
-     * @param 
-     * @return
+     * @param ipAddr
+     * @param portNum@return
      */
-    public Connection getCorrespondingConnection(String ipAddr, int portNum);
+    public String getCorrespondingConnection(String ipAddr, int portNum);
     
     /**
      * This method prints the contents of the connection table.
      * 
+     * @return 
      */
-    public void printTable();
+    public String printTable();
 }
