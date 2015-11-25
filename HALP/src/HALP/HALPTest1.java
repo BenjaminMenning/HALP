@@ -39,18 +39,23 @@ public class HALPTest1
        tempTable.addConnection(tempCon2);
        tempTable.addConnection(tempCon3);
        
+       System.out.println("Printing out to test conToString method.... /n");
+       System.out.println(tempCon1.conToString());
+       
+       System.out.println("Printing connection table out.... /n");
        System.out.println(tempTable.printTable());
        
        System.out.println("should find: ");
        Connection conTest = new Connection();
        conTest = tempTable.getCorrespondingConnection("172.1.2.5", 9123);
-       System.out.println(conTest.TemptoString());
+       System.out.println(conTest.tempToString());
        
        System.out.println("wont find: ");
        Connection test1 = new Connection();
        test1 = tempTable.getCorrespondingConnection("172.1.2.3", 5678);
-       System.out.println(test1.TemptoString());
+       System.out.println(test1.tempToString());
        
+       System.out.println("Printing connection table out after 2nd connection was removed.... /n");
        tempTable.removeConnection(tempCon2);
        System.out.println(tempTable.printTable());
        
