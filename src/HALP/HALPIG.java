@@ -28,6 +28,19 @@ public class HALPIG extends HALP implements HALPIGInterface
     
     private static final int IG_PORT = 54001;
     
+    public static void main(String args[]) throws Exception
+    {
+        Scanner console = new Scanner(System.in);
+        HALPIG halpIG = new HALPIG(IG_PORT);
+        
+        double errRate = 0.1;
+        double crptRate = 1.0;
+        halpIG.setMaxDataRate(10000);
+        halpIG.setErrorRate(errRate);
+        halpIG.setCorruptRate(crptRate);
+        halpIG.run();
+    }
+    
     public HALPIG() throws SocketException
     {
         deviceSocket = new DatagramSocket();
@@ -43,6 +56,8 @@ public class HALPIG extends HALP implements HALPIGInterface
     public void run() 
     {
         msgSize = HEDR_LEN + maxDataRate;
+        boolean isError;
+        boolean isCorrupt;
         System.out.println("Internet gateway has started.");
         while(true)
         {
@@ -50,6 +65,11 @@ public class HALPIG extends HALP implements HALPIGInterface
                 byte[] rcvdMsg = receiveMessage();
                 boolean isSyn = isSYNFlagSet(rcvdMsg);
                 boolean isAck = isACKFlagSet(rcvdMsg);
+                
+                // Error variables
+                isError = false;
+                isCorrupt = false;
+                
                 if(isSyn && !isAck) 
                 {
                     // Retrieves the ingoing connection info from the datagram
@@ -101,7 +121,31 @@ public class HALPIG extends HALP implements HALPIGInterface
                 }
                 
 //                else if(isSYNFlagSet(rcvdMsg))
-                sendMessage(rcvdMsg);
+                
+                isError = errorGenerator();
+                System.out.println("Is error: " + isError);
+                if(isError)
+                {
+                    isCorrupt = isCorrupt();
+                    System.out.println("Is corrupt: " + isCorrupt);
+                    if(isCorrupt)
+                    {
+                        rcvdMsg = generateByteError(rcvdMsg);
+                    }
+//                    else
+//                    {
+//                        // do nothing
+//                    }
+                }
+                
+                if(isCorrupt)
+                {
+                    sendMessage(rcvdMsg);
+                }
+                else
+                {
+                    // do nothing
+                }
             } 
             catch (Exception ex)
             {
@@ -249,13 +293,5 @@ public class HALPIG extends HALP implements HALPIGInterface
     @Override
     public int getExpectedRetransmissions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-            
-    public static void main(String args[]) throws Exception
-    {
-        Scanner console = new Scanner(System.in);
-        HALPIG halpIG = new HALPIG(IG_PORT);
-        halpIG.setMaxDataRate(10000);
-        halpIG.run();
     }
 }

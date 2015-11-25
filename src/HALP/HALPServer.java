@@ -17,6 +17,19 @@ public class HALPServer extends HALPClient
 
     private static final int SERVER_PORT = 54001;
     
+    public static void main(String args[]) throws Exception
+    {
+        Scanner console = new Scanner(System.in);
+        
+        // For old server implmentation, don't delete
+//        HALPServer halpServer = new HALPServer(SERVER_PORT);
+//        halpServer.run();
+        
+        // For new server implementation
+        HALPClient halpServer = new HALPClient(SERVER_PORT, SERVER_PORT);
+        halpServer.runAsServer();
+    }
+
     public HALPServer() throws SocketException
     {
         deviceSocket = new DatagramSocket();
@@ -69,18 +82,5 @@ public class HALPServer extends HALPClient
                         ex);
             }
         }
-    }
-
-    public static void main(String args[]) throws Exception
-    {
-        Scanner console = new Scanner(System.in);
-        
-        // For old server implmentation, don't delete
-//        HALPServer halpServer = new HALPServer(SERVER_PORT);
-//        halpServer.run();
-        
-        // For new server implementation
-        HALPClient halpServer = new HALPClient(SERVER_PORT, SERVER_PORT);
-        halpServer.runAsServer();
     }
 }

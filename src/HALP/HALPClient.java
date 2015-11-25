@@ -32,7 +32,14 @@ public class HALPClient extends HALP implements HALPClientInterface
     private File outputFile = null;
     private FileInputStream fInStr = null;
     private FileOutputStream fOutStr = null;
-    
+
+    public static void main (String args[]) throws Exception 
+    {	
+        Scanner console = new Scanner(System.in);
+        HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
+        halpClient.initiateConnection();
+    }
+
     public HALPClient() throws SocketException
     {
         deviceSocket = new DatagramSocket();
@@ -182,6 +189,11 @@ public class HALPClient extends HALP implements HALPClientInterface
             byte[] tempHeader = new byte[HEDR_LEN];
             byte[] tempData = null; // change later
             byte[] tempMsg = null;
+            byte[] rcvdMsg = null;
+            
+            boolean isAck = false;
+            boolean isSyn = false;
+            boolean isDrt = false;
 
             // User input
     //        inputIGIP();
@@ -211,23 +223,36 @@ public class HALPClient extends HALP implements HALPClientInterface
             printDataRateField(tempMsg);
             System.out.println();
 
-            sendMessage(tempMsg);
-            byte[] rcvdMsg = receiveMessage();
-            boolean isSyn = isSYNFlagSet(rcvdMsg);
-            boolean isAck = isACKFlagSet(rcvdMsg);
-            boolean isDrt = isDRTFlagSet(rcvdMsg);
+            while(!isSyn && !isAck)
+            {
+                sendMessage(tempMsg);
+                rcvdMsg = receiveMessage();
+                isSyn = isSYNFlagSet(rcvdMsg);
+                isAck = isACKFlagSet(rcvdMsg);
+//                isDrt = isDRTFlagSet(rcvdMsg);
+            }
             
             // Sets data rate based on what IG places in data rate field
             int igDataRate = getDataRateField(rcvdMsg);
             setDataRate(igDataRate);
             msgSize = HEDR_LEN + igDataRate;
             
-            if(isSyn && isAck && isUpload)
+            
+            
+            if(isUpload)
             {
                 runAsSender();
             }
-            else if(isSyn && isAck && !isUpload)
+            else
             {
+                while(!isSyn && !isAck)
+                {
+                    sendMessage(tempMsg);
+                    rcvdMsg = receiveMessage();
+                    isSyn = isSYNFlagSet(rcvdMsg);
+                    isAck = isACKFlagSet(rcvdMsg);
+    //                isDrt = isDRTFlagSet(rcvdMsg);
+                }
                 runAsReceiver();
             }
         } 
@@ -371,12 +396,5 @@ public class HALPClient extends HALP implements HALPClientInterface
         }
         fOutStr.close();
         closeConnection();
-    }
-
-    public static void main (String args[]) throws Exception 
-    {	
-        Scanner console = new Scanner(System.in);
-        HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
-        halpClient.initiateConnection();
     }
 }
