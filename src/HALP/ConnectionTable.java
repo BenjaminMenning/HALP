@@ -26,14 +26,25 @@ public class ConnectionTable implements ConnectionTableInterface
         boolean remove = table.remove(e);
     }
 
+    
     @Override
-    public String getCorrespondingConnection(String ipAddr, int portNum) {
-        String tempOut = "not found";
+    public Connection getCorrespondingConnection(String ipAddr, int portNum) {
+        Connection tempOut = new Connection();
         for(int i = 0; i<table.size(); i++){
             connect = table.get(i);
             
              if(ipAddr.equals(connect.getIpClient()) && portNum == connect.getPortClient()){
-              tempOut = connect.ContoString();
+              tempOut.setTempIP(connect.getIpServer());
+              tempOut.setTempPort(connect.getPortServer());
+              tempOut.setTempRate(connect.getRate());
+              break;
+             }
+             
+             else if(ipAddr.equals(connect.getIpServer()) && portNum == connect.getPortServer()){
+              tempOut.setTempIP(connect.getIpClient());
+              tempOut.setTempPort(connect.getPortClient());
+              tempOut.setTempRate(connect.getRate());
+              break;
              }
         }
         return tempOut;
@@ -56,6 +67,4 @@ public class ConnectionTable implements ConnectionTableInterface
         }
         return printOut;
     }
-
-  
 }

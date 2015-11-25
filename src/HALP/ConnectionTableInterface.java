@@ -5,8 +5,6 @@
  */
 package HALP;
 
-import java.net.InetAddress;
-
 /**
  *
  * @author Ben
@@ -19,14 +17,14 @@ public interface ConnectionTableInterface
     
     /**
      *
-     * @param e
+     * @param e adds specified connection to table
      */
         
     public void addConnection(Connection e);
     
     /**
      *
-     * @param e
+     * @param e removes specified connection from table
      */
     public void removeConnection(Connection e);
     
@@ -39,15 +37,16 @@ public interface ConnectionTableInterface
      * can determine which to send to after extracting the IP address and port
      * number from the datagram.
      * 
-     * @param ipAddr
-     * @param portNum@return
+     * @param ipAddr IP address from sender of packet
+     * @param portNum Port number from sender of packet
+     * @return a Connection object that contains tempIP(receiver ip), tempPort(receiver port), tempRate(data rate of connection)
      */
-    public String getCorrespondingConnection(String ipAddr, int portNum);
+    public Connection getCorrespondingConnection(String ipAddr, int portNum);
     
     /**
      * This method prints the contents of the connection table.
      * 
-     * @return 
+     * @return String output of all connections stored in the table
      */
     public String printTable();
 }

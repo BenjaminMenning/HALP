@@ -29,23 +29,35 @@ public class HALPTest1
         byte[] testMsg = null;
         
           
-//       Connection tempCon1 = new Connection("172.1.2.3", 1234, "172.2.3.6",2345,5);
-//       Connection tempCon2 = new Connection("172.1.2.4", 5678, "172.2.3.7",6789,7);
-//       Connection tempCon3 = new Connection("172.1.2.5", 9123, "172.2.3.8",123,9);
-//       
-//       
-//       ConnectionTable tempTable = new ConnectionTable();
-//       tempTable.addConnection(tempCon1);
-//       tempTable.addConnection(tempCon2);
-//       tempTable.addConnection(tempCon3);
-//       
-//       System.out.println(tempTable.printTable());
-//       
-//       System.out.println("should find: ");
-//       System.out.println(tempTable.getCorrespondingConnection("172.1.2.5", 9123));
-//       
-//       System.out.println("wont find: ");
-//       System.out.println(tempTable.getCorrespondingConnection("172.1.2.3", 5678));
+       Connection tempCon1 = new Connection("172.1.2.3", 1234, "172.2.3.6",2345,5);
+       Connection tempCon2 = new Connection("172.1.2.4", 5678, "172.2.3.7",6789,7);
+       Connection tempCon3 = new Connection("172.1.2.5", 9123, "172.2.3.8",123,9);
+       
+       
+       ConnectionTable tempTable = new ConnectionTable();
+       tempTable.addConnection(tempCon1);
+       tempTable.addConnection(tempCon2);
+       tempTable.addConnection(tempCon3);
+       
+       System.out.println("Printing out to test conToString method.... \n");
+       System.out.println(tempCon1.conToString());
+       
+       System.out.println("Printing connection table out.... \n");
+       System.out.println(tempTable.printTable());
+       
+       System.out.println("should find: ");
+       Connection conTest = new Connection();
+       conTest = tempTable.getCorrespondingConnection("172.1.2.5", 9123);
+       System.out.println(conTest.tempToString());
+       
+       System.out.println("wont find: ");
+       Connection test1 = new Connection();
+       test1 = tempTable.getCorrespondingConnection("172.1.2.3", 5678);
+       System.out.println(test1.tempToString());
+       
+       System.out.println("Printing connection table out after 2nd connection was removed.... \n");
+       tempTable.removeConnection(tempCon2);
+       System.out.println(tempTable.printTable());
        
 //        
 //        InetAddress testINAddr;
