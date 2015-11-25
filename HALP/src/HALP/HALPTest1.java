@@ -51,6 +51,9 @@ public class HALPTest1
        test1 = tempTable.getCorrespondingConnection("172.1.2.3", 5678);
        System.out.println(test1.TemptoString());
        
+       tempTable.removeConnection(tempCon2);
+       System.out.println(tempTable.printTable());
+       
 //        
 //        InetAddress testINAddr;
 //        testINAddr = InetAddress.getByName(testIPAddr);
