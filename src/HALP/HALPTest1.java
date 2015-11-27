@@ -27,6 +27,11 @@ public class HALPTest1
         byte[] testHeader = new byte[20];
         byte[] testData = new byte[100];
         byte[] testMsg = null;
+//        
+//        long y = (long)2147483647*2;
+//        y=y+1;
+//        System.out.println(y);
+//        
         
           
        Connection tempCon1 = new Connection("172.1.2.3", 1234, "172.2.3.6",2345,5);
@@ -98,17 +103,18 @@ public class HALPTest1
         halpIG.printMessage(testHeader);
         System.out.println(halpIG.isDRTFlagSet(testHeader));
         
-        int randSeqNum = halpClient.generateSequenceNumber();
-        System.out.println(randSeqNum);
+        long randSeqNum = halpClient.generateSequenceNumber();
+        System.out.println("\n this is generated seq number: " + randSeqNum + "\n");
         testHeader = halpClient.setSequenceNumber(testHeader, randSeqNum);
         halpClient.printMessage(testHeader);
         System.out.println(halpClient.getSequenceNumber(testHeader));
         
-        int ackNum = halpClient.getSequenceNumber(testHeader);
-        System.out.println(ackNum);
-        testHeader = halpClient.setAcknowledgmentNumber(testHeader, testHeader);
+        long ackNum = halpClient.getSequenceNumber(testHeader);
+        System.out.println("sequence number: " + ackNum+"\n");
+        System.out.println("Here is with using the new setAcknowledgment() and  the generateAcknowledgment() methods \n");
+        testHeader = halpClient.setAcknowledgmentNumber(testHeader, halpClient.generateAcknowledgement(halpClient.getSequenceNumber(testHeader)));
         halpClient.printMessage(testHeader);
-        System.out.println(halpClient.getAcknowledgmentNumber(testHeader));
+        System.out.println("USING NEW CODING: " + halpClient.getAcknowledgmentNumber(testHeader));
         
         byte[] testMessage = halpClient.assembleMessage(testHeader, testData);
         

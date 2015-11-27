@@ -330,33 +330,42 @@ public interface HALPInterface
      * generates the first sequence number, only used for syncing
      * @return sequence integer between 0-2147483647
      */
-    public int generateSequenceNumber();
+    public long generateSequenceNumber();
     
     /**
      * This method takes a byte[] containing header information and modifies the sequence number bytes to the correct 
      * sequence number representation and then returns the array back out 
+     * sequence number has a max of 42944967295, if generated is larger then minus 42944967295 from that number generated to 
+     * get sequence number
      * @param headerBytes pass in byte[] that contains the header information
      * @param number pass in the sequence number for the segment that is to be sent
      * @return headerBytes but the sequence number bytes are now setup for the message to be sent
      */
-    public byte[] setSequenceNumber(byte[] headerBytes, int number);
+    public byte[] setSequenceNumber(byte[] headerBytes, long number);
     
     /**
      * Takes byte[] containing header information and returns an integer that is the acknowledgment number
      * @param headerBytes byte[] that contains header information
      * @return sequenceNum integer that is the sequence number
      */
-    public int getSequenceNumber(byte[] headerBytes);
+    public long getSequenceNumber(byte[] headerBytes);
     
     /**
      * Takes byte[] containing header information, generates the acknowledgment number and 
      * then sets the acknowledgment bytes, and returns the new array 
-     * @param recHeaderBytes byte[] containing header information of received message
-     * @param sendHeaderBytes byte[]containing header information of next message to be sent
+     * @param headerBytes byte[] containing header information 
+     * @param acknowledgment long number that is the acknowledgment number(sequence number of received message +1)
      * @return headerBytes  byte[] that now has the acknowledgment bytes set 
      */
-    public byte[] setAcknowledgmentNumber(byte[] recHeaderBytes, byte[] sendHeaderBytes);
+    public byte[] setAcknowledgmentNumber(byte[] headerBytes, long acknowledgment);
     
+    /**
+     * 
+     * @param sequence the sequence number from incoming message to be acknowledged
+     * @return acknowledgment long that is sequence +1, if sequence = 42944967295 then acknowledgment = 0
+     */
+    public long generateAcknowledgement(long sequence);
+            
     /**
      * 
      * @param headerBytes byte[] containing header information

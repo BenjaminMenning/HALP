@@ -897,16 +897,20 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
-    public int generateSequenceNumber(){
+    public long generateSequenceNumber(){
         Random ran = new Random();
-        int sequence = Math.abs(ran.nextInt());  //max int = 2147483647
+        int sequence = Math.abs(ran.nextInt());//max int = 2147483647
+        long seq = (sequence * 2)+1;
+          if(seq > (2147483647 * 2) +1){
+              seq = seq - ((2147483647 * 2) +1);
+          }
                
-       return sequence;
+       return seq;
                      
    }
     
     @Override
-   public byte[] setSequenceNumber(byte[] headerBytes, int number){ //takes incremented sequence number and places in a 4 byte array to be copied into header
+   public byte[] setSequenceNumber(byte[] headerBytes, long number){ //takes incremented sequence number and places in a 4 byte array to be copied into header
        
         headerBytes[SEQ_OFFSET] = (byte) ((number>>24) & 0xFF);                 
         headerBytes[SEQ_OFFSET + 1] = (byte) ((number>>16) & 0xFF);
@@ -917,9 +921,9 @@ public abstract class HALP implements HALPInterface
    }
     
     @Override
-   public int getSequenceNumber(byte[] headerBytes){
+   public long getSequenceNumber(byte[] headerBytes){
         
-        int sequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
+        long sequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
        (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
        (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
        (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
@@ -932,26 +936,27 @@ public abstract class HALP implements HALPInterface
     @Override  //pass in the header bytes from received message, pass in header bytes of message that will be sent. Extracts
                // sequence number from recieved header and incruments it by one and then places inside acknowledgement feild 
                // in header for the next message to be sent
-   public byte[] setAcknowledgmentNumber(byte[] recHeaderBytes, byte[] sendHeaderBytes){
-       int acknowledgment = (recHeaderBytes[SEQ_OFFSET]<<24)&0xff000000|
-       (recHeaderBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
-       (recHeaderBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
-       (recHeaderBytes[SEQ_OFFSET + 3])&0x000000ff;
+   public byte[] setAcknowledgmentNumber(byte[] headerBytes, long acknowledgment){
+        headerBytes[ACK_OFFSET] = (byte) ((acknowledgment>>24) & 0xFF);                 
+        headerBytes[ACK_OFFSET + 1] = (byte) ((acknowledgment>>16) & 0xFF);
+        headerBytes[ACK_OFFSET + 2] = (byte) ((acknowledgment>>8) & 0xFF);
+        headerBytes[ACK_OFFSET + 3] = (byte) (acknowledgment & 0xFF);
        
-       if(acknowledgment == 2147483647){
+       return headerBytes;
+   }
+       
+    @Override
+  public long generateAcknowledgement(long sequence){
+      long acknowledgment;
+       if(sequence == (2147483647*2) +1){
            acknowledgment = 0;
        }
        else{
-           acknowledgment++; 
+           acknowledgment = sequence++; 
        }
-       
-        sendHeaderBytes[ACK_OFFSET] = (byte) ((acknowledgment>>24) & 0xFF);                 
-        sendHeaderBytes[ACK_OFFSET + 1] = (byte) ((acknowledgment>>16) & 0xFF);
-        sendHeaderBytes[ACK_OFFSET + 2] = (byte) ((acknowledgment>>8) & 0xFF);
-        sendHeaderBytes[ACK_OFFSET + 3] = (byte) (acknowledgment & 0xFF);
-       
-       return sendHeaderBytes;
-   }
+       return acknowledgment;
+  } 
+        
    
     @Override
    public int getAcknowledgmentNumber(byte[] headerBytes){
