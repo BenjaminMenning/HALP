@@ -32,7 +32,19 @@ public class HALPClient extends HALP implements HALPClientInterface
     private File outputFile = null;
     private FileInputStream fInStr = null;
     private FileOutputStream fOutStr = null;
-
+    
+    //variables for statistics
+//    private final long FILESIZE = inputFile.length();
+    private long start;
+    private long stop;
+//    private final String TRANSFERTIME = getTransferTime(start, stop);
+//    private int messagesGen = 0;
+//    private int totalMessages = 0;
+//    private final int RETRANSMISSIONS = (totalMessages - messagesGen);
+//    private int expectedRetrans = (errorRate/(1-errorRate))*messagesGen;  not sure how we will get error rate transfered to client?????
+//    private int maxRetrans = 0;
+//    private final int PERCENTRETRANS = (RETRANSMISSIONS/totalMessages)*100;
+            
     public static void main (String args[]) throws Exception 
     {	
         Scanner console = new Scanner(System.in);
@@ -211,6 +223,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             tempHeader = setDestPN(tempHeader, servPortNum);
             tempHeader = setSYNFlag(tempHeader, true);
             tempHeader = setDRTFlag(tempHeader, testIsUpload);
+            tempHeader = setSequenceNumber(tempHeader,generateSequenceNumber());
             printMessage(tempHeader);
 
             int dataLen = fileName.length() + DTRT_LEN;
@@ -328,6 +341,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     public void runAsSender() throws FileNotFoundException, IOException, Exception 
     {
         System.out.println("Begin sending data");
+        start = startTransferTimer();
         inputFile = new File(fileName);
         fInStr = new FileInputStream(fileName);
         
@@ -353,6 +367,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                 isAck = isACKFlagSet(rcvdMsg);
             }
         }
+        stop = stopTransferTimer();
         tempHeader = setFINFlag(tempHeader, true);
         tempData = new byte[1];
         tempMsg = assembleMessage(tempHeader, tempData);

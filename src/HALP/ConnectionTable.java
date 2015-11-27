@@ -52,7 +52,7 @@ public class ConnectionTable implements ConnectionTableInterface
 
     @Override
     public String printTable() {
-        String printOut = null;
+        String printOut = "";
         
         for(int i =0; i<table.size(); i++){
            Connection tempPrint = table.get(i);
@@ -63,7 +63,7 @@ public class ConnectionTable implements ConnectionTableInterface
            int rate = tempPrint.getRate();
            
            printOut += "\nConnection " + i + ": \n" + "Client IP: " + ipClient + "\nClient port: " + 
-                       portClient + "\nServer IP: " + ipServer + "\nServer port: " + portServer + "\nData rate: " + rate;
+                       portClient + "\nServer IP: " + ipServer + "\nServer port: " + portServer + "\nData rate: " + rate + "\n";
         }
         return printOut;
     }

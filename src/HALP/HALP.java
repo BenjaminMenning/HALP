@@ -895,7 +895,7 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
-    public int generateSeguenceNumber(){
+    public int generateSequenceNumber(){
         Random ran = new Random();
         int sequence = Math.abs(ran.nextInt());  //max int = 2147483647
                
@@ -927,12 +927,14 @@ public abstract class HALP implements HALPInterface
        
    }
    
-    @Override
-   public byte[] setAcknowledgmentNumber(byte[] headerBytes){
-       int acknowledgment = (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
-       (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
-       (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
-       (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
+    @Override  //pass in the header bytes from received message, pass in header bytes of message that will be sent. Extracts
+               // sequence number from recieved header and incruments it by one and then places inside acknowledgement feild 
+               // in header for the next message to be sent
+   public byte[] setAcknowledgmentNumber(byte[] recHeaderBytes, byte[] sendHeaderBytes){
+       int acknowledgment = (recHeaderBytes[SEQ_OFFSET]<<24)&0xff000000|
+       (recHeaderBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
+       (recHeaderBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
+       (recHeaderBytes[SEQ_OFFSET + 3])&0x000000ff;
        
        if(acknowledgment == 2147483647){
            acknowledgment = 0;
@@ -941,12 +943,12 @@ public abstract class HALP implements HALPInterface
            acknowledgment++; 
        }
        
-        headerBytes[ACK_OFFSET] = (byte) ((acknowledgment>>24) & 0xFF);                 
-        headerBytes[ACK_OFFSET + 1] = (byte) ((acknowledgment>>16) & 0xFF);
-        headerBytes[ACK_OFFSET + 2] = (byte) ((acknowledgment>>8) & 0xFF);
-        headerBytes[ACK_OFFSET + 3] = (byte) (acknowledgment & 0xFF);
+        sendHeaderBytes[ACK_OFFSET] = (byte) ((acknowledgment>>24) & 0xFF);                 
+        sendHeaderBytes[ACK_OFFSET + 1] = (byte) ((acknowledgment>>16) & 0xFF);
+        sendHeaderBytes[ACK_OFFSET + 2] = (byte) ((acknowledgment>>8) & 0xFF);
+        sendHeaderBytes[ACK_OFFSET + 3] = (byte) (acknowledgment & 0xFF);
        
-       return headerBytes;
+       return sendHeaderBytes;
    }
    
     @Override

@@ -48,16 +48,21 @@ public class HALPTest1
        System.out.println("should find: ");
        Connection conTest = new Connection();
        conTest = tempTable.getCorrespondingConnection("172.1.2.5", 9123);
-       System.out.println(conTest.tempToString());
+       System.out.println(conTest.tempToString() + "\n");
+       
+        System.out.println("should find: ");
+       Connection test2 = new Connection();
+       test2 = tempTable.getCorrespondingConnection("172.2.3.7", 6789);
+       System.out.println(test2.tempToString() + "\n");
        
        System.out.println("wont find: ");
        Connection test1 = new Connection();
        test1 = tempTable.getCorrespondingConnection("172.1.2.3", 5678);
-       System.out.println(test1.tempToString());
+       System.out.println(test1.tempToString() + "\n");
        
        System.out.println("Printing connection table out after 2nd connection was removed.... \n");
        tempTable.removeConnection(tempCon2);
-       System.out.println(tempTable.printTable());
+       System.out.println(tempTable.printTable() + "\n");
        
 //        
 //        InetAddress testINAddr;
@@ -93,7 +98,7 @@ public class HALPTest1
         halpIG.printMessage(testHeader);
         System.out.println(halpIG.isDRTFlagSet(testHeader));
         
-        int randSeqNum = halpClient.generateSeguenceNumber();
+        int randSeqNum = halpClient.generateSequenceNumber();
         System.out.println(randSeqNum);
         testHeader = halpClient.setSequenceNumber(testHeader, randSeqNum);
         halpClient.printMessage(testHeader);
@@ -101,7 +106,7 @@ public class HALPTest1
         
         int ackNum = halpClient.getSequenceNumber(testHeader);
         System.out.println(ackNum);
-        testHeader = halpClient.setAcknowledgmentNumber(testHeader);
+        testHeader = halpClient.setAcknowledgmentNumber(testHeader, testHeader);
         halpClient.printMessage(testHeader);
         System.out.println(halpClient.getAcknowledgmentNumber(testHeader));
         
@@ -191,5 +196,7 @@ public class HALPTest1
 //        testMessage[0] = errorByte;
 //        crc2.update(testMessage, 0, testMessage.length);
 //        System.out.println(crc2.getValue());
-   }
+               
+   }  
+   
 }

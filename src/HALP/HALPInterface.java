@@ -330,7 +330,7 @@ public interface HALPInterface
      * generates the first sequence number, only used for syncing
      * @return sequence integer between 0-2147483647
      */
-    public int generateSeguenceNumber();
+    public int generateSequenceNumber();
     
     /**
      * This method takes a byte[] containing header information and modifies the sequence number bytes to the correct 
@@ -351,10 +351,11 @@ public interface HALPInterface
     /**
      * Takes byte[] containing header information, generates the acknowledgment number and 
      * then sets the acknowledgment bytes, and returns the new array 
-     * @param headerBytes byte[]containing header information
+     * @param recHeaderBytes byte[] containing header information of received message
+     * @param sendHeaderBytes byte[]containing header information of next message to be sent
      * @return headerBytes  byte[] that now has the acknowledgment bytes set 
      */
-    public byte[] setAcknowledgmentNumber(byte[] headerBytes);
+    public byte[] setAcknowledgmentNumber(byte[] recHeaderBytes, byte[] sendHeaderBytes);
     
     /**
      * 
