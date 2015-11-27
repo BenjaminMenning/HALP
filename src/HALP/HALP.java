@@ -838,6 +838,7 @@ public abstract class HALP implements HALPInterface
     public void printMessage(byte[] messageBytes) 
     {
         int msgLen = Array.getLength(messageBytes);
+        int dataLen = msgLen - HEDR_LEN;
         printDestIPField(messageBytes);
         printDestPNField(messageBytes);
         printChecksum(messageBytes);
@@ -845,6 +846,7 @@ public abstract class HALP implements HALPInterface
         printAcknowledgmentNumber(messageBytes);
         printFlagField(messageBytes);
         System.out.println("Message length: " + msgLen + " bytes");
+        System.out.print("Length of data field: " + dataLen + " bytes");
         printDataField(messageBytes);
         System.out.println();
     }
