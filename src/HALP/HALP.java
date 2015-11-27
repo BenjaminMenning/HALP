@@ -959,9 +959,9 @@ public abstract class HALP implements HALPInterface
         
    
     @Override
-   public int getAcknowledgmentNumber(byte[] headerBytes){
+   public long getAcknowledgmentNumber(byte[] headerBytes){
        
-       int acknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
+       long acknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
        (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
        (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
        (headerBytes[ACK_OFFSET + 3])&0x000000ff;

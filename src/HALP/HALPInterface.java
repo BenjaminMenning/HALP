@@ -371,7 +371,7 @@ public interface HALPInterface
      * @param headerBytes byte[] containing header information
      * @return acknowledgment integer that is the acknowledgment number from header
      */
-    public int getAcknowledgmentNumber(byte[] headerBytes);
+    public long getAcknowledgmentNumber(byte[] headerBytes);
     
     /**
      * Takes byte[] containing header information, and prints a string with the sequence number
