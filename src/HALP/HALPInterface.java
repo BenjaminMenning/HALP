@@ -333,6 +333,13 @@ public interface HALPInterface
     public long generateSequenceNumber();
     
     /**
+     * 
+     * @param sequence current sequence number that was sent in last segment
+     * @return seq long that is the next sequence number to be used when sending the next segment
+     */
+    public long incrementSequence(long sequence);
+    
+    /**
      * This method takes a byte[] containing header information and modifies the sequence number bytes to the correct 
      * sequence number representation and then returns the array back out 
      * sequence number has a max of 42944967295, if generated is larger then minus 42944967295 from that number generated to 
