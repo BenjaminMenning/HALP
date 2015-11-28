@@ -899,11 +899,9 @@ public abstract class HALP implements HALPInterface
     @Override
     public long generateSequenceNumber(){
         Random ran = new Random();
-        int sequence = Math.abs(ran.nextInt());//max int = 2147483647
+        long sequence = Math.abs(ran.nextInt());//max int = 2147483647
         long seq = (sequence * 2)+1;
-          if(seq > (2147483647 * 2) +1){
-              seq = seq - ((2147483647 * 2) +1);
-          }
+          
                
        return seq;
                      
@@ -920,7 +918,6 @@ public abstract class HALP implements HALPInterface
     
     @Override
    public byte[] setSequenceNumber(byte[] headerBytes, long number){ //takes incremented sequence number and places in a 4 byte array to be copied into header
-       
         headerBytes[SEQ_OFFSET] = (byte) ((number>>24) & 0xFF);                 
         headerBytes[SEQ_OFFSET + 1] = (byte) ((number>>16) & 0xFF);
         headerBytes[SEQ_OFFSET + 2] = (byte) ((number>>8) & 0xFF);
@@ -937,7 +934,6 @@ public abstract class HALP implements HALPInterface
        (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
        (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
 //        System.out.println("Sequence number: " + sequenceNum);
-        
         return sequenceNum;
        
    }
@@ -957,7 +953,7 @@ public abstract class HALP implements HALPInterface
     @Override
   public long generateAcknowledgement(long sequence){
       long acknowledgment;
-       if(sequence == (2147483647*2) +1){
+       if(sequence == 4294967296L){
            acknowledgment = 0;
        }
        else{
