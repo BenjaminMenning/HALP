@@ -58,6 +58,7 @@ public class HALPIG extends HALP implements HALPIGInterface
         msgSize = HEDR_LEN + maxDataRate;
         boolean isError;
         boolean isCorrupt;
+        boolean isLost;
         System.out.println("Internet gateway has started.");
         while(true)
         {
@@ -69,6 +70,7 @@ public class HALPIG extends HALP implements HALPIGInterface
                 // Error variables
                 isError = false;
                 isCorrupt = false;
+                isLost = false;
                 
                 if(isSyn && !isAck) 
                 {
@@ -132,13 +134,13 @@ public class HALPIG extends HALP implements HALPIGInterface
                     {
                         rcvdMsg = generateByteError(rcvdMsg);
                     }
-//                    else
-//                    {
-//                        // do nothing
-//                    }
+                    else
+                    {
+                        isLost = true;
+                    }
                 }
                 
-                if(isCorrupt)
+                if(!isLost)
                 {
                     sendMessage(rcvdMsg);
                 }

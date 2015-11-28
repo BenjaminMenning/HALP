@@ -58,5 +58,5 @@ public interface HALPClientInterface extends HALPInterface
     
     public void runAsSender() throws FileNotFoundException, IOException, Exception;
 
-    public void runAsReceiver() throws FileNotFoundException, IOException, Exception;
+    public void runAsReceiver(byte[] firstMsg) throws FileNotFoundException, IOException, Exception;
 }

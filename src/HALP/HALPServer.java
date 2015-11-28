@@ -68,7 +68,7 @@ public class HALPServer extends HALPClient
                 sendMessage(rcvdMsg);
                 if(isUpld)
                 {
-                    runAsReceiver();
+                    runAsReceiver(rcvdMsg); // Received message is placeholder
                 }
                 else
                 {

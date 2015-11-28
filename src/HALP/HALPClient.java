@@ -16,8 +16,8 @@ public class HALPClient extends HALP implements HALPClientInterface
 {
         // Hard coded IP addresses for testing
     protected String homeTestIP = "192.168.0."; // for testing at home
-    protected String testIGIP = homeTestIP + "111";
-    protected String testServIP = homeTestIP + "110";
+    protected String testIGIP = homeTestIP + "110";
+    protected String testServIP = homeTestIP + "109";
     protected String testFileName = "alice.txt";
     protected boolean testIsUpload = true;
     protected int testDataRate = 5000;
@@ -226,10 +226,9 @@ public class HALPClient extends HALP implements HALPClientInterface
             // Create header
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
+            tempHeader = setDRTFlag(tempHeader, isUpload);
             tempHeader = setSYNFlag(tempHeader, true);
-            tempHeader = setDRTFlag(tempHeader, testIsUpload);
             tempHeader = setSequenceNumber(tempHeader,generateSequenceNumber());
-            printMessage(tempHeader);
 
             // Set data fields and checksum
             int dataLen = fileName.length() + DTRT_LEN;
@@ -259,6 +258,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             // Sets data rate based on what IG places in data rate field
             int igDataRate = getDataRateField(rcvdMsg);
             setDataRate(igDataRate);
+            System.out.println(dataRate);
             msgSize = HEDR_LEN + igDataRate;
             
             // If the transfer is a upload, then run as sender
@@ -266,11 +266,26 @@ public class HALPClient extends HALP implements HALPClientInterface
             {
                 runAsSender();
             }
+            
             // If the transfer is a download, keep sending ACK and then run as
             // receiver
-            else
+            else if(!isUpload)
             {
-                while(!isSyn && !isAck)
+                // Create header
+                tempHeader = setDestIP(tempHeader, servIPAddr);
+                tempHeader = setDestPN(tempHeader, servPortNum);
+                tempHeader = setDRTFlag(tempHeader, isUpload);
+                tempHeader = setACKFlag(tempHeader, true);
+                tempHeader = setSYNFlag(tempHeader, true);
+                tempHeader = setSequenceNumber(tempHeader,generateSequenceNumber());
+                printMessage(tempHeader);
+
+                // Set data fields and checksum
+                tempData = new byte[1];
+                tempMsg = assembleMessage(tempHeader, tempData);
+                tempMsg = setChecksum(tempMsg);
+
+                while(isSyn && !isAck)
                 {
                     sendMessage(tempMsg);
                     rcvdMsg = receiveMessage();
@@ -278,7 +293,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                     isAck = isACKFlagSet(rcvdMsg);
     //                isDrt = isDRTFlagSet(rcvdMsg);
                 }
-                runAsReceiver();
+                runAsReceiver(rcvdMsg);
             }
         } 
         catch (Exception ex) 
@@ -310,9 +325,12 @@ public class HALPClient extends HALP implements HALPClientInterface
         boolean isChkValid = false;
         
         // Added for new server implementation
-        try {
+        try 
+        {
             deviceSocket = new DatagramSocket(servPortNum);
-        } catch (SocketException ex) {
+        } 
+        catch (SocketException ex) 
+        {
             Logger.getLogger(HALPClient.class.getName()).log(Level.SEVERE, null, ex);
         }
         
@@ -320,22 +338,32 @@ public class HALPClient extends HALP implements HALPClientInterface
         System.out.println("Server has started.");
         while(placeholderCondition == false)
         {
+            isChkValid = false;
             try 
             {
                 // Keep sending negative acknowledgment until checksum is valid
-                while(!isChkValid)
+                // and SYN flag is set
+                while(isChkValid == false)
                 {
                     // Receive message
                     rcvdMsg = receiveMessage();
                     
+                    // Retrieves the outgoing connection info from the datagram
+                    igIPAddr = currDtgm.getAddress().getHostAddress();
+                    igINAddr = InetAddress.getByName(igIPAddr);
+                    igPortNum = currDtgm.getPort();
+                    
                     // Retrieve checksum
                     isChkValid = isChecksumValid(rcvdMsg);
+                    if(isChkValid)
+                        break;
+                    System.out.println(isChkValid + " supposed to leave here");
                     
                     // Create header
 //                    tempHeader = setDestIP(tempHeader, servIPAddr);
 //                    tempHeader = setDestPN(tempHeader, servPortNum);
-                    tempHeader = setSYNFlag(tempHeader, true);
                     tempHeader = setACKFlag(tempHeader, isChkValid);
+                    tempHeader = setSYNFlag(tempHeader, true);
                     tempHeader = setSequenceNumber(tempHeader, 
                             generateSequenceNumber());
                     
@@ -346,12 +374,11 @@ public class HALPClient extends HALP implements HALPClientInterface
                 }
                      
                 // Retrieve flags
-                isSyn = isSYNFlagSet(rcvdMsg);
                 isAck = isACKFlagSet(rcvdMsg);
+                isSyn = isSYNFlagSet(rcvdMsg);
                 isUpld = isDRTFlagSet(rcvdMsg);
                     
-                // If SYN flag is set but ACK flag is not set 
-                if(isSyn && !isAck) 
+                if(!isAck && isSyn)
                 {
                     // Retrieve file name, data rate, and determine message size
                     fileName = getFileNameField(rcvdMsg);
@@ -360,38 +387,34 @@ public class HALPClient extends HALP implements HALPClientInterface
 
                     // Re-initialize data to account for data rate field
                     tempData = new byte[2];
-                    
+
                     // Create header
-//                    tempHeader = setDestIP(tempHeader, servIPAddr);
-//                    tempHeader = setDestPN(tempHeader, servPortNum);
-                    tempHeader = setSYNFlag(tempHeader, true);
+    //                    tempHeader = setDestIP(tempHeader, servIPAddr);
+    //                    tempHeader = setDestPN(tempHeader, servPortNum);
                     tempHeader = setACKFlag(tempHeader, true);
+                    tempHeader = setSYNFlag(tempHeader, true);
                     tempHeader = setSequenceNumber(tempHeader, 
                             generateSequenceNumber());
-                    
+
                     // Create message to send to client
                     tempMsg = assembleMessage(tempHeader, tempData);
                     tempMsg = setDataRateField(tempMsg, dataRate);
                     tempMsg = setChecksum(tempMsg);
                     sendMessage(tempMsg);
-                    
-                    // Receive message
-                    rcvdMsg = setACKFlag(rcvdMsg, true);
-                    
-                    // Retrieves the outgoing connection info from the datagram
-                    igIPAddr = currDtgm.getAddress().getHostAddress();
-                    igINAddr = InetAddress.getByName(igIPAddr);
-                    igPortNum = currDtgm.getPort();
+                    printFileNameField(tempMsg);
+                    printDataRateField(tempMsg);
                 }
                 // If ACK is set and DRT is an upload
                 else if(isAck && isUpld)
                 {
-                    runAsReceiver();
+                    isUpload = isUpld;
+                    runAsReceiver(rcvdMsg);
                     placeholderCondition = true;
                 }
                 // If ACK is set and DRT is a download
                 else if(isAck && !isUpld)
                 {
+                    isUpload = isUpld;
                     runAsSender();
                     placeholderCondition = true;
                 }
@@ -409,73 +432,144 @@ public class HALPClient extends HALP implements HALPClientInterface
     {
         System.out.println("Begin sending data");
         start = startTransferTimer();
+        
+        // Create input file and start file input stream
         inputFile = new File(fileName);
         fInStr = new FileInputStream(fileName);
         
+        // Initialize message variables
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = new byte[dataRate]; // change later
         byte[] tempMsg = null;
+        
+        // Initialize flag variables
+        boolean isAck = false;
+        boolean isChkValid = false;
+        
+        // Sends messages until the end of the file has been reached
         while(fInStr.available() != 0)
         {
+            // Create message
             tempData = new byte[dataRate];
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
-//            tempHeader = setDRTFlag(tempHeader, true);
-//            printMessage(tempHeader);
+            tempHeader = setDRTFlag(tempHeader, isUpload);
+            tempHeader = setACKFlag(tempHeader, true);
             fInStr.read(tempData, 0, dataRate);
             tempMsg = assembleMessage(tempHeader, tempData);
+            tempMsg = setChecksum(tempMsg);
             
-            boolean isAck = false;
-            while(!isAck)
+            // Reset flags
+            isAck = false;
+            isChkValid = false;
+            
+            // Resend message if acknowledgment is negative or checksum invalid
+            while(!isAck || !isChkValid)
             {
                 Thread.sleep(1000);
                 sendMessage(tempMsg);
                 byte[] rcvdMsg = receiveMessage();
+                isChkValid = isChecksumValid(rcvdMsg);
                 isAck = isACKFlagSet(rcvdMsg);
             }
         }
         stop = stopTransferTimer();
+        
+        // Create message
+        tempHeader = setDestIP(tempHeader, servIPAddr);
+        tempHeader = setDestPN(tempHeader, servPortNum);
+        tempHeader = setDRTFlag(tempHeader, isUpload);
+        tempHeader = setACKFlag(tempHeader, true);
         tempHeader = setFINFlag(tempHeader, true);
         tempData = new byte[1];
         tempMsg = assembleMessage(tempHeader, tempData);
-        sendMessage(tempMsg);
+        tempMsg = setChecksum(tempMsg);
+            
+        // Reset flags
+        isAck = false;
+        isChkValid = false;
         
+        // Resend message if acknowledgment is negative or checksum invalid
+        while(!isAck || !isChkValid)
+        {
+            Thread.sleep(1000);
+            sendMessage(tempMsg);
+            byte[] rcvdMsg = receiveMessage();
+            isChkValid = isChecksumValid(rcvdMsg);
+            isAck = isACKFlagSet(rcvdMsg);
+        }
+        
+        // Close file input stream and connection
         fInStr.close();
         closeConnection();
     }
 
     @Override
-    public void runAsReceiver() throws FileNotFoundException, IOException, Exception 
+    public void runAsReceiver(byte[] firstMsg) throws FileNotFoundException, 
+            IOException, Exception 
     {
         System.out.println("Begin receiving data");
+        
+        // Initialize flag variables
         boolean isFin = false;
+        boolean isFirst = true;
+        boolean isChkValid = false;
+        
+        // Initialize file location and set file name
         String desktopStr = System.getProperty("user.home") + "/Desktop/";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Date now = new Date();
         String strDate = sdf.format(now);
-//        File desktopFile = new File(desktopStr + fileName);
-        
         fileName = strDate + "-" + fileName;
         outputFile = new File(desktopStr + fileName);
         fOutStr = new FileOutputStream(outputFile);
         
+        // Initialize message variables
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = new byte[1]; // change later
         byte[] rcvdData = null;
         byte[] tempMsg = null;
-        while(isFin == false)
+        byte[] rcvdMsg = null;
+        
+        // Run until end of data stream is reached
+        while(!isFin)
         {
-            byte[] rcvdMsg = receiveMessage();
-            isFin = isFINFlagSet(rcvdMsg);
-//            tempHeader = getHeader(rcvdMsg);
-            rcvdData = getData(rcvdMsg);
-            fOutStr.write(rcvdData);
+            // Wait for received message if not the first
+            if(!isFirst)
+            {
+                rcvdMsg = receiveMessage();
+            }
+            // Assign received message as variable passed in parameter
+            else
+            {
+                rcvdMsg = firstMsg;
+                isFirst = false;
+            }
             
-            tempHeader = setACKFlag(tempHeader, true);
+            // Checks if checksum is valid and if FIN flag is set
+            isChkValid = isChecksumValid(rcvdMsg);
+            isFin = isFINFlagSet(rcvdMsg);
+            
+            // If checksum is valid, write data out  to file and set ACK flag
+            if(isChkValid)
+            {
+                rcvdData = getData(rcvdMsg);
+                fOutStr.write(rcvdData);
+                tempHeader = setACKFlag(tempHeader, true);
+            }
+            // If checksum is valid, don't set ACK flag
+            else
+            {
+                tempHeader = setACKFlag(tempHeader, false);
+            }
+            
+            tempHeader = setDRTFlag(tempHeader, isUpload);
             tempMsg = assembleMessage(tempHeader, tempData);
+            tempMsg = setChecksum(tempMsg);
             sendMessage(tempMsg);
         }
+        
+        // Close file input stream and connection
         fOutStr.close();
         closeConnection();
     }
