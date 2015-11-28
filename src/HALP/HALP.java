@@ -902,7 +902,7 @@ public abstract class HALP implements HALPInterface
         int sequence = Math.abs(ran.nextInt());//max int = 2147483647
         long seq = (sequence * 2)+1;
           if(seq > (2147483647 * 2) +1){
-              seq = seq - ((2147483647 * 2) +2);
+              seq = seq - ((2147483647 * 2) +1);
           }
                
        return seq;
