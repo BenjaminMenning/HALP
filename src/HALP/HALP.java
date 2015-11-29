@@ -83,6 +83,7 @@ public abstract class HALP implements HALPInterface
     protected static final int DTRT_LEN = 2;
 
     // Constants for header field byte offsets
+    protected static final int HEDR_OFFSET = 0;
     protected static final int DESTIP_OFFSET = 0;
     protected static final int DESTPN_OFFSET = 4;
     protected static final int CRC_OFFSET = 6;
@@ -637,8 +638,8 @@ public abstract class HALP implements HALPInterface
         deviceSocket.send(sendPacket);
         
         // Display the message
-        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
-        System.out.println("Message sent is: [" + sentMessage + "]");	
+//        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
+        System.out.println("Message sent is: ");	
         printMessage(msgBytes);
     }
     
@@ -668,8 +669,8 @@ public abstract class HALP implements HALPInterface
         currDtgm = receivedDatagram;
         
         // Display the message
-        String echodMessage = new String(data, 0, receivedDatagram.getLength());
-        System.out.println("Message received is: [" + echodMessage + "]");
+//        String echodMessage = new String(data, 0, receivedDatagram.getLength());
+        System.out.println("Message received is: ");
         printMessage(data);
         return data;
     }
@@ -794,15 +795,25 @@ public abstract class HALP implements HALPInterface
         System.out.println(flagInfo);
     }
     
+    public void printHeaderField(byte[] messageBytes)
+    {
+        String headerInfo = "Header: [";
+        byte tempHedrBytes[] = Arrays.copyOfRange(messageBytes, HEDR_OFFSET, 
+                (HEDR_OFFSET + HEDR_LEN));
+        String headerStr = new String(tempHedrBytes, 0, Array.getLength(tempHedrBytes));
+        headerInfo += headerStr + "]";
+        System.out.println(headerInfo);
+    }
+    
     @Override
     public void printDataField(byte[] messageBytes)
     {
-        String dataInfo = "Data: ";
+        String dataInfo = "Data: [";
         int dataLen = messageBytes.length - HEDR_LEN;
         byte tempDataBytes[] = Arrays.copyOfRange(messageBytes, DATA_OFFSET, 
                 (DATA_OFFSET + dataLen));
         String dataStr = new String(tempDataBytes, 0, Array.getLength(tempDataBytes));
-        dataInfo += dataStr;
+        dataInfo += dataStr + "]";
         System.out.println(dataInfo);
     }
     
@@ -839,6 +850,8 @@ public abstract class HALP implements HALPInterface
     {
         int msgLen = Array.getLength(messageBytes);
         int dataLen = msgLen - HEDR_LEN;
+        printHeaderField(messageBytes);
+        printDataField(messageBytes);
         printDestIPField(messageBytes);
         printDestPNField(messageBytes);
         printChecksum(messageBytes);
@@ -847,7 +860,6 @@ public abstract class HALP implements HALPInterface
         printFlagField(messageBytes);
         System.out.println("Message length: " + msgLen + " bytes");
         System.out.println("Length of data field: " + dataLen + " bytes");
-        printDataField(messageBytes);
         System.out.println();
     }
     

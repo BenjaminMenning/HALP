@@ -15,7 +15,7 @@ public class HALPServer extends HALPClient
 {
     static DatagramSocket serverSocket;
 
-    private static final int SERVER_PORT = 54001;
+    private static final int SERVER_PORT = 43000;
     
     public static void main(String args[]) throws Exception
     {

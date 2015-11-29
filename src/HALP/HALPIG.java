@@ -26,7 +26,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     private InetAddress ingoingIN;
     private InetAddress outgoingIN;
     
-    private static final int IG_PORT = 54001;
+    private static final int IG_PORT = 43000;
     
     public static void main(String args[]) throws Exception
     {
@@ -185,8 +185,8 @@ public class HALPIG extends HALP implements HALPIGInterface
         deviceSocket.send(sendPacket);
         
         // Display the message
-        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
-        System.out.println("Message sent is: [" + sentMessage + "]");
+//        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
+        System.out.println("Message sent is: ");
         printMessage(msgBytes);
     }
     

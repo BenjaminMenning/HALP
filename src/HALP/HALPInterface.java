@@ -221,6 +221,8 @@ public interface HALPInterface
     
     public void printDataRateField(byte[] messageBytes);
     
+    public void printHeaderField(byte[] messageBytes);
+    
     public void printDataField(byte[] messageBytes);
     
     public void printChecksum(byte[] messageBytes);
