@@ -820,21 +820,23 @@ public abstract class HALP implements HALPInterface
     
     @Override
     public void printSequenceNumber(byte[] headerBytes){
-        int printSequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
-       (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
-       (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
-       (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
-        System.out.println("Sequence number: " + printSequenceNum);
+         long printSeq = getSequenceNumber(headerBytes);
+//        int printSequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
+//       (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
+//       (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
+//       (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
+        System.out.println("Sequence number: " + printSeq);
     }
     
     @Override
      public void printAcknowledgmentNumber(byte[] headerBytes){
-         int printAcknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
-       (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
-       (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
-       (headerBytes[ACK_OFFSET + 3])&0x000000ff;
+         long printAck  = getAcknowledgmentNumber(headerBytes);
+//         int printAcknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
+//       (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
+//       (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
+//       (headerBytes[ACK_OFFSET + 3])&0x000000ff;
          
-        System.out.println("Acknowledgment number: " + printAcknowledgment);
+        System.out.println("Acknowledgment number: " + printAck);
     }
         
     @Override
@@ -912,17 +914,17 @@ public abstract class HALP implements HALPInterface
     @Override
     public long generateSequenceNumber(){
         Random ran = new Random();
-        long sequence = Math.abs(ran.nextInt());//max int = 2147483647
-                                                   //long seq = (sequence * 2)+1;
+        long sequence = Math.abs(ran.nextInt());  //max int = 2147483647
+        long seq = (sequence * 2)+1;  //allows for the creation of max sequence number of 4294967295
           
-       return sequence;
+       return seq;
                      
    }
     
     @Override
    public long incrementSequence(long sequence){
        long seq = sequence+1;
-       if(seq == 2147483647+1){                    //(2147483647*2) +2){
+       if(seq == 4294967296L){  // max sequence number = 4294967295, so we need to wrap back to 0
            seq = 0;
        }
        return seq;
@@ -930,155 +932,130 @@ public abstract class HALP implements HALPInterface
     
     @Override
    public byte[] setSequenceNumber(byte[] headerBytes, long number){ //takes incremented sequence number and places in a 4 byte array to be copied into header
-        headerBytes[SEQ_OFFSET] = (byte) ((number>>24) & 0xFF);                 
-        headerBytes[SEQ_OFFSET + 1] = (byte) ((number>>16) & 0xFF);
-        headerBytes[SEQ_OFFSET + 2] = (byte) ((number>>8) & 0xFF);
-        headerBytes[SEQ_OFFSET + 3] = (byte) (number & 0xFF);
+       String sequenceNumber = Long.toBinaryString(number);
        
-       return headerBytes;
+       if(sequenceNumber.length() < 32)
+        {
+            int zeroCount = 32 - sequenceNumber.length();
+            while (zeroCount > 0)
+            {
+                sequenceNumber = "0" + sequenceNumber;
+                zeroCount--;
+            }
+        }
        
-//       byte[] buf = new byte[4];
-//       ByteBuffer buffer = ByteBuffer.allocate(Long.SIZE);
-//       buffer.putLong(number);
-//     
-//       buf = buffer.array();
-//       
-//       headerBytes[SEQ_OFFSET] = buf[0];
-//       headerBytes[SEQ_OFFSET+1] = buf[1];
-//       headerBytes[SEQ_OFFSET+2] = buf[2];
-//       headerBytes[SEQ_OFFSET+3] = buf[3];
-//       
-//       return headerBytes;
-//
-//
-//       
-//       String sequenceNumber = Long.toBinaryString(number);
-//       
-//       if(sequenceNumber.length() < 32)
-//        {
-//            int zeroCount = 16 - sequenceNumber.length();
-//            while (zeroCount > 0)
-//            {
-//                sequenceNumber = "0" + sequenceNumber;
-//                zeroCount--;
-//            }
-//        }
-//       
-//         //Parses binary string into two integers for two
-//        // separate bytes and assigns them
-//        long part1 = Long.parseLong(sequenceNumber.substring(0, 8), 2);
-//        long part2 = Long.parseLong(sequenceNumber.substring(8, 16),2);
-//        long part3 = Long.parseLong(sequenceNumber.substring(16, 24),2);
-//        long part4 = Long.parseLong(sequenceNumber.substring(24, 32),2);
-//        headerBytes[SEQ_OFFSET] = (byte) part1;               
-//        headerBytes[SEQ_OFFSET + 1] = (byte) part2;
-//        headerBytes[SEQ_OFFSET + 2] = (byte) part3;
-//        headerBytes[SEQ_OFFSET + 3] = (byte) part4;
-//   
-//        return headerBytes;
+         //Parses binary string into two integers for two
+        // separate bytes and assigns them
+        long part1 = Long.parseLong(sequenceNumber.substring(0, 8), 2);
+        long part2 = Long.parseLong(sequenceNumber.substring(8, 16),2);
+        long part3 = Long.parseLong(sequenceNumber.substring(16, 24),2);
+        long part4 = Long.parseLong(sequenceNumber.substring(24, 32),2);
+        headerBytes[SEQ_OFFSET] = (byte) part1;               
+        headerBytes[SEQ_OFFSET + 1] = (byte) part2;
+        headerBytes[SEQ_OFFSET + 2] = (byte) part3;
+        headerBytes[SEQ_OFFSET + 3] = (byte) part4;
+   
+        return headerBytes;
    }
     
     @Override
-   public long getSequenceNumber(byte[] headerBytes){
+   public long getSequenceNumber(byte[] headerBytes){ 
+        // Create and assign sequence bytes
+        byte[] sequenceBytes = Arrays.copyOfRange(headerBytes, SEQ_OFFSET, 
+                (SEQ_OFFSET + SEQ_LEN));
+
+        // Assign port number bytes as ints
+        long firstLong = sequenceBytes[0];
+        long secondLong = sequenceBytes[1];
+        long thirdLong = sequenceBytes[2];
+        long fourthLong = sequenceBytes[3];
+
+        // Convert byte ints to strings
+        String firstLongStr = Long.toBinaryString((long) firstLong);
+        String secondLongStr = Long.toBinaryString((long) secondLong);
+        String thirdLongStr = Long.toBinaryString((long) thirdLong);
+        String fourthLongStr = Long.toBinaryString((long) fourthLong);
+
+        // Add 0's if length is less than 8 bits
+        if(firstLongStr.length() < 8){
+            long zeroCount = 8 - firstLongStr.length();
+            while (zeroCount > 0){
+                firstLongStr = "0" + firstLongStr;
+                zeroCount--;
+            }
+        }
+        if(secondLongStr.length() < 8){
+            long zeroCount = 8 - secondLongStr.length();
+            while (zeroCount > 0){
+                secondLongStr = "0" + secondLongStr;
+                zeroCount--;
+            }
+        }
         
-        long sequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
-       (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
-       (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
-       (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
-//        System.out.println("Sequence number: " + sequenceNum);
+        if(thirdLongStr.length() < 8){
+            long zeroCount = 8 - thirdLongStr.length();
+            while (zeroCount > 0){
+                thirdLongStr = "0" + thirdLongStr;
+                zeroCount--;
+            }
+        }
+        if(fourthLongStr.length() < 8){
+            long zeroCount = 8 - fourthLongStr.length();
+            while (zeroCount > 0){
+                fourthLongStr = "0" + fourthLongStr;
+                zeroCount--;
+            }
+        }
+        
+         // Parse to 8 bit strings
+        String firstLongBits = firstLongStr.substring(firstLongStr.length() - 8);
+        String secondLongBits = secondLongStr.substring(secondLongStr.length() - 8);
+        String thirdLongBits = thirdLongStr.substring(thirdLongStr.length() - 8);
+        String fourthLongBits = fourthLongStr.substring(fourthLongStr.length() - 8);
+
+        // Combines 8 bit strings into one complete string
+        String completeLongStr = firstLongBits + "" + secondLongBits+ "" + thirdLongBits+ "" + fourthLongBits;
+
+        // Converts complete String from unsigned integer to int
+       // int completePN = Integer.parseUnsignedInt(completePNStr, 2);  //requres java 8 to run this coding
+        Long sequenceNum= (Long) Long.parseLong(completeLongStr, 2);    //equivalent of above coding for non java8
         return sequenceNum;
-       
-//             byte[] seq = new byte[4];
-//             seq[0]= headerBytes[SEQ_OFFSET];
-//             seq[1]= headerBytes[SEQ_OFFSET+1];
-//             seq[2]= headerBytes[SEQ_OFFSET+2];
-//             seq[3]= headerBytes[SEQ_OFFSET+3];
-//             
-//            
-//             ByteBuffer buffer = ByteBuffer.allocate(Long.SIZE);
-//             buffer.put(seq);
-//        //    buffer.flip();//need flip 
-//             long sequenceNum = buffer.getLong();
-//
-//            
-//        // Create and assign port bytes
-//        byte[] sequenceBytes = Arrays.copyOfRange(headerBytes, SEQ_OFFSET, 
-//                (SEQ_OFFSET + SEQ_LEN));
-//
-//        // Assign port number bytes as ints
-//        long firstLong = sequenceBytes[0];
-//        long secondLong = sequenceBytes[1];
-//        long thirdLong = sequenceBytes[2];
-//        long fourthLong = sequenceBytes[3];
-//
-//        // Convert byte ints to strings
-//        String firstLongStr = Long.toBinaryString((long) firstLong);
-//        String secondLongStr = Long.toBinaryString((long) secondLong);
-//        String thirdLongStr = Long.toBinaryString((long) thirdLong);
-//        String fourthLongStr = Long.toBinaryString((long) fourthLong);
-//
-//        // Add 0's if length is less than 8 bits
-//        if(firstLongStr.length() < 8){
-//            long zeroCount = 8 - firstLongStr.length();
-//            while (zeroCount > 0){
-//                firstLongStr = "0" + firstLongStr;
-//                zeroCount--;
-//            }
-//        }
-//        if(secondLongStr.length() < 8){
-//            long zeroCount = 8 - secondLongStr.length();
-//            while (zeroCount > 0){
-//                secondLongStr = "0" + secondLongStr;
-//                zeroCount--;
-//            }
-//        }
-//        
-//        if(thirdLongStr.length() < 8){
-//            long zeroCount = 8 - thirdLongStr.length();
-//            while (zeroCount > 0){
-//                thirdLongStr = "0" + thirdLongStr;
-//                zeroCount--;
-//            }
-//        }
-//        if(fourthLongStr.length() < 8){
-//            long zeroCount = 8 - fourthLongStr.length();
-//            while (zeroCount > 0){
-//                fourthLongStr = "0" + fourthLongStr;
-//                zeroCount--;
-//            }
-//        }
-//        
-//         // Parse to 8 bit strings
-//        String firstLongBits = firstLongStr.substring(firstLongStr.length() - 8);
-//        String secondLongBits = secondLongStr.substring(secondLongStr.length() - 8);
-//        String thirdLongBits = thirdLongStr.substring(thirdLongStr.length() - 8);
-//        String fourthLongBits = fourthLongStr.substring(fourthLongStr.length() - 8);
-//
-//        // Combines 8 bit strings into one complete string
-//        String completeLongStr = firstLongBits + "" + secondLongBits+ "" + thirdLongBits+ "" + fourthLongBits;
-//
-//        // Converts complete String from unsigned integer to int
-//       // int completePN = Integer.parseUnsignedInt(completePNStr, 2);  //requres java 8 to run this coding
-//        Long sequenceNum= (Long) Long.parseLong(completeLongStr, 2);    //equivalent of above coding for non java8
-//        return sequenceNum;
    }
    
     @Override  //pass in the header bytes from received message, pass in header bytes of message that will be sent. Extracts
                // sequence number from recieved header and incruments it by one and then places inside acknowledgement feild 
                // in header for the next message to be sent
-   public byte[] setAcknowledgmentNumber(byte[] headerBytes, long acknowledgment){
-        headerBytes[ACK_OFFSET] = (byte) ((acknowledgment>>24) & 0xFF);                 
-        headerBytes[ACK_OFFSET + 1] = (byte) ((acknowledgment>>16) & 0xFF);
-        headerBytes[ACK_OFFSET + 2] = (byte) ((acknowledgment>>8) & 0xFF);
-        headerBytes[ACK_OFFSET + 3] = (byte) (acknowledgment & 0xFF);
+   public byte[] setAcknowledgmentNumber(byte[] headerBytes, long acknowledgment){   
+       String acknowledgmentNumber = Long.toBinaryString(acknowledgment);
        
-       return headerBytes;
+       if(acknowledgmentNumber.length() < 32)
+        {
+            int zeroCount = 32 - acknowledgmentNumber.length();
+            while (zeroCount > 0)
+            {
+                acknowledgmentNumber = "0" + acknowledgmentNumber;
+                zeroCount--;
+            }
+        }
+       
+         //Parses binary string into four integers for four
+        // separate bytes and assigns them
+        long part1 = Long.parseLong(acknowledgmentNumber.substring(0, 8), 2);
+        long part2 = Long.parseLong(acknowledgmentNumber.substring(8, 16),2);
+        long part3 = Long.parseLong(acknowledgmentNumber.substring(16, 24),2);
+        long part4 = Long.parseLong(acknowledgmentNumber.substring(24, 32),2);
+        headerBytes[ACK_OFFSET] = (byte) part1;               
+        headerBytes[ACK_OFFSET + 1] = (byte) part2;
+        headerBytes[ACK_OFFSET + 2] = (byte) part3;
+        headerBytes[ACK_OFFSET + 3] = (byte) part4;
+   
+        return headerBytes;
    }
        
     @Override
   public long generateAcknowledgement(long sequence){
       long acknowledgment;
-       if(sequence == 2147483647+1){                                  // 4294967296L){
+       if(sequence == 4294967296L){  
            acknowledgment = 0;
        }
        else{
@@ -1089,13 +1066,65 @@ public abstract class HALP implements HALPInterface
         
    
     @Override
-   public long getAcknowledgmentNumber(byte[] headerBytes){
-       
-       long acknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
-       (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
-       (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
-       (headerBytes[ACK_OFFSET + 3])&0x000000ff;
-       
-       return acknowledgment;
+   public long getAcknowledgmentNumber(byte[] headerBytes){  
+        byte[] acknowledgmentBytes = Arrays.copyOfRange(headerBytes, ACK_OFFSET, 
+                (ACK_OFFSET + ACK_LEN));
+
+        // Assign acknowledgment bytes as ints
+        long firstLong = acknowledgmentBytes[0];
+        long secondLong = acknowledgmentBytes[1];
+        long thirdLong = acknowledgmentBytes[2];
+        long fourthLong = acknowledgmentBytes[3];
+
+        // Convert byte ints to strings
+        String firstLongStr = Long.toBinaryString((long) firstLong);
+        String secondLongStr = Long.toBinaryString((long) secondLong);
+        String thirdLongStr = Long.toBinaryString((long) thirdLong);
+        String fourthLongStr = Long.toBinaryString((long) fourthLong);
+
+        // Add 0's if length is less than 8 bits
+        if(firstLongStr.length() < 8){
+            long zeroCount = 8 - firstLongStr.length();
+            while (zeroCount > 0){
+                firstLongStr = "0" + firstLongStr;
+                zeroCount--;
+            }
+        }
+        if(secondLongStr.length() < 8){
+            long zeroCount = 8 - secondLongStr.length();
+            while (zeroCount > 0){
+                secondLongStr = "0" + secondLongStr;
+                zeroCount--;
+            }
+        }
+        
+        if(thirdLongStr.length() < 8){
+            long zeroCount = 8 - thirdLongStr.length();
+            while (zeroCount > 0){
+                thirdLongStr = "0" + thirdLongStr;
+                zeroCount--;
+            }
+        }
+        if(fourthLongStr.length() < 8){
+            long zeroCount = 8 - fourthLongStr.length();
+            while (zeroCount > 0){
+                fourthLongStr = "0" + fourthLongStr;
+                zeroCount--;
+            }
+        }
+        
+         // Parse to 8 bit strings
+        String firstLongBits = firstLongStr.substring(firstLongStr.length() - 8);
+        String secondLongBits = secondLongStr.substring(secondLongStr.length() - 8);
+        String thirdLongBits = thirdLongStr.substring(thirdLongStr.length() - 8);
+        String fourthLongBits = fourthLongStr.substring(fourthLongStr.length() - 8);
+
+        // Combines 8 bit strings into one complete string
+        String completeLongStr = firstLongBits + "" + secondLongBits+ "" + thirdLongBits+ "" + fourthLongBits;
+
+        // Converts complete String from unsigned integer to int
+       // int completePN = Integer.parseUnsignedInt(completePNStr, 2);  //requres java 8 to run this coding
+        Long acknowledgmentNum= (Long) Long.parseLong(completeLongStr, 2);    //equivalent of above coding for non java8
+        return acknowledgmentNum;
    }
 }
