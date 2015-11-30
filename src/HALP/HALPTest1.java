@@ -75,6 +75,13 @@ public class HALPTest1
        tempTable.removeConnection(tempCon2);
        System.out.println(tempTable.printTable() + "\n");
        
+       //test for searching if connection exists
+       boolean found = tempTable.searchTable("172.2.3.6",2345);
+       System.out.println("Found connection? " + found +"\n");
+       
+       found = tempTable.searchTable("172.1.2.3", 5678);
+       System.out.println("Found connection? " + found + "\n");
+       
 //        
 //        InetAddress testINAddr;
 //        testINAddr = InetAddress.getByName(testIPAddr);
