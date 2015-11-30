@@ -49,4 +49,12 @@ public interface ConnectionTableInterface
      * @return String output of all connections stored in the table
      */
     public String printTable();
+    
+    /**
+     * 
+     * @param ipAddr  string ip address to look for a connection in the table
+     * @param portNum  int port number to look for a connection with
+     * @return result  boolean where true means the connection exists in the table
+     */
+    public boolean searchTable(String ipAddr, int portNum);
 }

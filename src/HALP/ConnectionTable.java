@@ -67,4 +67,24 @@ public class ConnectionTable implements ConnectionTableInterface
         }
         return printOut;
     }
+ 
+    @Override
+    public boolean searchTable(String ipAddr, int portNum){
+        boolean result = false;
+        for(int i = 0; i<table.size(); i++){
+            connect = table.get(i);
+            
+             if(ipAddr.equals(connect.getIpClient()) && portNum == connect.getPortClient()){
+              result = true;
+              break;
+             }
+             
+             else if(ipAddr.equals(connect.getIpServer()) && portNum == connect.getPortServer()){
+              result = true;
+              break;
+             }
+        }
+        return result;
+    }
+    
 }
