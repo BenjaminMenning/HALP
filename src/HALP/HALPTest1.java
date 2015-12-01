@@ -237,29 +237,30 @@ public class HALPTest1
 //        
 //        System.out.println(halpClient.errorDetectedLog(testMessage));
         
-          // Initialize file location and set file name for logging
-        String IGStr = System.getProperty("user.home") + "/Desktop/";
-        String IGName = "IG_Log.txt";
-        File IGFile = new File(IGStr + IGName);
-        try {
-            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        IGLog.println("Internet Gateways' Logging: \n");
-        IGLog.println("howdy" + "\n");
-        
-        IGLog.close();
-        
-       try {
-            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        IGLog.append("after file close");
-        IGLog.close();
-        
+        //Code for testing log writing and appending needed for the IG
+//          // Initialize file location and set file name for logging
+//        String IGStr = System.getProperty("user.home") + "/Desktop/";
+//        String IGName = "IG_Log.txt";
+//        File IGFile = new File(IGStr + IGName);
+//        try {
+//            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        IGLog.println("Internet Gateways' Logging: \n");
+//        IGLog.println("howdy" + "\n");
+//        
+//        IGLog.close();
+//        
+//       try {
+//            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        
+//        IGLog.append("after file close");
+//        IGLog.close();
+//        
                
    }  
    
