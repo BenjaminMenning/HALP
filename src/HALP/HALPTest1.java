@@ -260,7 +260,7 @@ public class HALPTest1
 //        
 //        IGLog.append("after file close");
 //        IGLog.close();
-//        
+        
                
    }  
    
