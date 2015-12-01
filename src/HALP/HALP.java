@@ -1128,6 +1128,7 @@ public abstract class HALP implements HALPInterface
         return acknowledgmentNum;
    }
    
+    @Override
    public String messageLog(byte[] headerBytes){
        String log = "Segment sent: ";
        
@@ -1145,6 +1146,7 @@ public abstract class HALP implements HALPInterface
        return log;
    }
    
+    @Override
     public String resendLog(byte[] headerBytes){
        String resendLog = "Segment resent: ";
        
@@ -1162,6 +1164,7 @@ public abstract class HALP implements HALPInterface
        return resendLog;
    }
    
+    @Override
     public String errorGeneratedLog(byte[] headerBytes){
        String errorLog = "Error generated for segment: ";
        
@@ -1179,6 +1182,7 @@ public abstract class HALP implements HALPInterface
        return errorLog;
    }
     
+    @Override
     public String errorDetectedLog(byte[] headerBytes){
        String errDetLog = "Error detected for segment: ";
        

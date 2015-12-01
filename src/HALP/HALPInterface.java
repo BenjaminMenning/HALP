@@ -394,4 +394,33 @@ public interface HALPInterface
      */
     public void printAcknowledgmentNumber(byte[] headerBytes);
     
+    /**
+     * 
+     * @param headerBytes byte [] containing header Bytes
+     * @return String containing information from the header(destination IP and port, sequence number, acknowledgment number, checksum, and data size)
+     */
+     public String messageLog(byte[] headerBytes);
+     
+     /**
+      * 
+     * @param headerBytes  byte [] containing header Bytes
+     * @return String stating resent segment plus information from the header(destination IP and port, sequence number, acknowledgment number, checksum, and data size)
+      */
+      public String resendLog(byte[] headerBytes);
+      
+      /**
+       * 
+     * @param headerBytes  byte [] containing header Bytes
+     * @return String stating error generated plus information from the header(destination IP and port, sequence number, acknowledgment number, checksum, and data size)
+       */
+       public String errorGeneratedLog(byte[] headerBytes);
+       
+       /**
+        * 
+     * @param headerBytes  byte [] containing header Bytes
+     * @return String stating error detected plus information from the header(destination IP and port, sequence number, acknowledgment number, checksum, and data size)
+        */
+       public String errorDetectedLog(byte[] headerBytes);
+     
+     
 }
