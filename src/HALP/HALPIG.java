@@ -4,10 +4,12 @@ package HALP;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -27,6 +29,9 @@ public class HALPIG extends HALP implements HALPIGInterface
     private InetAddress outgoingIN;
     
     private static final int IG_PORT = 43000;
+    
+     private PrintWriter IGLog = null;
+  
     
     public static void main(String args[]) throws Exception
     {
@@ -55,6 +60,22 @@ public class HALPIG extends HALP implements HALPIGInterface
     @Override
     public void run() 
     {
+       //creating log for internet gateway
+        String IGStr = System.getProperty("user.home") + "/Desktop/";
+        String IGName = "IG_Log.txt";
+        File IGFile = new File(IGStr + IGName);
+        try {
+            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        IGLog.write("Internet Gateways' Logging: \n");
+        IGLog.close();
+        
+        
+        
         msgSize = HEDR_LEN + maxDataRate;
         boolean isError;
         boolean isCorrupt;
@@ -128,6 +149,9 @@ public class HALPIG extends HALP implements HALPIGInterface
                 System.out.println("Is error: " + isError);
                 if(isError)
                 {
+                    IGLog.append(errorGeneratedLog(rcvdMsg) + "\n");
+                    IGLog.close();
+                    
                     isCorrupt = isCorrupt();
                     System.out.println("Is corrupt: " + isCorrupt);
                     if(isCorrupt)

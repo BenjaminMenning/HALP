@@ -5,11 +5,20 @@
  */
 package HALP;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -17,7 +26,7 @@ import java.util.Random;
  */
 public class HALPTest1 
 {
-   public static void main(String[] args) throws SocketException, UnknownHostException
+   public static void main(String[] args) throws SocketException, UnknownHostException, IOException
    {
         HALPClient halpClient = new HALPClient();
         HALPIG halpIG = new HALPIG();
@@ -27,6 +36,8 @@ public class HALPTest1
         byte[] testHeader = new byte[20];
         byte[] testData = new byte[100];
         byte[] testMsg = null;
+        
+        PrintWriter IGLog =null;
 
         
         //to test the sequence generating code
@@ -215,6 +226,40 @@ public class HALPTest1
 //        testMessage[0] = errorByte;
 //        crc2.update(testMessage, 0, testMessage.length);
 //        System.out.println(crc2.getValue());
+        
+        
+//        //testing of messages for logging
+//        System.out.println(halpClient.messageLog(testMessage));
+//        
+//        System.out.println(halpClient.resendLog(testMessage));
+//        
+//        System.out.println(halpClient.errorGeneratedLog(testMessage));
+//        
+//        System.out.println(halpClient.errorDetectedLog(testMessage));
+        
+          // Initialize file location and set file name for logging
+        String IGStr = System.getProperty("user.home") + "/Desktop/";
+        String IGName = "IG_Log.txt";
+        File IGFile = new File(IGStr + IGName);
+        try {
+            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        IGLog.println("Internet Gateways' Logging: \n");
+        IGLog.println("howdy" + "\n");
+        
+        IGLog.close();
+        
+       try {
+            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        IGLog.append("after file close");
+        IGLog.close();
+        
                
    }  
    

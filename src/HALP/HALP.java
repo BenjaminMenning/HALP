@@ -1127,4 +1127,74 @@ public abstract class HALP implements HALPInterface
         Long acknowledgmentNum= (Long) Long.parseLong(completeLongStr, 2);    //equivalent of above coding for non java8
         return acknowledgmentNum;
    }
+   
+   public String messageLog(byte[] headerBytes){
+       String log = "Segment sent: ";
+       
+       String destinationIP = getDestinationIP(headerBytes);
+       int destinationPort = getDestinationPort(headerBytes);
+       long sequenceNumber = getSequenceNumber(headerBytes);
+       long acknowledgmentNumber = getAcknowledgmentNumber(headerBytes);
+       int checksum = getChecksum(headerBytes);
+       int dataSize = getData(headerBytes).length;
+                                       
+       log += "Destination IP= " + destinationIP + ", Destination Port Number= " + destinationPort +
+               ", Sequence Number= " + sequenceNumber + ", Acknowledgment Number= " + acknowledgmentNumber + 
+               ", checksum value= " + checksum + ", size of data= " + dataSize + " Bytes.";
+       
+       return log;
+   }
+   
+    public String resendLog(byte[] headerBytes){
+       String resendLog = "Segment resent: ";
+       
+       String destinationIP = getDestinationIP(headerBytes);
+       int destinationPort = getDestinationPort(headerBytes);
+       long sequenceNumber = getSequenceNumber(headerBytes);
+       long acknowledgmentNumber = getAcknowledgmentNumber(headerBytes);
+       int checksum = getChecksum(headerBytes);
+       int dataSize = getData(headerBytes).length;
+                                       
+       resendLog += "Destination IP= " + destinationIP + ", Destination Port Number= " + destinationPort +
+               ", Sequence Number= " + sequenceNumber + ", Acknowledgment Number= " + acknowledgmentNumber + 
+               ", checksum value= " + checksum + ", size of data= " + dataSize + " Bytes.";
+       
+       return resendLog;
+   }
+   
+    public String errorGeneratedLog(byte[] headerBytes){
+       String errorLog = "Error generated for segment: ";
+       
+       String destinationIP = getDestinationIP(headerBytes);
+       int destinationPort = getDestinationPort(headerBytes);
+       long sequenceNumber = getSequenceNumber(headerBytes);
+       long acknowledgmentNumber = getAcknowledgmentNumber(headerBytes);
+       int checksum = getChecksum(headerBytes);
+       int dataSize = getData(headerBytes).length;
+                                       
+       errorLog += "Destination IP= " + destinationIP + ", Destination Port Number= " + destinationPort +
+               ", Sequence Number= " + sequenceNumber + ", Acknowledgment Number= " + acknowledgmentNumber + 
+               ", checksum value= " + checksum + ", size of data= " + dataSize + " Bytes.";
+       
+       return errorLog;
+   }
+    
+    public String errorDetectedLog(byte[] headerBytes){
+       String errDetLog = "Error detected for segment: ";
+       
+       String destinationIP = getDestinationIP(headerBytes);
+       int destinationPort = getDestinationPort(headerBytes);
+       long sequenceNumber = getSequenceNumber(headerBytes);
+       long acknowledgmentNumber = getAcknowledgmentNumber(headerBytes);
+       int checksum = getChecksum(headerBytes);
+       int dataSize = getData(headerBytes).length;
+                                       
+      errDetLog += "Destination IP= " + destinationIP + ", Destination Port Number= " + destinationPort +
+               ", Sequence Number= " + sequenceNumber + ", Acknowledgment Number= " + acknowledgmentNumber + 
+               ", checksum value= " + checksum + ", size of data= " + dataSize + " Bytes.";
+       
+       return errDetLog;
+   }
+   
+   
 }

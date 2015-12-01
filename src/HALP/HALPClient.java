@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.logging.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,6 +45,10 @@ public class HALPClient extends HALP implements HALPClientInterface
 //    private int expectedRetrans = (errorRate/(1-errorRate))*messagesGen;  not sure how we will get error rate transfered to client?????
 //    private int maxRetrans = 0;
 //    private final int PERCENTRETRANS = (RETRANSMISSIONS/totalMessages)*100;
+    
+    private PrintWriter senderLog = null;
+    private PrintWriter receiverLog = null;
+   
             
     public static void main (String args[]) throws Exception 
     {	
@@ -68,6 +73,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         halpClient.setFileName(testFileName);
         halpClient.setTransferDirection(testIsUpload);
         halpClient.setDataRate(testDataRate);
+        
         
         // For user input
 //        halpClient.inputIGIP();
@@ -464,6 +470,15 @@ public class HALPClient extends HALP implements HALPClientInterface
         inputFile = new File(fileName);
         fInStr = new FileInputStream(fileName);
         
+         
+        //creating log for sender
+        String senderStr = System.getProperty("user.home") + "/Desktop/";
+        String senderName = "Sender_Log.txt";
+        File senderFile = new File(senderStr + senderName);
+        senderLog = new PrintWriter(senderFile);
+        senderLog.println("Senders' Logging: \n");
+        
+        
         // Initialize message variables
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = new byte[dataRate]; // change later
@@ -500,7 +515,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                 isAck = isACKFlagSet(rcvdMsg);
             }
         }
-        stop = stopTransferTimer();
+        
         
         // Create message
         tempHeader = setDestIP(tempHeader, servIPAddr);
@@ -527,7 +542,9 @@ public class HALPClient extends HALP implements HALPClientInterface
         }
         
         // Close file input stream and connection
+        stop = stopTransferTimer();
         fInStr.close();
+        senderLog.close();
         closeConnection();
     }
 
@@ -551,6 +568,16 @@ public class HALPClient extends HALP implements HALPClientInterface
         fileName = strDate + "-" + fileName;
         outputFile = new File(desktopStr + fileName);
         fOutStr = new FileOutputStream(outputFile);
+        
+        
+        //creating log file for receiver
+        String receiverStr = System.getProperty("user.home") + "/Desktop/";
+        String receiverName = "Receiver_Log.txt";
+        File receiverFile = new File(receiverStr + receiverName);
+        receiverLog = new PrintWriter(receiverFile);
+        receiverLog.println("Receivers' Logging: \n");
+        
+        
         
         // Initialize message variables
         byte[] tempHeader = new byte[HEDR_LEN];
@@ -600,6 +627,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Close file input stream and connection
         fOutStr.close();
+        receiverLog.close();
         closeConnection();
     }
     
