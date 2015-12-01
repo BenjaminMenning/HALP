@@ -771,6 +771,11 @@ public abstract class HALP implements HALPInterface
             (FLAG_OFFSET + FLAG_LEN));
         byte tempFlagByte = tempFlagBytes[0];
         flagInfo += Integer.toBinaryString((int)tempFlagByte);
+        String drtInfo = "\nDRT set: " + isDRTFlagSet(headerBytes);
+        String ackInfo = "\nACK set: " + isACKFlagSet(headerBytes);
+        String synInfo = "\nSYN set: " + isSYNFlagSet(headerBytes);
+        String finInfo = "\nFIN set: " + isFINFlagSet(headerBytes);
+        flagInfo += drtInfo + ackInfo + synInfo + finInfo;
         System.out.println(flagInfo);
     }
     
@@ -851,8 +856,10 @@ public abstract class HALP implements HALPInterface
     @Override
     public void printMessage(byte[] messageBytes) 
     {
+        String dividerStr = "_______________________________________________";
         int msgLen = Array.getLength(messageBytes);
         int dataLen = msgLen - HEDR_LEN;
+        System.out.println(dividerStr);
         printHeaderField(messageBytes);
         printDataField(messageBytes);
         printDestIPField(messageBytes);
@@ -863,7 +870,7 @@ public abstract class HALP implements HALPInterface
         printFlagField(messageBytes);
         System.out.println("Message length: " + msgLen + " bytes");
         System.out.println("Length of data field: " + dataLen + " bytes");
-        System.out.println();
+        System.out.println(dividerStr);
     }
     
     /** 
