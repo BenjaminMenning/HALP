@@ -28,6 +28,12 @@ public class HALPClient extends HALP implements HALPClientInterface
     protected String fileName = "";
     protected int dataRate = 0;
     private boolean isUpload = false;
+    protected boolean isClient;
+    
+    protected long seqNum = 0;
+    protected long otherSeqNum = 0;
+    protected long ackNum = 0;
+    protected long otherAckNum = 0;
     
     private File inputFile = null;
     private File outputFile = null;
@@ -57,8 +63,8 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Hard coded IP addresses for testing
         String homeTestIP = "192.168.0."; // for testing at home
-        String testIGIP = homeTestIP + "110";
-        String testServIP = homeTestIP + "109";
+        String testIGIP = homeTestIP + "111";
+        String testServIP = homeTestIP + "113";
         String testFile1 = "alice.txt";
         String testFile2 = "mission0.txt";
         String testFile3 = "mission1.txt";
@@ -228,6 +234,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     @Override
     public void initiateConnection() 
     {
+        isClient = true;
         try 
         {
             System.out.println("Client has requested a connection.");
@@ -243,6 +250,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             boolean isSyn = false;
             boolean isDrt = false;
             boolean isChkValid = false;
+            seqNum = generateSequenceNumber();
 
             // User input
     //        inputIGIP();
@@ -259,9 +267,10 @@ public class HALPClient extends HALP implements HALPClientInterface
             // Create header
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
+            tempHeader = setSequenceNumber(tempHeader, seqNum);
+            tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
             tempHeader = setDRTFlag(tempHeader, isUpload);
             tempHeader = setSYNFlag(tempHeader, true);
-//            tempHeader = setSequenceNumber(tempHeader,generateSequenceNumber());
 
             // Set data fields and checksum
             int dataLen = fileName.length() + DTRT_LEN;
@@ -294,6 +303,10 @@ public class HALPClient extends HALP implements HALPClientInterface
             System.out.println(dataRate);
             msgSize = HEDR_LEN + igDataRate;
             
+            ackNum = getSequenceNumber(rcvdMsg);
+            ackNum = incrementSequence(ackNum);
+            seqNum = incrementSequence(seqNum);
+            
             // If the transfer is a upload, then run as sender
             if(isUpload)
             {
@@ -307,10 +320,11 @@ public class HALPClient extends HALP implements HALPClientInterface
                 // Create header
                 tempHeader = setDestIP(tempHeader, servIPAddr);
                 tempHeader = setDestPN(tempHeader, servPortNum);
+                tempHeader = setSequenceNumber(tempHeader, seqNum);
+                tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
                 tempHeader = setDRTFlag(tempHeader, isUpload);
                 tempHeader = setACKFlag(tempHeader, true);
                 tempHeader = setSYNFlag(tempHeader, true);
-//                tempHeader = setSequenceNumber(tempHeader,generateSequenceNumber());
                 printMessage(tempHeader);
 
                 // Set data fields and checksum
@@ -326,6 +340,10 @@ public class HALPClient extends HALP implements HALPClientInterface
                     isAck = isACKFlagSet(rcvdMsg);
     //                isDrt = isDRTFlagSet(rcvdMsg);
                 }
+                
+                ackNum = getSequenceNumber(rcvdMsg);
+                ackNum = incrementSequence(ackNum);
+                seqNum = incrementSequence(seqNum);
                 runAsReceiver(rcvdMsg);
             }
         } 
@@ -342,6 +360,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     @Override
     public void runAsServer() 
     {
+        isClient = false;
         // Sets default message size
         msgSize = 65000;
         
@@ -350,12 +369,13 @@ public class HALPClient extends HALP implements HALPClientInterface
         byte[] tempData = new byte[1]; // change later
         byte[] tempMsg = null;
         byte[] rcvdMsg = null;
-        
+                
         // Initialize flag variables
         boolean isAck = false;
         boolean isSyn = false;
         boolean isUpld = false;
         boolean isChkValid = false;
+        seqNum = generateSequenceNumber();
         
         // Added for new server implementation
         try 
@@ -390,15 +410,14 @@ public class HALPClient extends HALP implements HALPClientInterface
                     isChkValid = isChecksumValid(rcvdMsg);
                     if(isChkValid)
                         break;
-                    System.out.println(isChkValid + " supposed to leave here");
                     
                     // Create header
 //                    tempHeader = setDestIP(tempHeader, servIPAddr);
 //                    tempHeader = setDestPN(tempHeader, servPortNum);
                     tempHeader = setACKFlag(tempHeader, isChkValid);
                     tempHeader = setSYNFlag(tempHeader, true);
-//                    tempHeader = setSequenceNumber(tempHeader, 
-//                            generateSequenceNumber());
+                    tempHeader = setSequenceNumber(tempHeader, 0);
+                    tempHeader = setAcknowledgmentNumber(tempHeader, 0);
                     
                     // Create message to send to client
                     tempMsg = assembleMessage(tempHeader, tempData);
@@ -417,6 +436,8 @@ public class HALPClient extends HALP implements HALPClientInterface
                     fileName = getFileNameField(rcvdMsg);
                     dataRate = getDataRateField(rcvdMsg);
                     msgSize = HEDR_LEN + dataRate;
+                    otherSeqNum = getSequenceNumber(rcvdMsg);
+                    ackNum = incrementSequence(otherSeqNum);
 
                     // Re-initialize data to account for data rate field
                     tempData = new byte[2];
@@ -426,9 +447,9 @@ public class HALPClient extends HALP implements HALPClientInterface
     //                    tempHeader = setDestPN(tempHeader, servPortNum);
                     tempHeader = setACKFlag(tempHeader, true);
                     tempHeader = setSYNFlag(tempHeader, true);
-//                    tempHeader = setSequenceNumber(tempHeader, 
-//                            generateSequenceNumber());
-//
+                    tempHeader = setSequenceNumber(tempHeader, seqNum);
+                    tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
+
                     // Create message to send to client
                     tempMsg = assembleMessage(tempHeader, tempData);
                     tempMsg = setDataRateField(tempMsg, dataRate);
@@ -440,6 +461,9 @@ public class HALPClient extends HALP implements HALPClientInterface
                 // If ACK is set and DRT is an upload
                 else if(isAck && isUpld)
                 {
+                    ackNum = getSequenceNumber(rcvdMsg);
+                    ackNum = incrementSequence(ackNum);
+                    seqNum = incrementSequence(seqNum);
                     isUpload = isUpld;
                     runAsReceiver(rcvdMsg);
                     placeholderCondition = true;
@@ -447,6 +471,9 @@ public class HALPClient extends HALP implements HALPClientInterface
                 // If ACK is set and DRT is a download
                 else if(isAck && !isUpld)
                 {
+                    ackNum = getSequenceNumber(rcvdMsg);
+                    ackNum = incrementSequence(ackNum);
+                    seqNum = incrementSequence(seqNum);
                     isUpload = isUpld;
                     runAsSender();
                     placeholderCondition = true;
@@ -483,6 +510,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = new byte[dataRate]; // change later
         byte[] tempMsg = null;
+        byte[] rcvdMsg = null;
         
         // Initialize flag variables
         boolean isAck = false;
@@ -495,6 +523,8 @@ public class HALPClient extends HALP implements HALPClientInterface
             tempData = new byte[dataRate];
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
+            tempHeader = setSequenceNumber(tempHeader, seqNum);
+            tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
             tempHeader = setDRTFlag(tempHeader, isUpload);
             tempHeader = setACKFlag(tempHeader, true);
             fInStr.read(tempData, 0, dataRate);
@@ -510,16 +540,21 @@ public class HALPClient extends HALP implements HALPClientInterface
             {
                 Thread.sleep(1000);
                 sendMessage(tempMsg);
-                byte[] rcvdMsg = receiveMessage();
+                rcvdMsg = receiveMessage();
                 isChkValid = isChecksumValid(rcvdMsg);
                 isAck = isACKFlagSet(rcvdMsg);
             }
+            ackNum = getSequenceNumber(rcvdMsg);
+            ackNum = incrementSequence(ackNum);
+            seqNum = incrementSequence(seqNum);
         }
         
         
         // Create message
         tempHeader = setDestIP(tempHeader, servIPAddr);
         tempHeader = setDestPN(tempHeader, servPortNum);
+        tempHeader = setSequenceNumber(tempHeader, seqNum);
+        tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
         tempHeader = setDRTFlag(tempHeader, isUpload);
         tempHeader = setACKFlag(tempHeader, true);
         tempHeader = setFINFlag(tempHeader, true);
@@ -536,7 +571,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         {
             Thread.sleep(1000);
             sendMessage(tempMsg);
-            byte[] rcvdMsg = receiveMessage();
+            rcvdMsg = receiveMessage();
             isChkValid = isChecksumValid(rcvdMsg);
             isAck = isACKFlagSet(rcvdMsg);
         }
@@ -622,6 +657,8 @@ public class HALPClient extends HALP implements HALPClientInterface
             tempHeader = setDRTFlag(tempHeader, isUpload);
             tempMsg = assembleMessage(tempHeader, tempData);
             tempMsg = setChecksum(tempMsg);
+            
+            // insert while loop here?
             sendMessage(tempMsg);
         }
         
