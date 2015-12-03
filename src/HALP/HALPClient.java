@@ -63,8 +63,8 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Hard coded IP addresses for testing
         String homeTestIP = "192.168.0."; // for testing at home
-        String testIGIP = homeTestIP + "111";
-        String testServIP = homeTestIP + "113";
+        String testIGIP = homeTestIP + "110";
+        String testServIP = homeTestIP + "111";
         String testFile1 = "alice.txt";
         String testFile2 = "mission0.txt";
         String testFile3 = "mission1.txt";
@@ -174,6 +174,20 @@ public class HALPClient extends HALP implements HALPClientInterface
     public void setDataRate(int rate)
     {
         dataRate = rate;
+    }
+    
+    public boolean isSeqNumValid(long seqNum)
+    {
+//        byte[] tempMsgBytes = messageBytes;
+        long tempSeqNum = seqNum;
+        if(ackNum == tempSeqNum)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     
     @Override
@@ -304,6 +318,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             msgSize = HEDR_LEN + igDataRate;
             
             ackNum = getSequenceNumber(rcvdMsg);
+//            ackNum = otherSeqNum;
             ackNum = incrementSequence(ackNum);
             seqNum = incrementSequence(seqNum);
             
@@ -325,13 +340,17 @@ public class HALPClient extends HALP implements HALPClientInterface
                 tempHeader = setDRTFlag(tempHeader, isUpload);
                 tempHeader = setACKFlag(tempHeader, true);
                 tempHeader = setSYNFlag(tempHeader, true);
-                printMessage(tempHeader);
+//                printMessage(tempHeader);
 
                 // Set data fields and checksum
                 tempData = new byte[1];
                 tempMsg = assembleMessage(tempHeader, tempData);
                 tempMsg = setChecksum(tempMsg);
+                isSyn = false;
+                isAck = false;
 
+                
+                // Uncommenting the isSyn made this work for some reason
                 while(isSyn && !isAck)
                 {
                     sendMessage(tempMsg);
@@ -341,9 +360,9 @@ public class HALPClient extends HALP implements HALPClientInterface
     //                isDrt = isDRTFlagSet(rcvdMsg);
                 }
                 
-                ackNum = getSequenceNumber(rcvdMsg);
-                ackNum = incrementSequence(ackNum);
-                seqNum = incrementSequence(seqNum);
+//                ackNum = getSequenceNumber(rcvdMsg);
+//                ackNum = incrementSequence(ackNum);
+//                seqNum = incrementSequence(seqNum);
                 runAsReceiver(rcvdMsg);
             }
         } 
@@ -461,9 +480,9 @@ public class HALPClient extends HALP implements HALPClientInterface
                 // If ACK is set and DRT is an upload
                 else if(isAck && isUpld)
                 {
-                    ackNum = getSequenceNumber(rcvdMsg);
-                    ackNum = incrementSequence(ackNum);
-                    seqNum = incrementSequence(seqNum);
+//                    ackNum = getSequenceNumber(rcvdMsg);
+//                    ackNum = incrementSequence(ackNum);
+//                    seqNum = incrementSequence(seqNum);
                     isUpload = isUpld;
                     runAsReceiver(rcvdMsg);
                     placeholderCondition = true;
@@ -471,7 +490,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                 // If ACK is set and DRT is a download
                 else if(isAck && !isUpld)
                 {
-                    ackNum = getSequenceNumber(rcvdMsg);
+//                    ackNum = getSequenceNumber(rcvdMsg);
                     ackNum = incrementSequence(ackNum);
                     seqNum = incrementSequence(seqNum);
                     isUpload = isUpld;
@@ -544,7 +563,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                 isChkValid = isChecksumValid(rcvdMsg);
                 isAck = isACKFlagSet(rcvdMsg);
             }
-            ackNum = getSequenceNumber(rcvdMsg);
+//            ackNum = getSequenceNumber(rcvdMsg);
             ackNum = incrementSequence(ackNum);
             seqNum = incrementSequence(seqNum);
         }
@@ -594,6 +613,11 @@ public class HALPClient extends HALP implements HALPClientInterface
         boolean isFirst = true;
         boolean isChkValid = false;
         boolean isAck = false;
+        boolean isSeqValid = false;
+        boolean isWritten = false; // whether or not the data has been written
+        
+        long tempSeqNum = 0;
+        long tempAckNum = 0;
         
         // Initialize file location and set file name
         String desktopStr = System.getProperty("user.home") + "/Desktop/";
@@ -618,6 +642,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         byte[] tempHeader = new byte[HEDR_LEN];
         byte[] tempData = new byte[1]; // change later
         byte[] rcvdData = null;
+        byte[] savedData = null; // valid data to be saved
         byte[] tempMsg = null;
         byte[] rcvdMsg = null;
         
@@ -636,17 +661,52 @@ public class HALPClient extends HALP implements HALPClientInterface
                 isFirst = false;
             }
             
+            
             // Checks if checksum is valid and if FIN flag is set
             isAck = isACKFlagSet(rcvdMsg);
             isChkValid = isChecksumValid(rcvdMsg);
             isFin = isFINFlagSet(rcvdMsg);
+            otherSeqNum = getSequenceNumber(rcvdMsg);
+            otherAckNum = getAcknowledgmentNumber(rcvdMsg);
+            isSeqValid = isSeqNumValid(otherSeqNum);
+            System.out.println(isSeqValid);
             
+//            otherSeqNum = getSequenceNumber(rcvdMsg);
+
             // If checksum is valid, write data out  to file and set ACK flag
-            if(isChkValid && isAck)
+            if(isChkValid && isAck && isSeqValid)
             {
+                ackNum = incrementSequence(ackNum);
+                seqNum = incrementSequence(seqNum);
                 rcvdData = getData(rcvdMsg);
-                fOutStr.write(rcvdData);
                 tempHeader = setACKFlag(tempHeader, true);
+                tempHeader = setSequenceNumber(tempHeader, seqNum);
+                tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
+//                if(!isWritten)
+//                {
+//                savedData = rcvdData;
+                    fOutStr.write(rcvdData);
+////                    isWritten = true;
+//                    ackNum = incrementSequence(ackNum);
+//                }
+            }
+            // Increments sequence number to see if it's the next message
+            else if(isChkValid && isAck && !isSeqValid)
+            {
+//                tempSeqNum = getSequenceNumber(rcvdMsg);
+                otherSeqNum++;
+                isSeqValid = isSeqNumValid(otherSeqNum);
+                System.out.println(isSeqValid);
+                if(isSeqValid)
+                {
+                    tempHeader = setACKFlag(tempHeader, true);
+                    tempHeader = setSequenceNumber(tempHeader, seqNum);
+                    tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
+//                    fOutStr.write(savedData);
+////                    isWritten = true;
+//                    ackNum = incrementSequence(ackNum);
+//                    seqNum = incrementSequence(seqNum);
+                }
             }
             // If checksum is invalid, don't set ACK flag
             else

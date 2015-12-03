@@ -925,7 +925,6 @@ public abstract class HALP implements HALPInterface
         long seq = (sequence * 2)+1;  //allows for the creation of max sequence number of 4294967295
           
        return seq;
-                     
    }
     
     @Override
