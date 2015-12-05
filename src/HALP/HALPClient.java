@@ -63,7 +63,8 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Hard coded IP addresses for testing
         String homeTestIP = "192.168.0."; // for testing at home
-        String testIGIP = homeTestIP + "110";
+//        String testIGIP = homeTestIP + "110"; // for manual entry
+        String testIGIP = halpClient.getLocalIP(); // for automatic entry
         String testServIP = homeTestIP + "111";
         String testFile1 = "alice.txt";
         String testFile2 = "mission0.txt";
@@ -71,7 +72,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         String testFile4 = "mission2.txt";
         String testFileName = testFile4; // swap out test files here
         boolean testIsUpload = true;
-        int testDataRate = 16;
+        int testDataRate = 32;
         
         // Hard coded values for testing
         halpClient.setIGIP(testIGIP);

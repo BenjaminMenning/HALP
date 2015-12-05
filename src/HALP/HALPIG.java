@@ -27,6 +27,9 @@ public class HALPIG extends HALP implements HALPIGInterface
     protected double lossRate = 0; // q - 1
     private InetAddress ingoingIN;
     private InetAddress outgoingIN;
+    private int outgoingRate = 0;
+    
+    protected ConnectionTable connTable = new ConnectionTable();
     
     private static final int IG_PORT = 43000;
     
@@ -80,10 +83,14 @@ public class HALPIG extends HALP implements HALPIGInterface
         boolean isError;
         boolean isCorrupt;
         boolean isLost;
+        boolean isInTable;
+        
+        int tempMaxDataRate = maxDataRate;
         System.out.println("Internet gateway has started.");
         while(true)
         {
             try {
+//                maxDataRate = tempMaxDataRate;
                 byte[] rcvdMsg = receiveMessage();
                 boolean isSyn = isSYNFlagSet(rcvdMsg);
                 boolean isAck = isACKFlagSet(rcvdMsg);
@@ -92,59 +99,69 @@ public class HALPIG extends HALP implements HALPIGInterface
                 isError = false;
                 isCorrupt = false;
                 isLost = false;
+                isInTable = false;
                 
-                if(isSyn && !isAck) 
+                Connection tempConn = null;
+                Connection outgoingConn = null;
+                InetAddress tempINAddr = null;
+                String tempIPAddr = null;
+                int tempPortNum = 0;
+                
+                tempIPAddr = currDtgm.getAddress().getHostAddress();
+                tempPortNum = currDtgm.getPort();
+                tempINAddr = InetAddress.getByName(tempIPAddr);
+                
+                isInTable = connTable.searchTable(tempIPAddr, tempPortNum);
+                
+                if(isSyn && !isAck && !isInTable) 
                 {
-                    // Retrieves the ingoing connection info from the datagram
-                    ingoingIP = currDtgm.getAddress().getHostAddress();
-                    ingoingPN = currDtgm.getPort();
-                    ingoingIN = InetAddress.getByName(ingoingIP);
-                    
-                    // Assigns ingoing info to the client
-                    clntIPAddr = ingoingIP;
-                    clntPortNum = ingoingPN;
-                    clntINAddr = ingoingIN;
-                    
-                    // Retrieves the outgoing connection info from the datagram
-                    outgoingIP = getDestinationIP(rcvdMsg);
-                    outgoingPN = getDestinationPort(rcvdMsg);
-                    outgoingIN = InetAddress.getByName(outgoingIP);
-
-                    // Assigns the outgoing info to the client
-                    servIPAddr = outgoingIP;
-                    servPortNum = outgoingPN;
-                    servINAddr = outgoingIN;
-                    
-                    // Retrieves client data rate and changes if above max
-                    int clntDataRate = getDataRateField(rcvdMsg);
-                    if(clntDataRate > maxDataRate)
-                    {
-                        rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
-                    }
-                }
-                else if(isSyn && isAck)
-                {
-                    outgoingIN = clntINAddr;
-                    outgoingPN = clntPortNum;
-//                    ingoingIP = currDtgm.getAddress().getHostAddress();
-//                    ingoingPN = currDtgm.getPort();
+//                    // Retrieves the ingoing connection info from the datagram
+//                    ingoingIP = tempIPAddr;
+//                    ingoingPN = tempPortNum;
+//                    ingoingIN = tempINAddr;
+//                    
+//                    // Retrieves the outgoing connection info from the datagram
 //                    outgoingIP = getDestinationIP(rcvdMsg);
 //                    outgoingPN = getDestinationPort(rcvdMsg);
 //                    outgoingIN = InetAddress.getByName(outgoingIP);
-                }
-                else if(currDtgm.getAddress().equals(servINAddr))
-                {
-                    outgoingIN = clntINAddr;
-                    outgoingPN = clntPortNum;
-                }
-                else if(currDtgm.getAddress().equals(clntINAddr))
-                {
-                    outgoingIN = servINAddr;
-                    outgoingPN = servPortNum;
+                    
+                    // Assigns ingoing info to the client
+                    clntIPAddr = tempIPAddr;
+                    clntPortNum = tempPortNum;
+                    clntINAddr = tempINAddr;
+
+                    // Assigns the outgoing info to the client
+                    servIPAddr = getDestinationIP(rcvdMsg);
+                    servPortNum = getDestinationPort(rcvdMsg);
+                    servINAddr = InetAddress.getByName(servIPAddr);
+                                        
+//                    isInTable = connTable.searchTable(clntIPAddr, clntPortNum);
+                    
+//                    if(!isInTable)
+//                    {
+                        // Retrieves client data rate and changes if above max
+                        int clntDataRate = getDataRateField(rcvdMsg);
+                        if(clntDataRate > maxDataRate)
+                        {
+                            clntDataRate = maxDataRate;
+                            rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
+                        }
+                        
+                        tempConn = new Connection(clntIPAddr, clntPortNum, 
+                                servIPAddr, servPortNum, clntDataRate);
+                        connTable.addConnection(tempConn);
+//                    }
                 }
                 
-//                else if(isSYNFlagSet(rcvdMsg))
+                outgoingConn = connTable.getCorrespondingConnection(tempIPAddr, 
+                        tempPortNum);
+                outgoingRate = outgoingConn.getTempRate();
+                outgoingPN = outgoingConn.getTempPort();
+                outgoingIP = outgoingConn.getTempIP();
+                outgoingIN = InetAddress.getByName(outgoingIP);
+//                maxDataRate = outgoingRate;
                 
+                                
                 isError = errorGenerator();
                 System.out.println("Is error: " + isError);
                 if(isError)
@@ -178,6 +195,57 @@ public class HALPIG extends HALP implements HALPIGInterface
                 Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null,
                         ex);
             }
+            
+            // Old connection table code
+//                if(isSyn && !isAck) 
+//                {
+//                    // Retrieves the ingoing connection info from the datagram
+//                    ingoingIP = currDtgm.getAddress().getHostAddress();
+//                    ingoingPN = currDtgm.getPort();
+//                    ingoingIN = InetAddress.getByName(ingoingIP);
+//                    
+//                    // Assigns ingoing info to the client
+//                    clntIPAddr = ingoingIP;
+//                    clntPortNum = ingoingPN;
+//                    clntINAddr = ingoingIN;
+//                    
+//                    // Retrieves the outgoing connection info from the datagram
+//                    outgoingIP = getDestinationIP(rcvdMsg);
+//                    outgoingPN = getDestinationPort(rcvdMsg);
+//                    outgoingIN = InetAddress.getByName(outgoingIP);
+//
+//                    // Assigns the outgoing info to the client
+//                    servIPAddr = outgoingIP;
+//                    servPortNum = outgoingPN;
+//                    servINAddr = outgoingIN;
+//                    
+//                    // Retrieves client data rate and changes if above max
+//                    int clntDataRate = getDataRateField(rcvdMsg);
+//                    if(clntDataRate > maxDataRate)
+//                    {
+//                        rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
+//                    }
+//                }
+//                else if(isSyn && isAck)
+//                {
+//                    outgoingIN = clntINAddr;
+//                    outgoingPN = clntPortNum;
+////                    ingoingIP = currDtgm.getAddress().getHostAddress();
+////                    ingoingPN = currDtgm.getPort();
+////                    outgoingIP = getDestinationIP(rcvdMsg);
+////                    outgoingPN = getDestinationPort(rcvdMsg);
+////                    outgoingIN = InetAddress.getByName(outgoingIP);
+//                }
+//                else if(currDtgm.getAddress().equals(servINAddr))
+//                {
+//                    outgoingIN = clntINAddr;
+//                    outgoingPN = clntPortNum;
+//                }
+//                else if(currDtgm.getAddress().equals(clntINAddr))
+//                {
+//                    outgoingIN = servINAddr;
+//                    outgoingPN = servPortNum;
+//                }
         }
     }
     
