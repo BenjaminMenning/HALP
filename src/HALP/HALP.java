@@ -1163,6 +1163,23 @@ public abstract class HALP implements HALPInterface
        return log;
    }
    
+    public String receivedLog(byte[] headerBytes){
+       String receivedLog = "Segment received: ";
+       
+       String destinationIP = getDestinationIP(headerBytes);
+       int destinationPort = getDestinationPort(headerBytes);
+       long sequenceNumber = getSequenceNumber(headerBytes);
+       long acknowledgmentNumber = getAcknowledgmentNumber(headerBytes);
+       int checksum = getChecksum(headerBytes);
+       int dataSize = getData(headerBytes).length;
+                                       
+       receivedLog += "Destination IP= " + destinationIP + ", Destination Port Number= " + destinationPort +
+               ", Sequence Number= " + sequenceNumber + ", Acknowledgment Number= " + acknowledgmentNumber + 
+               ", checksum value= " + checksum + ", size of data= " + dataSize + " Bytes.";
+       
+       return receivedLog;
+   }
+   
     @Override
     public String resendLog(byte[] headerBytes){
        String resendLog = "Segment resent: ";

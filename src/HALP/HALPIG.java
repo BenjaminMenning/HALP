@@ -31,7 +31,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     
     protected ConnectionTable connTable = new ConnectionTable();
     
-    private static final int IG_PORT = 43000;
+    private static final int IG_PORT = 43001;
     
      private PrintWriter IGLog = null;
   

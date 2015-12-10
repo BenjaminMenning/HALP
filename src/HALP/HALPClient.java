@@ -24,7 +24,7 @@ public class HALPClient extends HALP implements HALPClientInterface
 //    protected int testDataRate = 5000;
     
     private static final int SERVER_PORT = 43000;  
-    private static final int IG_PORT = 43000;
+    private static final int IG_PORT = 43001;
     protected String fileName = "";
     protected int dataRate = 0;
     private boolean isUpload = false;
@@ -62,15 +62,15 @@ public class HALPClient extends HALP implements HALPClientInterface
         HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
         
         // Hard coded IP addresses for testing
-        String homeTestIP = "192.168.0."; // for testing at home
+        String homeTestIP = "192.168.1."; // for testing at home
 //        String testIGIP = homeTestIP + "110"; // for manual entry
         String testIGIP = halpClient.getLocalIP(); // for automatic entry
-        String testServIP = homeTestIP + "110";
+        String testServIP = homeTestIP + "107";
         String testFile1 = "alice.txt";
         String testFile2 = "mission0.txt";
         String testFile3 = "mission1.txt";
         String testFile4 = "mission2.txt";
-        String testFileName = testFile3; // swap out test files here
+        String testFileName = testFile1; // swap out test files here
         boolean testIsUpload = true;
         int testDataRate = 32;
         
@@ -595,6 +595,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             fInStr.read(tempData, 0, tempDataRate);
             tempMsg = assembleMessage(tempHeader, tempData);
             tempMsg = setChecksum(tempMsg);
+            senderLog.println(messageLog(tempMsg)); //writes to the sender log information about the message sent
             
             // Reset flags
             isAck = false;
@@ -610,6 +611,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                     isTimedOut = false;
                     Thread.sleep(transDelay);
                     sendMessage(tempMsg);
+                    senderLog.println(resendLog(tempMsg)); //writes to the sender log information about the message that was resent
                     rcvdMsg = receiveMessage();
                     isChkValid = isChecksumValid(rcvdMsg);
                     isAck = isACKFlagSet(rcvdMsg);
@@ -737,6 +739,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             }
             
             
+            
             // Checks if checksum is valid and if FIN flag is set
             isAck = isACKFlagSet(rcvdMsg);
             isChkValid = isChecksumValid(rcvdMsg);
@@ -745,6 +748,9 @@ public class HALPClient extends HALP implements HALPClientInterface
             otherAckNum = getAcknowledgmentNumber(rcvdMsg);
             isSeqValid = isSeqNumValid(otherSeqNum);
             System.out.println(isSeqValid);
+            
+            
+            receiverLog.println(receivedLog(rcvdMsg));  //writes to receiver log information of the received message 
             
 //            otherSeqNum = getSequenceNumber(rcvdMsg);
 
@@ -763,7 +769,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                     fOutStr.write(rcvdData);
 ////                    isWritten = true;
 //                    ackNum = incrementSequence(ackNum);
-//                }
+//                } 
             }
             // Increments sequence number to see if it's the next message
             else if(isChkValid && isAck && !isSeqValid)
@@ -787,6 +793,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             else
             {
                 tempHeader = setACKFlag(tempHeader, false);
+                receiverLog.println(errorDetectedLog(rcvdMsg));  //writes to receiver log information of the received message that has an error
             }
             
             tempHeader = setDRTFlag(tempHeader, isUpload);
