@@ -41,8 +41,8 @@ public class HALPIG extends HALP implements HALPIGInterface
         Scanner console = new Scanner(System.in);
         HALPIG halpIG = new HALPIG(IG_PORT);
         
-        double errRate = 0.1;
-        double crptRate = 1.0;
+        double errRate = 0.8;
+        double crptRate = 0.0;
         halpIG.setMaxDataRate(10000);
         halpIG.setErrorRate(errRate);
         halpIG.setCorruptRate(crptRate);

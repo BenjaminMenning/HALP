@@ -5,6 +5,8 @@
  */
 package HALP;
 
+import java.net.SocketTimeoutException;
+
 /**
  *
  * @author Ben
@@ -95,7 +97,7 @@ public interface HALPInterface
     
     public void sendMessage(byte[] messageBytes) throws Exception;
     
-    public byte[] receiveMessage();
+    public byte[] receiveMessage() throws SocketTimeoutException;
     
     public void run();
 

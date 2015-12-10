@@ -252,6 +252,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         isClient = true;
         try 
         {
+            deviceSocket.setSoTimeout(retransTO);
             System.out.println("Client has requested a connection.");
             
             // Initialize message variables
@@ -265,6 +266,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             boolean isSyn = false;
             boolean isDrt = false;
             boolean isChkValid = false;
+            boolean isTimedOut = false;
             seqNum = generateSequenceNumber();
 
             // User input
@@ -297,19 +299,28 @@ public class HALPClient extends HALP implements HALPClientInterface
 
             // Continue resending message until SYN and ACK flags are set
             // and checksum is valid
-            while(!isSyn && !isAck && !isChkValid)
+            while(!isSyn && !isAck && !isChkValid || isTimedOut) // Change isTimedOut later..?
             {
-                // Sends message and prints out other fields
-                sendMessage(tempMsg);
-                printFileNameField(tempMsg);
-                printDataRateField(tempMsg);
-                
-                // Receives message and checks if flags are set and checksum 
-                // is valid
-                rcvdMsg = receiveMessage();
-                isSyn = isSYNFlagSet(rcvdMsg);
-                isAck = isACKFlagSet(rcvdMsg);
-                isChkValid = isChecksumValid(rcvdMsg);
+                try 
+                {
+                    isTimedOut = false;
+                    // Sends message and prints out other fields
+                    sendMessage(tempMsg);
+                    printFileNameField(tempMsg);
+                    printDataRateField(tempMsg);
+
+                    // Receives message and checks if flags are set and checksum 
+                    // is valid
+                    rcvdMsg = receiveMessage();
+                    isSyn = isSYNFlagSet(rcvdMsg);
+                    isAck = isACKFlagSet(rcvdMsg);
+                    isChkValid = isChecksumValid(rcvdMsg);
+                } 
+                catch (SocketTimeoutException e) 
+                {
+                    System.out.println("Connection has timed out.");
+                    isTimedOut = true;
+                }
             }
             
             // Sets data rate based on what IG places in data rate field
@@ -510,6 +521,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     @Override
     public void runAsSender() throws FileNotFoundException, IOException, Exception 
     {
+        deviceSocket.setSoTimeout(retransTO);
         System.out.println("Begin sending data");
         start = startTransferTimer();
         
@@ -535,6 +547,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         // Initialize flag variables
         boolean isAck = false;
         boolean isChkValid = false;
+        boolean isTimedOut = false;
         
         int remainingChar = 0;
         int tempDataRate = 0;
@@ -572,21 +585,30 @@ public class HALPClient extends HALP implements HALPClientInterface
             // Reset flags
             isAck = false;
             isChkValid = false;
+            isTimedOut = false;
             
             // Resend message if acknowledgment is negative or checksum invalid
-            while(!isAck || !isChkValid)
+            while(!isAck || !isChkValid || isTimedOut)
             {
-                Thread.sleep(1000);
-                sendMessage(tempMsg);
-                rcvdMsg = receiveMessage();
-                isChkValid = isChecksumValid(rcvdMsg);
-                isAck = isACKFlagSet(rcvdMsg);
+                try 
+                {
+                    isTimedOut = false;
+                    Thread.sleep(transDelay);
+                    sendMessage(tempMsg);
+                    rcvdMsg = receiveMessage();
+                    isChkValid = isChecksumValid(rcvdMsg);
+                    isAck = isACKFlagSet(rcvdMsg);
+                } 
+                catch (SocketTimeoutException e) 
+                {
+                    System.out.println("Connection has timed out.");
+                    isTimedOut = true;
+                }
             }
 //            ackNum = getSequenceNumber(rcvdMsg);
             ackNum = incrementSequence(ackNum);
             seqNum = incrementSequence(seqNum);
         }
-        
         
         // Create message
         tempHeader = setDestIP(tempHeader, servIPAddr);
@@ -603,15 +625,31 @@ public class HALPClient extends HALP implements HALPClientInterface
         // Reset flags
         isAck = false;
         isChkValid = false;
+        isTimedOut = false;
         
         // Resend message if acknowledgment is negative or checksum invalid
         while(!isAck || !isChkValid)
         {
-            Thread.sleep(1000);
-            sendMessage(tempMsg);
-            rcvdMsg = receiveMessage();
-            isChkValid = isChecksumValid(rcvdMsg);
-            isAck = isACKFlagSet(rcvdMsg);
+            try 
+            {
+                isTimedOut = false;
+                Thread.sleep(transDelay);
+                sendMessage(tempMsg);
+                rcvdMsg = receiveMessage();
+                isChkValid = isChecksumValid(rcvdMsg);
+                isAck = isACKFlagSet(rcvdMsg);
+            } 
+            catch (SocketTimeoutException e) 
+            {
+                System.out.println("Connection has timed out.");
+                isTimedOut = true;
+            }
+
+//            Thread.sleep(transDelay);
+//            sendMessage(tempMsg);
+//            rcvdMsg = receiveMessage();
+//            isChkValid = isChecksumValid(rcvdMsg);
+//            isAck = isACKFlagSet(rcvdMsg);
         }
         
         // Close file input stream and connection
@@ -625,6 +663,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     public void runAsReceiver(byte[] firstMsg) throws FileNotFoundException, 
             IOException, Exception 
     {
+        deviceSocket.setSoTimeout(0);
         System.out.println("Begin receiving data");
         
         // Initialize flag variables

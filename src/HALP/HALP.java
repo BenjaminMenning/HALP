@@ -15,6 +15,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -47,6 +48,9 @@ public abstract class HALP implements HALPInterface
     protected InetAddress clntINAddr;
     protected InetAddress servINAddr;
     protected InetAddress igINAddr;
+    
+    protected int retransTO = 500;
+    protected int transDelay = 1000;
     
     protected int clntPortNum = 0;
     protected int igPortNum = 0;
@@ -648,7 +652,7 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
-    public byte[] receiveMessage()
+    public byte[] receiveMessage() throws SocketTimeoutException
     {
         byte[] receivedData = new byte[msgSize];
 
@@ -661,6 +665,10 @@ public abstract class HALP implements HALPInterface
             // Receive a message
             deviceSocket.receive(receivedDatagram);
         } 
+        catch(SocketTimeoutException ex)
+        {
+            throw ex;
+        }
         catch (IOException ex) 
         {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
