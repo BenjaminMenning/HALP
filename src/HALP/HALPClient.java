@@ -70,7 +70,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         String testFile2 = "mission0.txt";
         String testFile3 = "mission1.txt";
         String testFile4 = "mission2.txt";
-        String testFileName = testFile4; // swap out test files here
+        String testFileName = testFile3; // swap out test files here
         boolean testIsUpload = true;
         int testDataRate = 32;
         
@@ -360,16 +360,30 @@ public class HALPClient extends HALP implements HALPClientInterface
                 tempMsg = setChecksum(tempMsg);
                 isSyn = false;
                 isAck = false;
+                isChkValid = false;
+                isTimedOut = false;
 
                 
                 // Uncommenting the isSyn made this work for some reason
-                while(isSyn && !isAck)
+//                while(isSyn && !isAck)
+//                while(!isAck && !isChkValid || isTimedOut)
+                while(!isAck || !isChkValid || isTimedOut)
                 {
-                    sendMessage(tempMsg);
-                    rcvdMsg = receiveMessage();
-                    isSyn = isSYNFlagSet(rcvdMsg);
-                    isAck = isACKFlagSet(rcvdMsg);
-    //                isDrt = isDRTFlagSet(rcvdMsg);
+                    try
+                    {
+                        isTimedOut = false;
+                        sendMessage(tempMsg);
+                        rcvdMsg = receiveMessage();
+                        isSyn = isSYNFlagSet(rcvdMsg);
+                        isAck = isACKFlagSet(rcvdMsg);
+                    isChkValid = isChecksumValid(rcvdMsg);
+        //                isDrt = isDRTFlagSet(rcvdMsg);
+                    } 
+                    catch (SocketTimeoutException e) 
+                    {
+                        System.out.println("Connection has timed out.");
+                        isTimedOut = true;
+                    }
                 }
                 
 //                ackNum = getSequenceNumber(rcvdMsg);
@@ -588,6 +602,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             isTimedOut = false;
             
             // Resend message if acknowledgment is negative or checksum invalid
+//            while(!isAck || !isChkValid || isTimedOut)
             while(!isAck || !isChkValid || isTimedOut)
             {
                 try 
@@ -598,6 +613,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                     rcvdMsg = receiveMessage();
                     isChkValid = isChecksumValid(rcvdMsg);
                     isAck = isACKFlagSet(rcvdMsg);
+                    
                 } 
                 catch (SocketTimeoutException e) 
                 {
@@ -628,7 +644,8 @@ public class HALPClient extends HALP implements HALPClientInterface
         isTimedOut = false;
         
         // Resend message if acknowledgment is negative or checksum invalid
-        while(!isAck || !isChkValid)
+//        while(!isAck || !isChkValid)
+        while(!isAck || !isChkValid || isTimedOut)
         {
             try 
             {
