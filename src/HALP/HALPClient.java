@@ -65,7 +65,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         String homeTestIP = "192.168.0."; // for testing at home
 //        String testIGIP = homeTestIP + "110"; // for manual entry
         String testIGIP = halpClient.getLocalIP(); // for automatic entry
-        String testServIP = homeTestIP + "111";
+        String testServIP = homeTestIP + "110";
         String testFile1 = "alice.txt";
         String testFile2 = "mission0.txt";
         String testFile3 = "mission1.txt";
@@ -455,7 +455,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                     // Retrieve file name, data rate, and determine message size
                     fileName = getFileNameField(rcvdMsg);
                     dataRate = getDataRateField(rcvdMsg);
-                    msgSize = HEDR_LEN + dataRate;
+//                    msgSize = HEDR_LEN + dataRate;
                     otherSeqNum = getSequenceNumber(rcvdMsg);
                     ackNum = incrementSequence(otherSeqNum);
 
@@ -536,18 +536,36 @@ public class HALPClient extends HALP implements HALPClientInterface
         boolean isAck = false;
         boolean isChkValid = false;
         
+        int remainingChar = 0;
+        int tempDataRate = 0;
+        
         // Sends messages until the end of the file has been reached
         while(fInStr.available() != 0)
         {
+            // Assign data rate to temporary value
+            tempDataRate = dataRate;
+            
+            // Determine amount of remaining characters in file
+            remainingChar = fInStr.available();
+            
+            // If the amount is less than the data rate, make the data the size
+            // of the remaining characters
+            if(remainingChar < dataRate)
+            {
+                tempDataRate = remainingChar;
+                System.out.println(tempDataRate);
+            }
+            
             // Create message
-            tempData = new byte[dataRate];
+            tempData = new byte[tempDataRate];
             tempHeader = setDestIP(tempHeader, servIPAddr);
             tempHeader = setDestPN(tempHeader, servPortNum);
             tempHeader = setSequenceNumber(tempHeader, seqNum);
             tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
             tempHeader = setDRTFlag(tempHeader, isUpload);
             tempHeader = setACKFlag(tempHeader, true);
-            fInStr.read(tempData, 0, dataRate);
+            
+            fInStr.read(tempData, 0, tempDataRate);
             tempMsg = assembleMessage(tempHeader, tempData);
             tempMsg = setChecksum(tempMsg);
             
