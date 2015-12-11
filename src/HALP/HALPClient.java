@@ -62,16 +62,16 @@ public class HALPClient extends HALP implements HALPClientInterface
         HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
         
         // Hard coded IP addresses for testing
-        String homeTestIP = "192.168.1."; // for testing at home
+        String homeTestIP = "192.168.0."; // for testing at home
 //        String testIGIP = homeTestIP + "110"; // for manual entry
         String testIGIP = halpClient.getLocalIP(); // for automatic entry
-        String testServIP = homeTestIP + "107";
+        String testServIP = homeTestIP + "110";
         String testFile1 = "alice.txt";
         String testFile2 = "mission0.txt";
         String testFile3 = "mission1.txt";
         String testFile4 = "mission2.txt";
-        String testFileName = testFile1; // swap out test files here
-        boolean testIsUpload = true;
+        String testFileName = testFile4; // swap out test files here
+        boolean testIsUpload = false;
         int testDataRate = 32;
         
         // Hard coded values for testing
@@ -299,7 +299,7 @@ public class HALPClient extends HALP implements HALPClientInterface
 
             // Continue resending message until SYN and ACK flags are set
             // and checksum is valid
-            while(!isSyn && !isAck && !isChkValid || isTimedOut) // Change isTimedOut later..?
+            while(!isSyn || !isAck || !isChkValid || isTimedOut) // Change isTimedOut later..?
             {
                 try 
                 {
@@ -441,7 +441,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             {
                 // Keep sending negative acknowledgment until checksum is valid
                 // and SYN flag is set
-                while(isChkValid == false)
+                while(!isChkValid)
                 {
                     // Receive message
                     rcvdMsg = receiveMessage();
@@ -663,12 +663,6 @@ public class HALPClient extends HALP implements HALPClientInterface
                 System.out.println("Connection has timed out.");
                 isTimedOut = true;
             }
-
-//            Thread.sleep(transDelay);
-//            sendMessage(tempMsg);
-//            rcvdMsg = receiveMessage();
-//            isChkValid = isChecksumValid(rcvdMsg);
-//            isAck = isACKFlagSet(rcvdMsg);
         }
         
         // Close file input stream and connection
@@ -687,6 +681,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Initialize flag variables
         boolean isFin = false;
+        boolean isFinValid = false;
         boolean isFirst = true;
         boolean isChkValid = false;
         boolean isAck = false;
@@ -724,7 +719,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         byte[] rcvdMsg = null;
         
         // Run until end of data stream is reached
-        while(!isFin)
+        while(!isFinValid)
         {
             // Wait for received message if not the first
             if(!isFirst)
@@ -744,6 +739,10 @@ public class HALPClient extends HALP implements HALPClientInterface
             isAck = isACKFlagSet(rcvdMsg);
             isChkValid = isChecksumValid(rcvdMsg);
             isFin = isFINFlagSet(rcvdMsg);
+            if(isFin && isChkValid)
+            {
+                isFinValid = true;
+            }
             otherSeqNum = getSequenceNumber(rcvdMsg);
             otherAckNum = getAcknowledgmentNumber(rcvdMsg);
             isSeqValid = isSeqNumValid(otherSeqNum);
@@ -766,7 +765,10 @@ public class HALPClient extends HALP implements HALPClientInterface
 //                if(!isWritten)
 //                {
 //                savedData = rcvdData;
+                if(!isFinValid)
+                {
                     fOutStr.write(rcvdData);
+                }
 ////                    isWritten = true;
 //                    ackNum = incrementSequence(ackNum);
 //                } 

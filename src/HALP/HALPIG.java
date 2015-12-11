@@ -41,7 +41,23 @@ public class HALPIG extends HALP implements HALPIGInterface
         Scanner console = new Scanner(System.in);
         HALPIG halpIG = new HALPIG(IG_PORT);
         
-        double errRate = 0.1;
+        double testErrRate0 = 0.0;
+        double testErrRate1 = 1.0;
+        double testErrRate2 = 0.1;
+        double testErrRate3 = 0.3;
+        double testErrRate4 = 0.5;
+        double testErrRate5 = 0.7;
+        double testErrRate6 = 0.9;
+        
+        double testCrptRate0 = 0.0;
+        double testCrptRate1 = 1.0;
+        double testCrptRate2 = 0.1;
+        double testCrptRate3 = 0.3;
+        double testCrptRate4 = 0.5;
+        double testCrptRate5 = 0.7;
+        double testCrptRate6 = 0.9;
+        
+        double errRate = 0.9;
         double crptRate = 1.0;
         halpIG.setMaxDataRate(10000);
         halpIG.setErrorRate(errRate);
@@ -178,6 +194,7 @@ public class HALPIG extends HALP implements HALPIGInterface
                     else
                     {
                         isLost = true;
+                        System.out.println("Is lost: " + isLost);
                     }
                 }
                 

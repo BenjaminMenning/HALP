@@ -50,7 +50,7 @@ public abstract class HALP implements HALPInterface
     protected InetAddress igINAddr;
     
     protected int retransTO = 500;
-    protected int transDelay = 1000;
+    protected int transDelay = 0;
     
     protected int clntPortNum = 0;
     protected int igPortNum = 0;
