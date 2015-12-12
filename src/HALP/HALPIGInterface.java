@@ -1,7 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/** 
+ * Author:          Benjamin Menning, John Blacketer
+ * 
+ * Date:            12/15/2015 
+ *                
+ * Course:          CS 413 - Advanced Networking
+ * 
+ * Assignment:      Final Project - HALP Protocol
+ * 
+ * Description:     This program is a program that performs a simple file 
+ *                  transfer utilizing our own protocol, HALP. It includes 
+ *                  three devices: a client, an internet gateway (IG), and a
+ *                  server. The client initiates a file download or upload from
+ *                  or to the server, and the file transfer process begins, 
+ *                  while the internet gateway passes messages between them. 
+ *                  It follows our protocol to provide reliability for the data
+ *                  transfer process. All three devices follow the protocol to
+ *                  manipulate the header data fields and can print out 
+ *                  information to trace and log the connection process. Our 
+ *                  program / protocol utilizes use of positive acknowledgment,
+ *                  retransmission, timeout, and sequence numbers to provide 
+ *                  reliability. 
+ * 
  */
 package HALP;
 
@@ -10,10 +29,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Scanner;
 
-/**
- *
- * @author Ben
- */
+/** 
+ * This interface provides methods and functionality to be implemented by the 
+ * HALPIG class. It describes methods for generating errors and setting the 
+ * max data rate.
+ * 
+ * @author Benjamin Menning, John Blacketer
+ * @version 12/15/2015
+*/
 public interface HALPIGInterface extends HALPInterface
 {
     

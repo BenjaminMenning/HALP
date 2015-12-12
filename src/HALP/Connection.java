@@ -1,14 +1,39 @@
 package HALP;
 
-/**
- *
- * @author Ben
+/** 
+ * Author:          Benjamin Menning, John Blacketer
+ * 
+ * Date:            12/15/2015 
+ *                
+ * Course:          CS 413 - Advanced Networking
+ * 
+ * Assignment:      Final Project - HALP Protocol
+ * 
+ * Description:     This program is a program that performs a simple file 
+ *                  transfer utilizing our own protocol, HALP. It includes 
+ *                  three devices: a client, an internet gateway (IG), and a
+ *                  server. The client initiates a file download or upload from
+ *                  or to the server, and the file transfer process begins, 
+ *                  while the internet gateway passes messages between them. 
+ *                  It follows our protocol to provide reliability for the data
+ *                  transfer process. All three devices follow the protocol to
+ *                  manipulate the header data fields and can print out 
+ *                  information to trace and log the connection process. Our 
+ *                  program / protocol utilizes use of positive acknowledgment,
+ *                  retransmission, timeout, and sequence numbers to provide 
+ *                  reliability. 
+ * 
  */
 
 
-    // Will hold IP address, port number for sure
-    // Will also possibly hold connection ID, fileName, and data rate
-    // Include setters, getters, and print methods at minimum
+/** 
+ * This class provides methods and functionality to be implemented by the 
+ * Connection class. It describes methods for assigning and retrieving the 
+ * port numbers and IP addresses of a client and a server as a pair.
+ * 
+ * @author Benjamin Menning, John Blacketer
+ * @version 12/15/2015
+*/
 public class Connection implements ConnectionInterface
 {
  String ipClient;

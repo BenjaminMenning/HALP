@@ -1,12 +1,35 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/** 
+ * Author:          Benjamin Menning, John Blacketer
+ * 
+ * Date:            12/15/2015 
+ *                
+ * Course:          CS 413 - Advanced Networking
+ * 
+ * Assignment:      Final Project - HALP Protocol
+ * 
+ * Description:     This program is a program that performs a simple file 
+ *                  transfer utilizing our own protocol, HALP. It includes 
+ *                  three devices: a client, an internet gateway (IG), and a
+ *                  server. The client initiates a file download or upload from
+ *                  or to the server, and the file transfer process begins, 
+ *                  while the internet gateway passes messages between them. 
+ *                  It follows our protocol to provide reliability for the data
+ *                  transfer process. All three devices follow the protocol to
+ *                  manipulate the header data fields and can print out 
+ *                  information to trace and log the connection process. Our 
+ *                  program / protocol utilizes use of positive acknowledgment,
+ *                  retransmission, timeout, and sequence numbers to provide 
+ *                  reliability. 
+ * 
  */
 package HALP;
 
 /**
- *
+ * This implementation is one we found online and is not our own. Link to 
+ * code: 
+ * 
+ * http://stackoverflow.com/questions/3215328/crc-16-ansi-library-for-for-java-groovy/3215448#3215448
+ * 
  * @author Ben
  */
 import java.util.zip.Checksum;
@@ -74,5 +97,4 @@ public class CRC16 implements Checksum {
         crc.update(16);
         System.out.println(Integer.toHexString((int)crc.getValue()));
     }
-
 }

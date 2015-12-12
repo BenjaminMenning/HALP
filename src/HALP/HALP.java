@@ -1,7 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/** 
+ * Author:          Benjamin Menning, John Blacketer
+ * 
+ * Date:            12/15/2015 
+ *                
+ * Course:          CS 413 Advanced Networking
+ * 
+ * Assignment:      Final Project - HALP Protocol
+ * 
+ * Description:     This program is a program that performs a simple file 
+ *                  transfer utilizing our own protocol, HALP. It includes 
+ *                  three devices: a client, an internet gateway (IG), and a
+ *                  server. The client initiates a file download or upload from
+ *                  or to the server, and the file transfer process begins, 
+ *                  while the internet gateway passes messages between them. 
+ *                  It follows our protocol to provide reliability for the data
+ *                  transfer process. All three devices follow the protocol to
+ *                  manipulate the header data fields and can print out 
+ *                  information to trace and log the connection process. Our 
+ *                  program / protocol utilizes use of positive acknowledgment,
+ *                  retransmission, timeout, and sequence numbers to provide 
+ *                  reliability. 
+ * 
  */
 package HALP;
 
@@ -28,10 +47,17 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Ben
- */
+/** 
+ * This class is an abstract class that implements from the HALP interface.
+ * It defines the methods used to make up HALP, the reliable application layer
+ * protocol. It includes methods for retrieving values from header fields, 
+ * assigning values to header fields, and printing out header fields of HALP
+ * messages. It also includes many other methods for things like generating 
+ * sequence numbers and calculating checksums.
+ * 
+ * @author Benjamin Menning, John Blacketer
+ * @version 12/15/2015
+*/
 public abstract class HALP implements HALPInterface
 {
     protected Scanner console = new Scanner(System.in);
@@ -49,8 +75,8 @@ public abstract class HALP implements HALPInterface
     protected InetAddress servINAddr;
     protected InetAddress igINAddr;
     
-    protected int retransTO = 500;
-    protected int transDelay = 0;
+    protected int retransTO = 200;
+    protected int transDelay = 100;
     
     protected int clntPortNum = 0;
     protected int igPortNum = 0;

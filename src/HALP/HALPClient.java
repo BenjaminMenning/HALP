@@ -1,6 +1,29 @@
 package HALP;
 
-// Simple echo client.
+/** 
+ * Author:          Benjamin Menning, John Blacketer
+ * 
+ * Date:            12/15/2015 
+ *                
+ * Course:          CS 413 - Advanced Networking
+ * 
+ * Assignment:      Final Project - HALP Protocol
+ * 
+ * Description:     This program is a program that performs a simple file 
+ *                  transfer utilizing our own protocol, HALP. It includes 
+ *                  three devices: a client, an internet gateway (IG), and a
+ *                  server. The client initiates a file download or upload from
+ *                  or to the server, and the file transfer process begins, 
+ *                  while the internet gateway passes messages between them. 
+ *                  It follows our protocol to provide reliability for the data
+ *                  transfer process. All three devices follow the protocol to
+ *                  manipulate the header data fields and can print out 
+ *                  information to trace and log the connection process. Our 
+ *                  program / protocol utilizes use of positive acknowledgment,
+ *                  retransmission, timeout, and sequence numbers to provide 
+ *                  reliability. 
+ * 
+ */
 
 import static HALP.HALP.FLAG_OFFSET;
 import java.io.*;
@@ -13,6 +36,16 @@ import java.util.logging.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/** 
+ * This class implements methods and functionality from the HALPClientInterface.
+ * It is not only for a client, but can be run as either a
+ * client or a server. It defines methods for inputting necessary client 
+ * information like file name, data rate, as well as methods for running the
+ * device as a client or a server.
+ * 
+ * @author Benjamin Menning, John Blacketer
+ * @version 12/15/2015
+*/
 public class HALPClient extends HALP implements HALPClientInterface
 {
         // Hard coded IP addresses for testing
@@ -514,7 +547,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                     placeholderCondition = true;
                 }
                 // If ACK is set and DRT is a download
-                else if(isAck && !isUpld)
+                else if(isSyn && isAck && !isUpld)
                 {
 //                    ackNum = getSequenceNumber(rcvdMsg);
                     ackNum = incrementSequence(ackNum);
@@ -560,6 +593,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Initialize flag variables
         boolean isAck = false;
+        boolean isSyn = false;
         boolean isChkValid = false;
         boolean isTimedOut = false;
         
@@ -585,8 +619,8 @@ public class HALPClient extends HALP implements HALPClientInterface
             
             // Create message
             tempData = new byte[tempDataRate];
-            tempHeader = setDestIP(tempHeader, servIPAddr);
-            tempHeader = setDestPN(tempHeader, servPortNum);
+//            tempHeader = setDestIP(tempHeader, servIPAddr);
+//            tempHeader = setDestPN(tempHeader, servPortNum);
             tempHeader = setSequenceNumber(tempHeader, seqNum);
             tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
             tempHeader = setDRTFlag(tempHeader, isUpload);
@@ -598,22 +632,24 @@ public class HALPClient extends HALP implements HALPClientInterface
             senderLog.println(messageLog(tempMsg)); //writes to the sender log information about the message sent
             
             // Reset flags
+            isSyn = false;
             isAck = false;
             isChkValid = false;
             isTimedOut = false;
             
             // Resend message if acknowledgment is negative or checksum invalid
 //            while(!isAck || !isChkValid || isTimedOut)
-            while(!isAck || !isChkValid || isTimedOut)
+            while(isSyn || !isAck || !isChkValid || isTimedOut)
             {
                 try 
                 {
                     isTimedOut = false;
                     Thread.sleep(transDelay);
                     sendMessage(tempMsg);
-                    senderLog.println(resendLog(tempMsg)); //writes to the sender log information about the message that was resent
+//                    senderLog.println(resendLog(tempMsg)); //writes to the sender log information about the message that was resent
                     rcvdMsg = receiveMessage();
                     isChkValid = isChecksumValid(rcvdMsg);
+                    isSyn = isSYNFlagSet(rcvdMsg);
                     isAck = isACKFlagSet(rcvdMsg);
                     
                 } 
@@ -629,8 +665,8 @@ public class HALPClient extends HALP implements HALPClientInterface
         }
         
         // Create message
-        tempHeader = setDestIP(tempHeader, servIPAddr);
-        tempHeader = setDestPN(tempHeader, servPortNum);
+//        tempHeader = setDestIP(tempHeader, servIPAddr);
+//        tempHeader = setDestPN(tempHeader, servPortNum);
         tempHeader = setSequenceNumber(tempHeader, seqNum);
         tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
         tempHeader = setDRTFlag(tempHeader, isUpload);
@@ -746,7 +782,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             otherSeqNum = getSequenceNumber(rcvdMsg);
             otherAckNum = getAcknowledgmentNumber(rcvdMsg);
             isSeqValid = isSeqNumValid(otherSeqNum);
-            System.out.println(isSeqValid);
+            System.out.println("Sequence number valid: " + isSeqValid);
             
             
             receiverLog.println(receivedLog(rcvdMsg));  //writes to receiver log information of the received message 
@@ -779,7 +815,7 @@ public class HALPClient extends HALP implements HALPClientInterface
 //                tempSeqNum = getSequenceNumber(rcvdMsg);
                 otherSeqNum++;
                 isSeqValid = isSeqNumValid(otherSeqNum);
-                System.out.println(isSeqValid);
+                System.out.println("Sequence number valid: " + isSeqValid);
                 if(isSeqValid)
                 {
                     tempHeader = setACKFlag(tempHeader, true);
