@@ -116,11 +116,4 @@ public interface HALPIGInterface extends HALPInterface
      * @return int  returns the int assigned as the error rate
      */
     public double getCorruptRate();
-    
-    /**
-     * This method retrieves the expected number of retransmissions.
-     * 
-     * @return
-     */
-    public int getExpectedRetransmissions();
 }

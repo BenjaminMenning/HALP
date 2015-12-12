@@ -341,6 +341,13 @@ public interface HALPInterface
     public double getPercentageOfRetransmissions();
     
     /**
+     * This method retrieves the expected number of retransmissions.
+     * 
+     * @return
+     */
+    public int getExpectedRetransmissions();
+    
+    /**
      * This method prints out the trace statistics after the file transfer is
      * complete. Possibly a polymorhpic method?
      * 

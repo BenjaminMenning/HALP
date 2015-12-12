@@ -54,9 +54,6 @@ public class HALPIG extends HALP implements HALPIGInterface
     private int ingoingPN;
     private int outgoingPN;
     private int maxDataRate;
-    protected double errorRate = 0; // p
-    protected double corruptRate = 0; // q
-    protected double lossRate = 0; // q - 1
     private InetAddress ingoingIN;
     private InetAddress outgoingIN;
     private int outgoingRate = 0;
@@ -324,6 +321,7 @@ public class HALPIG extends HALP implements HALPIGInterface
 
         // Send a message
         deviceSocket.send(sendPacket);
+        dtgmTransNum2++;
         
         // Display the message
 //        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
@@ -431,10 +429,5 @@ public class HALPIG extends HALP implements HALPIGInterface
     public double getCorruptRate()
     {
         return corruptRate;
-    }
-    
-    @Override
-    public int getExpectedRetransmissions() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

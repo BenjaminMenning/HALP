@@ -104,7 +104,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         String testFile3 = "mission1.txt";
         String testFile4 = "mission2.txt";
         String testFileName = testFile4; // swap out test files here
-        boolean testIsUpload = false;
+        boolean testIsUpload = true;
         int testDataRate = 32;
         
         // Hard coded values for testing
@@ -277,6 +277,21 @@ public class HALPClient extends HALP implements HALPClientInterface
         }
         byte[] blankBytes = new byte[4];
         return blankBytes;
+    }
+    
+    @Override
+    public void printTraceStats() 
+    {
+        String statsStr = "\nStatistics: " +
+                "\nSize of file transferred: " + fileSize +
+                "\nTime to complete file transfer: " + fileTransTime +
+                "\nTotal number of application messages generated: " + msgGenNum +
+                "\nTotal number of UDP datagrams transmitted: " + dtgmTransNum +
+                "\nTotal number of retransmissions: " + totalRetrans +
+                "\nExpected number of retransmissions: " + expectedRetrans +
+                "\nMaximum number of transmissions for any single application datagram: " + maxRetrans +
+                "\nPercentage of retransmissions: " + percentRetrans;
+        System.out.println(statsStr);
     }
     
     @Override
@@ -571,9 +586,11 @@ public class HALPClient extends HALP implements HALPClientInterface
         deviceSocket.setSoTimeout(retransTO);
         System.out.println("Begin sending data");
         start = startTransferTimer();
+//        stopWatch.start();
         
         // Create input file and start file input stream
         inputFile = new File(fileName);
+        fileSize = inputFile.length();
         fInStr = new FileInputStream(fileName);
         
          
@@ -627,6 +644,8 @@ public class HALPClient extends HALP implements HALPClientInterface
             tempHeader = setACKFlag(tempHeader, true);
             
             fInStr.read(tempData, 0, tempDataRate);
+            msgGenNum++;
+            msgGenNum2++;
             tempMsg = assembleMessage(tempHeader, tempData);
             tempMsg = setChecksum(tempMsg);
             senderLog.println(messageLog(tempMsg)); //writes to the sender log information about the message sent
@@ -646,7 +665,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                     isTimedOut = false;
                     Thread.sleep(transDelay);
                     sendMessage(tempMsg);
-//                    senderLog.println(resendLog(tempMsg)); //writes to the sender log information about the message that was resent
+                    senderLog.println(resendLog(tempMsg)); //writes to the sender log information about the message that was resent
                     rcvdMsg = receiveMessage();
                     isChkValid = isChecksumValid(rcvdMsg);
                     isSyn = isSYNFlagSet(rcvdMsg);
@@ -702,6 +721,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         }
         
         // Close file input stream and connection
+//        stopWatch.stop();
         stop = stopTransferTimer();
         fInStr.close();
         senderLog.close();

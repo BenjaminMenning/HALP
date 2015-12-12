@@ -46,6 +46,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+//import org.apache.commons.lang3.time.StopWatch;
 
 /** 
  * This class is an abstract class that implements from the HALP interface.
@@ -76,7 +77,7 @@ public abstract class HALP implements HALPInterface
     protected InetAddress igINAddr;
     
     protected int retransTO = 200;
-    protected int transDelay = 100;
+    protected int transDelay = 0;
     
     protected int clntPortNum = 0;
     protected int igPortNum = 0;
@@ -135,6 +136,25 @@ public abstract class HALP implements HALPInterface
 //    protected DatagramSocket igSocket;
 //    protected DatagramSocket servSocket;
     protected DatagramSocket deviceSocket;
+    
+    // For IG
+    protected double errorRate = 0; // p
+    protected double corruptRate = 0; // q
+    protected double lossRate = 0; // q - 1
+    
+//    protected StopWatch stopWatch = new StopWatch();
+    
+    // Statistics
+    protected long fileSize = 0; // 1
+    protected int fileTransTime = 0; // 2
+    protected int msgGenNum = 0; // 3
+    protected int msgGenNum2 = 0;
+    protected int dtgmTransNum = 0; // 4
+    protected int dtgmTransNum2 = 0;
+    protected int totalRetrans = 0; // 5
+    protected int expectedRetrans = 0; // 6
+    protected int maxRetrans = 0; // 7
+    protected double percentRetrans = 0.00; // 8
 
     
     @Override
@@ -670,6 +690,7 @@ public abstract class HALP implements HALPInterface
 
         // Send a message
         deviceSocket.send(sendPacket);
+        dtgmTransNum2++;
         
         // Display the message
 //        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
@@ -763,6 +784,11 @@ public abstract class HALP implements HALPInterface
     public int getTotalRetransmissions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    @Override
+    public int getExpectedRetransmissions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     @Override
     public double getPercentageOfRetransmissions() {
@@ -770,8 +796,9 @@ public abstract class HALP implements HALPInterface
     }
 
     @Override
-    public void printTraceStats() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void printTraceStats() 
+    {
+
     }
     
     @Override
