@@ -3,7 +3,7 @@
  * 
  * Date:            12/15/2015 
  *                
- * Course:          CS 413 Advanced Networking
+ * Course:          CS 413 - Advanced Networking
  * 
  * Assignment:      Final Project - HALP Protocol
  * 
@@ -345,7 +345,7 @@ public interface HALPInterface
      * 
      * @return
      */
-    public int getExpectedRetransmissions();
+    public double getExpectedRetransmissions();
     
     /**
      * This method prints out the trace statistics after the file transfer is

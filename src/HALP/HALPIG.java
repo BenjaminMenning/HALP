@@ -86,10 +86,10 @@ public class HALPIG extends HALP implements HALPIGInterface
         double testCrptRate5 = 0.7;
         double testCrptRate6 = 0.9;
         
-        double errRate = 0.9;
+        double errRate = 0.5;
         double crptRate = 0.0;
         halpIG.setMaxDataRate(10000);
-        halpIG.setErrorRate(errRate);
+//        halpIG.setErrorRate(errRate);
         halpIG.setCorruptRate(crptRate);
         halpIG.run();
     }

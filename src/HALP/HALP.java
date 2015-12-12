@@ -77,7 +77,7 @@ public abstract class HALP implements HALPInterface
     protected InetAddress igINAddr;
     
     protected int retransTO = 200;
-    protected int transDelay = 0;
+    protected int transDelay = 100;
     
     protected int clntPortNum = 0;
     protected int igPortNum = 0;
@@ -138,24 +138,28 @@ public abstract class HALP implements HALPInterface
     protected DatagramSocket deviceSocket;
     
     // For IG
-    protected double errorRate = 0; // p
+    protected double errorRate = 0.5; // p
     protected double corruptRate = 0; // q
     protected double lossRate = 0; // q - 1
     
 //    protected StopWatch stopWatch = new StopWatch();
     
+    protected long start;
+    protected long stop;
+    
+    protected int retransCount = 0;
+
     // Statistics
     protected long fileSize = 0; // 1
-    protected int fileTransTime = 0; // 2
+    protected long fileTransTime = 0; // 2
     protected int msgGenNum = 0; // 3
     protected int msgGenNum2 = 0;
     protected int dtgmTransNum = 0; // 4
     protected int dtgmTransNum2 = 0;
     protected int totalRetrans = 0; // 5
-    protected int expectedRetrans = 0; // 6
+    protected double expectedRetrans = 0; // 6
     protected int maxRetrans = 0; // 7
     protected double percentRetrans = 0.00; // 8
-
     
     @Override
     public void setClientIP(String ipAddr) 
@@ -781,18 +785,43 @@ public abstract class HALP implements HALPInterface
     }
 
     @Override
-    public int getTotalRetransmissions() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int getTotalRetransmissions() 
+    {
+        totalRetrans = dtgmTransNum - msgGenNum;
+//        totalRetrans = dtgmTransNum2 - msgGenNum2;
+        return totalRetrans;
     }
     
     @Override
-    public int getExpectedRetransmissions() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public double getExpectedRetransmissions()
+    {
+        if(errorRate != 0.0)
+        {
+//            expectedRetrans = errorRate / (1 - errorRate);
+            expectedRetrans = (double) msgGenNum / (1.0 - errorRate);
+    //        expectedRetrans = msgGenNum2 / (1 - errorRate);
+        }
+        else
+        {
+            expectedRetrans = 0.0;
+        }
+        return expectedRetrans;
     }
 
     @Override
-    public double getPercentageOfRetransmissions() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public double getPercentageOfRetransmissions() 
+    {
+        if(dtgmTransNum != 0)
+        {
+            percentRetrans = (double) totalRetrans / (double) dtgmTransNum;
+    //        percentRetrans = totalRetrans / dtgmTransNum2;
+            percentRetrans = percentRetrans * 100;
+        }
+        else
+        {
+            percentRetrans = 0.0;
+        }
+        return percentRetrans;
     }
 
     @Override

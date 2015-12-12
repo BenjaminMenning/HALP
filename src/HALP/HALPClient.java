@@ -32,9 +32,11 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javafx.util.Duration.millis;
 
 /** 
  * This class implements methods and functionality from the HALPClientInterface.
@@ -75,8 +77,6 @@ public class HALPClient extends HALP implements HALPClientInterface
     
     //variables for statistics
 //    private final long FILESIZE = inputFile.length();
-    private long start;
-    private long stop;
 //    private final String TRANSFERTIME = getTransferTime(start, stop);
 //    private int messagesGen = 0;
 //    private int totalMessages = 0;
@@ -282,15 +282,29 @@ public class HALPClient extends HALP implements HALPClientInterface
     @Override
     public void printTraceStats() 
     {
+        fileTransTime = stop - start;
+        System.out.println(fileTransTime);
+        String timeStr = String.format("%02d:%02d:%02d.%03d", TimeUnit.MILLISECONDS.toHours(fileTransTime),
+        TimeUnit.MILLISECONDS.toMinutes(fileTransTime) % TimeUnit.HOURS.toMinutes(1),
+        TimeUnit.MILLISECONDS.toSeconds(fileTransTime) % TimeUnit.MINUTES.toSeconds(1),
+        fileTransTime % 1000);        
+        if(!isMaxTransmissionsEmpty())
+        {
+            maxRetrans = getMaxTransmission();
+        }
+        totalRetrans = getTotalRetransmissions();
+        expectedRetrans = getExpectedRetransmissions();
+        percentRetrans = getPercentageOfRetransmissions();
         String statsStr = "\nStatistics: " +
-                "\nSize of file transferred: " + fileSize +
-                "\nTime to complete file transfer: " + fileTransTime +
+                "\nSize of file transferred: " + fileSize + " bytes" +
+                "\nTime to complete file transfer: " + timeStr +
                 "\nTotal number of application messages generated: " + msgGenNum +
                 "\nTotal number of UDP datagrams transmitted: " + dtgmTransNum +
                 "\nTotal number of retransmissions: " + totalRetrans +
                 "\nExpected number of retransmissions: " + expectedRetrans +
                 "\nMaximum number of transmissions for any single application datagram: " + maxRetrans +
-                "\nPercentage of retransmissions: " + percentRetrans;
+                "\nPercentage of retransmissions: " + 
+                String.format("%.2f", percentRetrans) + "%";
         System.out.println(statsStr);
     }
     
@@ -585,7 +599,8 @@ public class HALPClient extends HALP implements HALPClientInterface
     {
         deviceSocket.setSoTimeout(retransTO);
         System.out.println("Begin sending data");
-        start = startTransferTimer();
+        start = System.currentTimeMillis();
+//        start = startTransferTimer();
 //        stopWatch.start();
         
         // Create input file and start file input stream
@@ -620,6 +635,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         // Sends messages until the end of the file has been reached
         while(fInStr.available() != 0)
         {
+            retransCount  = 0;
             // Assign data rate to temporary value
             tempDataRate = dataRate;
             
@@ -665,6 +681,8 @@ public class HALPClient extends HALP implements HALPClientInterface
                     isTimedOut = false;
                     Thread.sleep(transDelay);
                     sendMessage(tempMsg);
+                    dtgmTransNum++;
+                    retransCount++;
                     senderLog.println(resendLog(tempMsg)); //writes to the sender log information about the message that was resent
                     rcvdMsg = receiveMessage();
                     isChkValid = isChecksumValid(rcvdMsg);
@@ -677,6 +695,12 @@ public class HALPClient extends HALP implements HALPClientInterface
                     System.out.println("Connection has timed out.");
                     isTimedOut = true;
                 }
+            }
+            
+            retransCount--;
+            if(retransCount > 0)
+            {
+                addMaxTransmission(retransCount);
             }
 //            ackNum = getSequenceNumber(rcvdMsg);
             ackNum = incrementSequence(ackNum);
@@ -722,10 +746,12 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Close file input stream and connection
 //        stopWatch.stop();
-        stop = stopTransferTimer();
+//        stop = stopTransferTimer();
+        stop = System.currentTimeMillis();
         fInStr.close();
         senderLog.close();
         closeConnection();
+        printTraceStats();
     }
 
     @Override

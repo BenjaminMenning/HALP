@@ -93,6 +93,8 @@ public class HALPTest2
    {
        HALPTest2 halpTest2 = new HALPTest2();
        halpTest2.getIP();
+       
+       HALPClient testClient = new HALPClient();
 //        String ipAddress = "";
 //        try {
 //            URL url = null;
