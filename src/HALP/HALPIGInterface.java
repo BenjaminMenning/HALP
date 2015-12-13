@@ -44,7 +44,11 @@ public interface HALPIGInterface extends HALPInterface
 //
 //    public void convertBytesToDestPN();
     
-    public void inputDataRate();
+    public void inputMaxDataRate();
+    
+    public void inputErrorRate();
+    
+    public void inputCorruptRate();
     
     public void setMaxDataRate(int dataRate);
     

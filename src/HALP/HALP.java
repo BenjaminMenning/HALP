@@ -139,6 +139,7 @@ public abstract class HALP implements HALPInterface
     
     // For IG
     protected double errorRate = 0.5; // p
+//    protected double errorRate = 0; // p
     protected double corruptRate = 0; // q
     protected double lossRate = 0; // q - 1
     
@@ -894,6 +895,7 @@ public abstract class HALP implements HALPInterface
         System.out.println(flagInfo);
     }
     
+    @Override
     public void printHeaderField(byte[] messageBytes)
     {
         String headerInfo = "Header: [";

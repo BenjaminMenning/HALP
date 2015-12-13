@@ -70,6 +70,7 @@ public class HALPIG extends HALP implements HALPIGInterface
         Scanner console = new Scanner(System.in);
         HALPIG halpIG = new HALPIG(IG_PORT);
         
+        // Hard coded values for testing
         double testErrRate0 = 0.0;
         double testErrRate1 = 1.0;
         double testErrRate2 = 0.1;
@@ -88,9 +89,17 @@ public class HALPIG extends HALP implements HALPIGInterface
         
         double errRate = 0.5;
         double crptRate = 0.0;
-        halpIG.setMaxDataRate(10000);
+        
+        // Hard coded input for testing
+//        halpIG.setMaxDataRate(10000);
 //        halpIG.setErrorRate(errRate);
-        halpIG.setCorruptRate(crptRate);
+//        halpIG.setCorruptRate(crptRate);
+        
+        // For user input
+        halpIG.inputMaxDataRate();
+        halpIG.inputErrorRate();
+        halpIG.inputCorruptRate();
+        
         halpIG.run();
     }
     
@@ -131,7 +140,7 @@ public class HALPIG extends HALP implements HALPIGInterface
         boolean isInTable;
         
         int tempMaxDataRate = maxDataRate;
-        System.out.println("Internet gateway has started.");
+        System.out.println("The internet gateway has started.");
         while(true)
         {
             try {
@@ -190,12 +199,38 @@ public class HALPIG extends HALP implements HALPIGInterface
                         {
                             clntDataRate = maxDataRate;
                             rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
+                        
+                            // Reset checksum
+                            byte emptyBytes[] = new byte[2];
+                            System.arraycopy(emptyBytes, 0, rcvdMsg, CRC_OFFSET, 
+                                    CRC_LEN);   
+                            rcvdMsg = setChecksum(rcvdMsg);
                         }
                         
                         tempConn = new Connection(clntIPAddr, clntPortNum, 
                                 servIPAddr, servPortNum, clntDataRate);
                         connTable.addConnection(tempConn);
 //                    }
+                }
+                else if(isSyn && !isAck && isInTable)
+                {
+                    // Retrieves client data rate and changes if above max
+                    int clntDataRate = getDataRateField(rcvdMsg);
+                    if(clntDataRate > maxDataRate)
+                    {
+                        clntDataRate = maxDataRate;
+                        rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
+                       
+                        // Reset checksum
+                        byte emptyBytes[] = new byte[2];
+                        System.arraycopy(emptyBytes, 0, rcvdMsg, CRC_OFFSET, 
+                                CRC_LEN);   
+                        rcvdMsg = setChecksum(rcvdMsg);
+                    }
+
+                    tempConn = new Connection(clntIPAddr, clntPortNum, 
+                            servIPAddr, servPortNum, clntDataRate);
+                    connTable.addConnection(tempConn);
                 }
                 
                 outgoingConn = connTable.getCorrespondingConnection(tempIPAddr, 
@@ -296,13 +331,32 @@ public class HALPIG extends HALP implements HALPIGInterface
     }
     
     @Override
-    public void inputDataRate()
+    public void inputMaxDataRate()
     {
         // Requests user to input transfer direction
-        System.out.println("Please enter the preferred data rate for the "
-                + "connection: ");
+        System.out.println("Please enter the maximum data rate for the "
+                + "internet gateway connection: ");
         int tempDataRate = console.nextInt();
         setMaxDataRate(tempDataRate);
+    }
+    
+    @Override
+    public void inputErrorRate()
+    {
+        System.out.println("Please enter the error rate for the connection in "
+                + "percentage (i.e. XX.XX%): ");
+        double tempErrorRate = console.nextDouble();
+        tempErrorRate = tempErrorRate / 100;
+        this.setErrorRate(tempErrorRate);
+    }
+    
+    @Override
+    public void inputCorruptRate()
+    {
+        System.out.println("Please enter the packet corrupt rate for the "
+                + "connection: ");
+        double tempCorruptRate = console.nextDouble();
+        this.setCorruptRate(tempCorruptRate);
     }
     
     @Override

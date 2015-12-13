@@ -94,33 +94,33 @@ public class HALPClient extends HALP implements HALPClientInterface
         Scanner console = new Scanner(System.in);
         HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
         
-        // Hard coded IP addresses for testing
-        String homeTestIP = "192.168.0."; // for testing at home
-//        String testIGIP = homeTestIP + "110"; // for manual entry
-        String testIGIP = halpClient.getLocalIP(); // for automatic entry
-        String testServIP = homeTestIP + "110";
-        String testFile1 = "alice.txt";
-        String testFile2 = "mission0.txt";
-        String testFile3 = "mission1.txt";
-        String testFile4 = "mission2.txt";
-        String testFileName = testFile4; // swap out test files here
-        boolean testIsUpload = true;
-        int testDataRate = 32;
-        
-        // Hard coded values for testing
-        halpClient.setIGIP(testIGIP);
-        halpClient.setServerIP(testServIP);
-        halpClient.setFileName(testFileName);
-        halpClient.setTransferDirection(testIsUpload);
-        halpClient.setDataRate(testDataRate);
+//        // Hard coded IP addresses for testing
+//        String homeTestIP = "192.168.0."; // for testing at home
+////        String testIGIP = homeTestIP + "110"; // for manual entry
+//        String testIGIP = halpClient.getLocalIP(); // for automatic entry
+//        String testServIP = homeTestIP + "110";
+//        String testFile1 = "alice.txt";
+//        String testFile2 = "mission0.txt";
+//        String testFile3 = "mission1.txt";
+//        String testFile4 = "mission2.txt";
+//        String testFileName = testFile4; // swap out test files here
+//        boolean testIsUpload = false;
+//        int testDataRate = 32;
+//        
+//        // Hard coded input for testing
+//        halpClient.setIGIP(testIGIP);
+//        halpClient.setServerIP(testServIP);
+//        halpClient.setTransferDirection(testIsUpload);
+//        halpClient.setFileName(testFileName);
+//        halpClient.setDataRate(testDataRate);
         
         
         // For user input
-//        halpClient.inputIGIP();
-//        halpClient.inputServIP();
-//        halpClient.inputFileName();
-//        halpClient.inputTransferDirection();
-//        halpClient.inputDataRate();
+        halpClient.inputIGIP();
+        halpClient.inputServIP();
+        halpClient.inputTransferDirection();
+        halpClient.inputFileName();
+        halpClient.inputDataRate();
                 
         halpClient.initiateConnection();
     }
@@ -283,7 +283,6 @@ public class HALPClient extends HALP implements HALPClientInterface
     public void printTraceStats() 
     {
         fileTransTime = stop - start;
-        System.out.println(fileTransTime);
         String timeStr = String.format("%02d:%02d:%02d.%03d", TimeUnit.MILLISECONDS.toHours(fileTransTime),
         TimeUnit.MILLISECONDS.toMinutes(fileTransTime) % TimeUnit.HOURS.toMinutes(1),
         TimeUnit.MILLISECONDS.toSeconds(fileTransTime) % TimeUnit.MINUTES.toSeconds(1),
