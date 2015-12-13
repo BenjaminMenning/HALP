@@ -94,7 +94,7 @@ public class HALPIG extends HALP implements HALPIGInterface
         halpIG.setMaxDataRate(10000);
         halpIG.setErrorRate(errRate);
         halpIG.setCorruptRate(crptRate);
-        halpIG.setTrace(true);
+        halpIG.setTrace(false);
         
         // For user input
 //        halpIG.inputMaxDataRate();
