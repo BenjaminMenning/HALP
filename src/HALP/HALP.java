@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import static java.lang.System.console;
 import java.lang.reflect.Array;
 import java.net.DatagramPacket;
@@ -72,12 +73,14 @@ public abstract class HALP implements HALPInterface
     protected String igIPAddr = "";
     protected String servIPAddr = "";
     
+    protected PrintWriter deviceLog;
+    
     protected InetAddress clntINAddr;
     protected InetAddress servINAddr;
     protected InetAddress igINAddr;
     
     protected int retransTO = 200;
-    protected int transDelay = 100;
+    protected int transDelay = 1000;
     
     protected int clntPortNum = 0;
     protected int igPortNum = 0;
@@ -699,8 +702,12 @@ public abstract class HALP implements HALPInterface
         
         // Display the message
 //        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
-        System.out.println("Message sent is: ");	
-        printMessage(msgBytes);
+        if(isTraceOn)
+        {
+            System.out.println("Message sent is: ");
+            deviceLog.println("Message sent is: ");
+            printMessage(msgBytes);
+        }
     }
     
     @Override
@@ -734,8 +741,12 @@ public abstract class HALP implements HALPInterface
         
         // Display the message
 //        String echodMessage = new String(data, 0, receivedDatagram.getLength());
-        System.out.println("Message received is: ");
-        printMessage(data);
+        if(isTraceOn)
+        {
+            System.out.println("Message received is: ");
+            deviceLog.println("Message received is: ");
+            printMessage(data);
+        }
         return data;
     }
     
@@ -746,9 +757,25 @@ public abstract class HALP implements HALPInterface
     }
     
     @Override
-    public boolean setTrace(boolean isTraceSet) {
-        boolean trace = isTraceSet;
-        return trace;
+    public void setTrace(boolean isTraceSet) 
+    {
+        isTraceOn = isTraceSet;
+    }
+    
+    @Override
+    public void inputTrace()
+    {
+        System.out.println("Please enter '1' to turn trace on: ");
+        int traceInput;
+        traceInput = console.nextInt();
+        if(traceInput == 1)
+        {
+            isTraceOn = true;
+        }
+        else
+        {
+            isTraceOn = false;
+        }
     }
 
     @Override
@@ -842,6 +869,7 @@ public abstract class HALP implements HALPInterface
 //        byte tempFlagByte = tempFlagBytes[0];
 //        flagInfo += Integer.toBinaryString((int)tempFlagByte);
         System.out.println(flagInfo);
+        deviceLog.println(flagInfo);
     }
     
     @Override
@@ -855,6 +883,7 @@ public abstract class HALP implements HALPInterface
 //        byte tempFlagByte = tempFlagBytes[0];
 //        flagInfo += Integer.toBinaryString((int)tempFlagByte);
         System.out.println(flagInfo);
+        deviceLog.println(flagInfo);
     }
 
     @Override
@@ -869,6 +898,11 @@ public abstract class HALP implements HALPInterface
         String ackInfo = "\nACK set: " + isACKFlagSet(headerBytes);
         String synInfo = "\nSYN set: " + isSYNFlagSet(headerBytes);
         String finInfo = "\nFIN set: " + isFINFlagSet(headerBytes);
+        deviceLog.println(flagInfo);
+        deviceLog.println(drtInfo);
+        deviceLog.println(ackInfo);
+        deviceLog.println(synInfo);
+        deviceLog.println(finInfo);
         flagInfo += drtInfo + ackInfo + synInfo + finInfo;
         System.out.println(flagInfo);
     }
@@ -883,6 +917,7 @@ public abstract class HALP implements HALPInterface
         String fileNameStr = new String(tempFlNmBytes);
         flNmInfo += fileNameStr;
         System.out.println(flNmInfo);
+        deviceLog.println(flNmInfo);
     }
     
     @Override
@@ -893,6 +928,7 @@ public abstract class HALP implements HALPInterface
         flagInfo += dataRateStr;
         flagInfo += " KBps";
         System.out.println(flagInfo);
+        deviceLog.println(flagInfo);
     }
     
     @Override
@@ -904,6 +940,7 @@ public abstract class HALP implements HALPInterface
         String headerStr = new String(tempHedrBytes, 0, Array.getLength(tempHedrBytes));
         headerInfo += headerStr + "]";
         System.out.println(headerInfo);
+        deviceLog.println(headerInfo);
     }
     
     @Override
@@ -916,6 +953,7 @@ public abstract class HALP implements HALPInterface
         String dataStr = new String(tempDataBytes, 0, Array.getLength(tempDataBytes));
         dataInfo += dataStr + "]";
         System.out.println(dataInfo);
+        deviceLog.println(dataInfo);
     }
     
     @Override
@@ -925,7 +963,10 @@ public abstract class HALP implements HALPInterface
 //       (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
 //       (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
 //       (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
-        System.out.println("Sequence number: " + printSeq);
+         String seqInfo = "Sequence number: " + printSeq;
+        System.out.println(seqInfo);
+        deviceLog.println(seqInfo);
+        
     }
     
     @Override
@@ -935,8 +976,9 @@ public abstract class HALP implements HALPInterface
 //       (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
 //       (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
 //       (headerBytes[ACK_OFFSET + 3])&0x000000ff;
-         
-        System.out.println("Acknowledgment number: " + printAck);
+         String ackInfo = "Acknowledgment number: " + printAck;
+        System.out.println(ackInfo);
+        deviceLog.println(ackInfo);
     }
         
     @Override
@@ -944,8 +986,12 @@ public abstract class HALP implements HALPInterface
     {
         int checksum = getChecksum(messageBytes);
         boolean isChkSumValid = isChecksumValid(messageBytes);
-        System.out.println("Checksum value: " + checksum);
-        System.out.println("Checksum valid: " + isChkSumValid);
+        String chkValue = "Checksum value: " + checksum;
+        String chkValid = "Checksum valid: " + isChkSumValid;
+        System.out.println(chkValue);
+        deviceLog.println(chkValue);
+        System.out.println(chkValid);
+        deviceLog.println(chkValid);
     }
     
     @Override
@@ -955,6 +1001,7 @@ public abstract class HALP implements HALPInterface
         int msgLen = Array.getLength(messageBytes);
         int dataLen = msgLen - HEDR_LEN;
         System.out.println(dividerStr);
+        deviceLog.println(dividerStr);
         printHeaderField(messageBytes);
         printDataField(messageBytes);
         printDestIPField(messageBytes);
@@ -963,9 +1010,14 @@ public abstract class HALP implements HALPInterface
         printSequenceNumber(messageBytes);
         printAcknowledgmentNumber(messageBytes);
         printFlagField(messageBytes);
-        System.out.println("Message length: " + msgLen + " bytes");
-        System.out.println("Length of data field: " + dataLen + " bytes");
+        String msgLenInfo = "Message length: " + msgLen + " bytes";
+        String dataLenInfo = "Length of data field: " + dataLen + " bytes";
+        System.out.println(msgLenInfo);
+        deviceLog.println(msgLenInfo);
+        System.out.println(dataLenInfo);
+        deviceLog.println(dataLenInfo);
         System.out.println(dividerStr);
+        deviceLog.println(dividerStr);
     }
     
     /** 

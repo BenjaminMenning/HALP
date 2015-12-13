@@ -260,7 +260,9 @@ public interface HALPInterface
      * @param isTraceSet
      * @return trace true or false depending what is passed in
      */
-    public boolean setTrace(boolean isTraceSet);
+    public void setTrace(boolean isTraceSet);
+    
+    public void inputTrace();
     
     /**
      * This method retrieves the size of the file that is being transferred.

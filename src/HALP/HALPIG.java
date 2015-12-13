@@ -62,7 +62,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     
     private static final int IG_PORT = 43001;
     
-     private PrintWriter IGLog = null;
+//     private PrintWriter IGLog = null;
   
     
     public static void main(String args[]) throws Exception
@@ -87,18 +87,20 @@ public class HALPIG extends HALP implements HALPIGInterface
         double testCrptRate5 = 0.7;
         double testCrptRate6 = 0.9;
         
-        double errRate = 0.5;
+        double errRate = 0.0;
         double crptRate = 0.0;
         
         // Hard coded input for testing
-//        halpIG.setMaxDataRate(10000);
-//        halpIG.setErrorRate(errRate);
-//        halpIG.setCorruptRate(crptRate);
+        halpIG.setMaxDataRate(10000);
+        halpIG.setErrorRate(errRate);
+        halpIG.setCorruptRate(crptRate);
+        halpIG.setTrace(true);
         
         // For user input
-        halpIG.inputMaxDataRate();
-        halpIG.inputErrorRate();
-        halpIG.inputCorruptRate();
+//        halpIG.inputMaxDataRate();
+//        halpIG.inputErrorRate();
+//        halpIG.inputCorruptRate();
+//        halpIG.inputTrace();
         
         halpIG.run();
     }
@@ -117,19 +119,36 @@ public class HALPIG extends HALP implements HALPIGInterface
     @Override
     public void run() 
     {
-       //creating log for internet gateway
-        String IGStr = System.getProperty("user.home") + "/Desktop/";
-        String IGName = "IG_Log.txt";
-        File IGFile = new File(IGStr + IGName);
-        try {
-            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+        if(isTraceOn)
+        {
+            //creating log for IG
+            try 
+            {
+                String desktopStr = System.getProperty("user.home") + "/Desktop/";
+                String deviceStr = "IG's Log.txt";
+                File deviceFile = new File(desktopStr + deviceStr);
+                deviceLog = new PrintWriter(deviceFile);
+                deviceLog.println("IG's Log: \n");
+            } 
+            catch (FileNotFoundException ex) 
+            {
+                Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        IGLog.write("Internet Gateways' Logging: \n");
-        IGLog.close();
+        
+//       //creating log for internet gateway
+//        String IGStr = System.getProperty("user.home") + "/Desktop/";
+//        String IGName = "IG_Log.txt";
+//        File IGFile = new File(IGStr + IGName);
+//        try {
+//            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        IGLog.write("Internet Gateways' Logging: \n");
+//        IGLog.close();
         
         
         
@@ -141,6 +160,10 @@ public class HALPIG extends HALP implements HALPIGInterface
         
         int tempMaxDataRate = maxDataRate;
         System.out.println("The internet gateway has started.");
+        if(isTraceOn)
+        {
+            deviceLog.println("The internet gateway has started.");
+        }
         while(true)
         {
             try {
@@ -243,14 +266,22 @@ public class HALPIG extends HALP implements HALPIGInterface
                 
                                 
                 isError = errorGenerator();
-                System.out.println("Is error: " + isError);
+                if(isTraceOn)
+                {
+                    System.out.println("Error generated: " + isError);
+                    deviceLog.println("Error generated: " + isError);
+                }
                 if(isError)
                 {
 //                    IGLog.append(errorGeneratedLog(rcvdMsg) + "\n");
 //                    IGLog.close();
                     
                     isCorrupt = isCorrupt();
-                    System.out.println("Is corrupt: " + isCorrupt);
+                    if(isTraceOn)
+                    {
+                        System.out.println("Corrupted message: " + isCorrupt);
+                        deviceLog.println("Corrupted message: " + isCorrupt);
+                    }
                     if(isCorrupt)
                     {
                         rcvdMsg = generateByteError(rcvdMsg);
@@ -258,7 +289,11 @@ public class HALPIG extends HALP implements HALPIGInterface
                     else
                     {
                         isLost = true;
-                        System.out.println("Is lost: " + isLost);
+                        if(isTraceOn)
+                        {
+                            System.out.println("Lost message: " + isLost);
+                            deviceLog.println("Lost message: " + isLost);
+                        }
                     }
                 }
                 
@@ -335,7 +370,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     {
         // Requests user to input transfer direction
         System.out.println("Please enter the maximum data rate for the "
-                + "internet gateway connection: ");
+                + "internet gateway connection (in up to 65,535 bytes): ");
         int tempDataRate = console.nextInt();
         setMaxDataRate(tempDataRate);
     }
@@ -379,8 +414,12 @@ public class HALPIG extends HALP implements HALPIGInterface
         
         // Display the message
 //        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
-        System.out.println("Message sent is: ");
-        printMessage(msgBytes);
+        if(isTraceOn)
+        {
+            System.out.println("Message sent is: ");
+            deviceLog.println("Message sent is: ");
+            printMessage(msgBytes);
+        }
     }
     
     @Override

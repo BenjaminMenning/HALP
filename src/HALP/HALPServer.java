@@ -55,9 +55,16 @@ public class HALPServer extends HALPClient
         // For old server implmentation, don't delete
 //        HALPServer halpServer = new HALPServer(SERVER_PORT);
 //        halpServer.run();
-        
+
         // For new server implementation
         HALPClient halpServer = new HALPClient(SERVER_PORT, SERVER_PORT);
+        
+        // For testing
+        halpServer.setTrace(true);
+        
+        // For user input
+//        halpServer.inputTrace();
+        
         halpServer.runAsServer();
     }
 

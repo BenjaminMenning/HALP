@@ -85,8 +85,9 @@ public class HALPClient extends HALP implements HALPClientInterface
 //    private int maxRetrans = 0;
 //    private final int PERCENTRETRANS = (RETRANSMISSIONS/totalMessages)*100;
     
-    private PrintWriter senderLog = null;
-    private PrintWriter receiverLog = null;
+//    private PrintWriter senderLog = null;
+//    private PrintWriter receiverLog = null;
+    
    
             
     public static void main (String args[]) throws Exception 
@@ -94,33 +95,36 @@ public class HALPClient extends HALP implements HALPClientInterface
         Scanner console = new Scanner(System.in);
         HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
         
-//        // Hard coded IP addresses for testing
-//        String homeTestIP = "192.168.0."; // for testing at home
-////        String testIGIP = homeTestIP + "110"; // for manual entry
-//        String testIGIP = halpClient.getLocalIP(); // for automatic entry
-//        String testServIP = homeTestIP + "110";
-//        String testFile1 = "alice.txt";
-//        String testFile2 = "mission0.txt";
-//        String testFile3 = "mission1.txt";
-//        String testFile4 = "mission2.txt";
-//        String testFileName = testFile4; // swap out test files here
-//        boolean testIsUpload = false;
-//        int testDataRate = 32;
-//        
-//        // Hard coded input for testing
-//        halpClient.setIGIP(testIGIP);
-//        halpClient.setServerIP(testServIP);
-//        halpClient.setTransferDirection(testIsUpload);
-//        halpClient.setFileName(testFileName);
-//        halpClient.setDataRate(testDataRate);
+        // Hard coded IP addresses for testing
+        String homeTestIP = "192.168.0."; // for testing at home
+//        String testIGIP = homeTestIP + "110"; // for manual entry
+        String testIGIP = halpClient.getLocalIP(); // for automatic entry
+        String testServIP = homeTestIP + "110";
+        String testFile1 = "alice.txt";
+        String testFile2 = "mission0.txt";
+        String testFile3 = "mission1.txt";
+        String testFile4 = "mission2.txt";
+        String testFileName = testFile4; // swap out test files here
+        boolean testIsUpload = false;
+        boolean testIsTrace = true;
+        int testDataRate = 32;
+        
+        // Hard coded input for testing
+        halpClient.setIGIP(testIGIP);
+        halpClient.setServerIP(testServIP);
+        halpClient.setTransferDirection(testIsUpload);
+        halpClient.setFileName(testFileName);
+        halpClient.setDataRate(testDataRate);
+        halpClient.setTrace(true);
         
         
         // For user input
-        halpClient.inputIGIP();
-        halpClient.inputServIP();
-        halpClient.inputTransferDirection();
-        halpClient.inputFileName();
-        halpClient.inputDataRate();
+//        halpClient.inputIGIP();
+//        halpClient.inputServIP();
+//        halpClient.inputFileName();
+//        halpClient.inputTransferDirection();
+//        halpClient.inputDataRate();
+//        halpClient.inputTrace();
                 
         halpClient.initiateConnection();
     }
@@ -188,7 +192,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     {
         // Requests user to input transfer direction
         System.out.println("Please enter the preferred data rate for the "
-                + "connection: ");
+                + "connection (in up to 65,535 bytes): ");
         dataRate = console.nextInt();
     }
     
@@ -294,27 +298,67 @@ public class HALPClient extends HALP implements HALPClientInterface
         totalRetrans = getTotalRetransmissions();
         expectedRetrans = getExpectedRetransmissions();
         percentRetrans = getPercentageOfRetransmissions();
-        String statsStr = "\nStatistics: " +
-                "\nSize of file transferred: " + fileSize + " bytes" +
-                "\nTime to complete file transfer: " + timeStr +
-                "\nTotal number of application messages generated: " + msgGenNum +
-                "\nTotal number of UDP datagrams transmitted: " + dtgmTransNum +
-                "\nTotal number of retransmissions: " + totalRetrans +
-                "\nExpected number of retransmissions: " + expectedRetrans +
-                "\nMaximum number of transmissions for any single application datagram: " + maxRetrans +
-                "\nPercentage of retransmissions: " + 
+        
+        String statsStr = "\nStatistics: ";
+        String fileSizeInfo = "\nSize of file transferred: " + fileSize 
+                + " bytes";
+        String fileTimeInfo = "\nTime to complete file transfer: " + timeStr;
+        String msgGenInfo = "\nTotal number of application messages generated: "
+                + msgGenNum;
+        String dtgmTransInfo = "\nTotal number of UDP datagrams transmitted: " 
+                + dtgmTransNum;
+        String totalRetransInfo = "\nTotal number of retransmissions: " 
+                + totalRetrans;
+        String expecRetransInfo = "\nExpected number of retransmissions: " 
+                + expectedRetrans;
+        String maxRetranInfo = "\nMaximum number of transmissions for any "
+                + "single application datagram: " + maxRetrans;
+        String prcRetransInfo = "\nPercentage of retransmissions: " + 
                 String.format("%.2f", percentRetrans) + "%";
+        
+        if(isTraceOn)
+        {
+            deviceLog.println(statsStr);
+            deviceLog.println(fileSizeInfo);
+            deviceLog.println(fileTimeInfo);
+            deviceLog.println(msgGenInfo);
+            deviceLog.println(dtgmTransInfo);
+            deviceLog.println(totalRetransInfo);
+            deviceLog.println(expecRetransInfo);
+            deviceLog.println(maxRetranInfo);
+            deviceLog.println(prcRetransInfo);
+        }
+        statsStr += fileSizeInfo + fileTimeInfo + msgGenInfo + dtgmTransInfo + 
+                totalRetransInfo + expecRetransInfo + maxRetranInfo + 
+                prcRetransInfo;
+        
         System.out.println(statsStr);
+        
     }
     
     @Override
     public void initiateConnection() 
     {
+
         isClient = true;
         try 
         {
+            if(isTraceOn)
+            {
+                //creating log for Server
+                String desktopStr = System.getProperty("user.home") + "/Desktop/";
+                String deviceStr = "Client's Log.txt";
+                File deviceFile = new File(desktopStr + deviceStr);
+                deviceLog = new PrintWriter(deviceFile);
+                deviceLog.println("Client's Log: \n");
+            }
+            
             deviceSocket.setSoTimeout(retransTO);
             System.out.println("Client has requested a connection.");
+            if(isTraceOn)
+            {
+                deviceLog.println("Client has requested a connection.");
+            }
             
             // Initialize message variables
             byte[] tempHeader = new byte[HEDR_LEN];
@@ -367,8 +411,11 @@ public class HALPClient extends HALP implements HALPClientInterface
                     isTimedOut = false;
                     // Sends message and prints out other fields
                     sendMessage(tempMsg);
-                    printFileNameField(tempMsg);
-                    printDataRateField(tempMsg);
+                    if(isTraceOn)
+                    {
+                        printFileNameField(tempMsg);
+                        printDataRateField(tempMsg);
+                    }
 
                     // Receives message and checks if flags are set and checksum 
                     // is valid
@@ -379,15 +426,23 @@ public class HALPClient extends HALP implements HALPClientInterface
                 } 
                 catch (SocketTimeoutException e) 
                 {
-                    System.out.println("Connection has timed out.");
-                    isTimedOut = true;
+                        if(isTraceOn)
+                        {
+                            System.out.println("Connection has timed out.");
+                            deviceLog.println("Connection has timed out.");
+                        }
+                        isTimedOut = true;
                 }
             }
             
             // Sets data rate based on what IG places in data rate field
             int igDataRate = getDataRateField(rcvdMsg);
             setDataRate(igDataRate);
-            System.out.println(dataRate);
+            if(isTraceOn)
+            {
+                System.out.println(dataRate);
+                deviceLog.println(dataRate);
+            }
             msgSize = HEDR_LEN + igDataRate;
             
             ackNum = getSequenceNumber(rcvdMsg);
@@ -437,12 +492,16 @@ public class HALPClient extends HALP implements HALPClientInterface
                         rcvdMsg = receiveMessage();
                         isSyn = isSYNFlagSet(rcvdMsg);
                         isAck = isACKFlagSet(rcvdMsg);
-                    isChkValid = isChecksumValid(rcvdMsg);
+                        isChkValid = isChecksumValid(rcvdMsg);
         //                isDrt = isDRTFlagSet(rcvdMsg);
                     } 
                     catch (SocketTimeoutException e) 
                     {
-                        System.out.println("Connection has timed out.");
+                        if(isTraceOn)
+                        {
+                            System.out.println("Connection has timed out.");
+                            deviceLog.println("Connection has timed out.");
+                        }
                         isTimedOut = true;
                     }
                 }
@@ -451,6 +510,10 @@ public class HALPClient extends HALP implements HALPClientInterface
 //                ackNum = incrementSequence(ackNum);
 //                seqNum = incrementSequence(seqNum);
                 runAsReceiver(rcvdMsg);
+            }
+            if(isTraceOn)
+            {
+                deviceLog.close();
             }
         } 
         catch (Exception ex) 
@@ -486,15 +549,31 @@ public class HALPClient extends HALP implements HALPClientInterface
         // Added for new server implementation
         try 
         {
+            if(isTraceOn)
+            {
+                //creating log for Server
+                String desktopStr = System.getProperty("user.home") + "/Desktop/";
+                String deviceStr = "Server's Log.txt";
+                File deviceFile = new File(desktopStr + deviceStr);
+                deviceLog = new PrintWriter(deviceFile);
+                deviceLog.println("Server's Log: \n");
+            }
+            
             deviceSocket = new DatagramSocket(servPortNum);
         } 
         catch (SocketException ex) 
         {
             Logger.getLogger(HALPClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(HALPClient.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         boolean placeholderCondition = false;
         System.out.println("Server has started.");
+        if(isTraceOn)
+        {
+            deviceLog.println("Server has started.");
+        }
         while(placeholderCondition == false)
         {
             isChkValid = false;
@@ -561,8 +640,11 @@ public class HALPClient extends HALP implements HALPClientInterface
                     tempMsg = setDataRateField(tempMsg, dataRate);
                     tempMsg = setChecksum(tempMsg);
                     sendMessage(tempMsg);
-                    printFileNameField(tempMsg);
-                    printDataRateField(tempMsg);
+                    if(isTraceOn)
+                    {
+                        printFileNameField(tempMsg);
+                        printDataRateField(tempMsg);
+                    }
                 }
                 // If ACK is set and DRT is an upload
                 else if(isAck && isUpld)
@@ -591,6 +673,10 @@ public class HALPClient extends HALP implements HALPClientInterface
                         ex);
             }
         }
+        if(isTraceOn)
+        {
+            deviceLog.close();
+        }
     }
     
     @Override
@@ -598,6 +684,10 @@ public class HALPClient extends HALP implements HALPClientInterface
     {
         deviceSocket.setSoTimeout(retransTO);
         System.out.println("Begin sending data");
+        if(isTraceOn)
+        {
+            deviceLog.println("Begin sending data");
+        }
         start = System.currentTimeMillis();
 //        start = startTransferTimer();
 //        stopWatch.start();
@@ -608,12 +698,12 @@ public class HALPClient extends HALP implements HALPClientInterface
         fInStr = new FileInputStream(fileName);
         
          
-        //creating log for sender
-        String senderStr = System.getProperty("user.home") + "/Desktop/";
-        String senderName = "Sender_Log.txt";
-        File senderFile = new File(senderStr + senderName);
-        senderLog = new PrintWriter(senderFile);
-        senderLog.println("Senders' Logging: \n");
+//        //creating log for sender
+//        String senderStr = System.getProperty("user.home") + "/Desktop/";
+//        String senderName = "Sender_Log.txt";
+//        File senderFile = new File(senderStr + senderName);
+//        senderLog = new PrintWriter(senderFile);
+//        senderLog.println("Senders' Logging: \n");
         
         
         // Initialize message variables
@@ -646,7 +736,11 @@ public class HALPClient extends HALP implements HALPClientInterface
             if(remainingChar < dataRate)
             {
                 tempDataRate = remainingChar;
-                System.out.println(tempDataRate);
+                if(isTraceOn)
+                {
+                    System.out.println(tempDataRate);
+                    deviceLog.println(tempDataRate);
+                }
             }
             
             // Create message
@@ -663,7 +757,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             msgGenNum2++;
             tempMsg = assembleMessage(tempHeader, tempData);
             tempMsg = setChecksum(tempMsg);
-            senderLog.println(messageLog(tempMsg)); //writes to the sender log information about the message sent
+//            senderLog.println(messageLog(tempMsg)); //writes to the sender log information about the message sent
             
             // Reset flags
             isSyn = false;
@@ -682,7 +776,7 @@ public class HALPClient extends HALP implements HALPClientInterface
                     sendMessage(tempMsg);
                     dtgmTransNum++;
                     retransCount++;
-                    senderLog.println(resendLog(tempMsg)); //writes to the sender log information about the message that was resent
+//                    senderLog.println(resendLog(tempMsg)); //writes to the sender log information about the message that was resent
                     rcvdMsg = receiveMessage();
                     isChkValid = isChecksumValid(rcvdMsg);
                     isSyn = isSYNFlagSet(rcvdMsg);
@@ -691,7 +785,11 @@ public class HALPClient extends HALP implements HALPClientInterface
                 } 
                 catch (SocketTimeoutException e) 
                 {
-                    System.out.println("Connection has timed out.");
+                    if(isTraceOn)
+                    {
+                        System.out.println("Connection has timed out.");
+                        deviceLog.println("Connection has timed out.");
+                    }
                     isTimedOut = true;
                 }
             }
@@ -738,7 +836,11 @@ public class HALPClient extends HALP implements HALPClientInterface
             } 
             catch (SocketTimeoutException e) 
             {
-                System.out.println("Connection has timed out.");
+                if(isTraceOn)
+                {
+                    System.out.println("Connection has timed out.");
+                    deviceLog.println("Connection has timed out.");
+                }
                 isTimedOut = true;
             }
         }
@@ -748,7 +850,7 @@ public class HALPClient extends HALP implements HALPClientInterface
 //        stop = stopTransferTimer();
         stop = System.currentTimeMillis();
         fInStr.close();
-        senderLog.close();
+//        senderLog.close();
         closeConnection();
         printTraceStats();
     }
@@ -759,6 +861,10 @@ public class HALPClient extends HALP implements HALPClientInterface
     {
         deviceSocket.setSoTimeout(0);
         System.out.println("Begin receiving data");
+        if(isTraceOn)
+        {
+            deviceLog.println("Begin receiving data");
+        }
         
         // Initialize flag variables
         boolean isFin = false;
@@ -780,16 +886,6 @@ public class HALPClient extends HALP implements HALPClientInterface
         fileName = strDate + "-" + fileName;
         outputFile = new File(desktopStr + fileName);
         fOutStr = new FileOutputStream(outputFile);
-        
-        
-        //creating log file for receiver
-        String receiverStr = System.getProperty("user.home") + "/Desktop/";
-        String receiverName = "Receiver_Log.txt";
-        File receiverFile = new File(receiverStr + receiverName);
-        receiverLog = new PrintWriter(receiverFile);
-        receiverLog.println("Receivers' Logging: \n");
-        
-        
         
         // Initialize message variables
         byte[] tempHeader = new byte[HEDR_LEN];
@@ -827,11 +923,12 @@ public class HALPClient extends HALP implements HALPClientInterface
             otherSeqNum = getSequenceNumber(rcvdMsg);
             otherAckNum = getAcknowledgmentNumber(rcvdMsg);
             isSeqValid = isSeqNumValid(otherSeqNum);
-            System.out.println("Sequence number valid: " + isSeqValid);
-            
-            
-            receiverLog.println(receivedLog(rcvdMsg));  //writes to receiver log information of the received message 
-            
+            if(isTraceOn)
+            {
+                System.out.println("Sequence number valid: " + isSeqValid);
+                deviceLog.println("Sequence number valid: " + isSeqValid);
+            }
+                        
 //            otherSeqNum = getSequenceNumber(rcvdMsg);
 
             // If checksum is valid, write data out  to file and set ACK flag
@@ -860,7 +957,11 @@ public class HALPClient extends HALP implements HALPClientInterface
 //                tempSeqNum = getSequenceNumber(rcvdMsg);
                 otherSeqNum++;
                 isSeqValid = isSeqNumValid(otherSeqNum);
+                if(isTraceOn)
+                {
                 System.out.println("Sequence number valid: " + isSeqValid);
+                deviceLog.println("Sequence number valid: " + isSeqValid);
+                }
                 if(isSeqValid)
                 {
                     tempHeader = setACKFlag(tempHeader, true);
@@ -876,7 +977,7 @@ public class HALPClient extends HALP implements HALPClientInterface
             else
             {
                 tempHeader = setACKFlag(tempHeader, false);
-                receiverLog.println(errorDetectedLog(rcvdMsg));  //writes to receiver log information of the received message that has an error
+//                receiverLog.println(errorDetectedLog(rcvdMsg));  //writes to receiver log information of the received message that has an error
             }
             
             tempHeader = setDRTFlag(tempHeader, isUpload);
@@ -889,7 +990,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Close file input stream and connection
         fOutStr.close();
-        receiverLog.close();
+//        receiverLog.close();
         closeConnection();
     }
     
