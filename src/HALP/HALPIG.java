@@ -60,10 +60,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     
     protected ConnectionTable connTable = new ConnectionTable();
     
-    private static final int IG_PORT = 43001;
-    
-//     private PrintWriter IGLog = null;
-  
+    private static final int IG_PORT = 43124;
     
     public static void main(String args[]) throws Exception
     {
@@ -91,16 +88,17 @@ public class HALPIG extends HALP implements HALPIGInterface
         double crptRate = 0.5;
         
         // Hard coded input for testing
-        halpIG.setMaxDataRate(64000);
-        halpIG.setErrorRate(errRate);
-        halpIG.setCorruptRate(crptRate);
-        halpIG.setTrace(true);
+//        halpIG.setMaxDataRate(64000);
+//        halpIG.setErrorRate(errRate);
+//        halpIG.setCorruptRate(crptRate);
+//        halpIG.setTrace(true);
         
         // For user input
-//        halpIG.inputMaxDataRate();
-//        halpIG.inputErrorRate();
-//        halpIG.inputCorruptRate();
-//        halpIG.inputTrace();
+        halpIG.inputPortNum();
+        halpIG.inputMaxDataRate();
+        halpIG.inputErrorRate();
+        halpIG.inputCorruptRate();
+        halpIG.inputTrace();
         
         halpIG.startDevice();
     }
@@ -135,22 +133,6 @@ public class HALPIG extends HALP implements HALPIGInterface
                 Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-//       //creating log for internet gateway
-//        String IGStr = System.getProperty("user.home") + "/Desktop/";
-//        String IGName = "IG_Log.txt";
-//        File IGFile = new File(IGStr + IGName);
-//        try {
-//            IGLog = new PrintWriter(new FileWriter(IGFile, true)); //new PrintWriter(IGFile);
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IOException ex) {
-//            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        IGLog.write("Internet Gateways' Logging: \n");
-//        IGLog.close();
-        
-        
         
         msgSize = HEDR_LEN + maxDataRate;
         boolean isError;
@@ -192,16 +174,6 @@ public class HALPIG extends HALP implements HALPIGInterface
                 
                 if(isSyn && !isAck && !isInTable) 
                 {
-//                    // Retrieves the ingoing connection info from the datagram
-//                    ingoingIP = tempIPAddr;
-//                    ingoingPN = tempPortNum;
-//                    ingoingIN = tempINAddr;
-//                    
-//                    // Retrieves the outgoing connection info from the datagram
-//                    outgoingIP = getDestinationIP(rcvdMsg);
-//                    outgoingPN = getDestinationPort(rcvdMsg);
-//                    outgoingIN = InetAddress.getByName(outgoingIP);
-                    
                     // Assigns ingoing info to the client
                     clntIPAddr = tempIPAddr;
                     clntPortNum = tempPortNum;
@@ -212,28 +184,23 @@ public class HALPIG extends HALP implements HALPIGInterface
                     servPortNum = getDestinationPort(rcvdMsg);
                     servINAddr = InetAddress.getByName(servIPAddr);
                                         
-//                    isInTable = connTable.searchTable(clntIPAddr, clntPortNum);
-                    
-//                    if(!isInTable)
-//                    {
-                        // Retrieves client data rate and changes if above max
-                        int clntDataRate = getDataRateField(rcvdMsg);
-                        if(clntDataRate > maxDataRate)
-                        {
-                            clntDataRate = maxDataRate;
-                            rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
-                        
-                            // Reset checksum
-                            byte emptyBytes[] = new byte[2];
-                            System.arraycopy(emptyBytes, 0, rcvdMsg, CRC_OFFSET, 
-                                    CRC_LEN);   
-                            rcvdMsg = setChecksum(rcvdMsg);
-                        }
-                        
-                        tempConn = new Connection(clntIPAddr, clntPortNum, 
-                                servIPAddr, servPortNum, clntDataRate);
-                        connTable.addConnection(tempConn);
-//                    }
+                    // Retrieves client data rate and changes if above max
+                    int clntDataRate = getDataRateField(rcvdMsg);
+                    if(clntDataRate > maxDataRate)
+                    {
+                        clntDataRate = maxDataRate;
+                        rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
+
+                        // Reset checksum
+                        byte emptyBytes[] = new byte[2];
+                        System.arraycopy(emptyBytes, 0, rcvdMsg, CRC_OFFSET, 
+                                CRC_LEN);   
+                        rcvdMsg = setChecksum(rcvdMsg);
+                    }
+
+                    tempConn = new Connection(clntIPAddr, clntPortNum, 
+                            servIPAddr, servPortNum, clntDataRate);
+                    connTable.addConnection(tempConn);
                 }
                 else if(isSyn && !isAck && isInTable)
                 {
@@ -262,8 +229,6 @@ public class HALPIG extends HALP implements HALPIGInterface
                 outgoingPN = outgoingConn.getTempPort();
                 outgoingIP = outgoingConn.getTempIP();
                 outgoingIN = InetAddress.getByName(outgoingIP);
-//                maxDataRate = outgoingRate;
-                
                                 
                 isError = errorGenerator();
                 if(isTraceOn)
@@ -273,9 +238,6 @@ public class HALPIG extends HALP implements HALPIGInterface
                 }
                 if(isError)
                 {
-//                    IGLog.append(errorGeneratedLog(rcvdMsg) + "\n");
-//                    IGLog.close();
-                    
                     isCorrupt = isCorrupt();
                     if(isTraceOn)
                     {
@@ -311,57 +273,6 @@ public class HALPIG extends HALP implements HALPIGInterface
                 Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null,
                         ex);
             }
-            
-            // Old connection table code
-//                if(isSyn && !isAck) 
-//                {
-//                    // Retrieves the ingoing connection info from the datagram
-//                    ingoingIP = currDtgm.getAddress().getHostAddress();
-//                    ingoingPN = currDtgm.getPort();
-//                    ingoingIN = InetAddress.getByName(ingoingIP);
-//                    
-//                    // Assigns ingoing info to the client
-//                    clntIPAddr = ingoingIP;
-//                    clntPortNum = ingoingPN;
-//                    clntINAddr = ingoingIN;
-//                    
-//                    // Retrieves the outgoing connection info from the datagram
-//                    outgoingIP = getDestinationIP(rcvdMsg);
-//                    outgoingPN = getDestinationPort(rcvdMsg);
-//                    outgoingIN = InetAddress.getByName(outgoingIP);
-//
-//                    // Assigns the outgoing info to the client
-//                    servIPAddr = outgoingIP;
-//                    servPortNum = outgoingPN;
-//                    servINAddr = outgoingIN;
-//                    
-//                    // Retrieves client data rate and changes if above max
-//                    int clntDataRate = getDataRateField(rcvdMsg);
-//                    if(clntDataRate > maxDataRate)
-//                    {
-//                        rcvdMsg = setDataRateField(rcvdMsg, maxDataRate);
-//                    }
-//                }
-//                else if(isSyn && isAck)
-//                {
-//                    outgoingIN = clntINAddr;
-//                    outgoingPN = clntPortNum;
-////                    ingoingIP = currDtgm.getAddress().getHostAddress();
-////                    ingoingPN = currDtgm.getPort();
-////                    outgoingIP = getDestinationIP(rcvdMsg);
-////                    outgoingPN = getDestinationPort(rcvdMsg);
-////                    outgoingIN = InetAddress.getByName(outgoingIP);
-//                }
-//                else if(currDtgm.getAddress().equals(servINAddr))
-//                {
-//                    outgoingIN = clntINAddr;
-//                    outgoingPN = clntPortNum;
-//                }
-//                else if(currDtgm.getAddress().equals(clntINAddr))
-//                {
-//                    outgoingIN = servINAddr;
-//                    outgoingPN = servPortNum;
-//                }
         }
     }
     
@@ -395,6 +306,20 @@ public class HALPIG extends HALP implements HALPIGInterface
     }
     
     @Override
+    public void inputPortNum()
+    {
+        try {
+            // Requests user to input transfer direction
+            System.out.println("Please enter the port number for the IG: ");
+            int tempPortNum = console.nextInt();
+            igPortNum = tempPortNum;
+            deviceSocket = new DatagramSocket(igPortNum);
+        } catch (SocketException ex) {
+            Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    @Override
     public void setMaxDataRate(int dataRate)
     {
         maxDataRate = dataRate;
@@ -413,7 +338,6 @@ public class HALPIG extends HALP implements HALPIGInterface
         dtgmTransNum2++;
         
         // Display the message
-//        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
         if(isTraceOn)
         {
             System.out.println("Message sent is: ");
@@ -475,7 +399,6 @@ public class HALPIG extends HALP implements HALPIGInterface
         int bitMax = 7;
         int randomBit = random.nextInt(bitMax);
         errorByte ^= 1 << randomBit; 
-        System.out.println(errorByte);
         tempMsgBytes[randomIndex] = errorByte;
         return tempMsgBytes;
     }

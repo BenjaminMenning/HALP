@@ -74,6 +74,20 @@ public interface HALPClientInterface extends HALPInterface
     public void inputDataRate();
     
     /**
+     * This method prompts the user to enter in the port number for the 
+     * IG's connection.
+     * 
+     */
+    public void inputIGPortNum();
+    
+    /**
+     * This method prompts the user to enter in the port number for the 
+     * server's connection.
+     * 
+     */
+    public void inputSrvPortNum();
+
+    /**
      * This is a client method used to set which direction the transfer is 
      * 
      * @param trfrDir if set to true this will represent that it is an upload 

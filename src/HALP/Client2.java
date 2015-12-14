@@ -34,8 +34,8 @@ import java.util.Scanner;
  */
 public class Client2 
 {
-    private static final int IG_PORT = 43001;
-    private static final int SERVER_PORT = 49000;
+    private static final int IG_PORT = 43124;
+    private static final int SERVER_PORT = 43126;
 
     public static void main (String args[]) throws Exception 
     {	
@@ -43,39 +43,40 @@ public class Client2
         HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
         
         // Hard coded IP addresses for testing
-        String homeTestIP = "192.168.0."; // for testing at home
-//        String testIGIP = homeTestIP + "110"; // for manual entry
-        String testIGIP = halpClient.getLocalIP(); // for automatic entry
-        String testServIP = homeTestIP + "113";
-        String testFile1 = "alice.txt";
-        String testFile2 = "mission0.txt";
-        String testFile3 = "mission1.txt";
-        String testFile4 = "mission2.txt";
-        String testFile5 = "allan.txt";
-        String testFile6 = "ebZqtsI.gif";
-        String testFile7 = "4g9ttdk.gif";
-        String testFile8 = "cCPh3fg.jpg";
-        String testFileName = testFile3; // swap out test files here
-        boolean testIsUpload = true;
-        boolean testIsTrace = true;
-        int testDataRate = 8;
+//        String homeTestIP = "192.168.0."; // for testing at home
+////        String testIGIP = homeTestIP + "110"; // for manual entry
+//        String testIGIP = halpClient.getLocalIP(); // for automatic entry
+//        String testServIP = homeTestIP + "105";
+//        String testFile1 = "alice.txt";
+//        String testFile2 = "mission0.txt";
+//        String testFile3 = "mission1.txt";
+//        String testFile4 = "mission2.txt";
+//        String testFile5 = "allan.txt";
+//        String testFile6 = "ebZqtsI.gif";
+//        String testFile7 = "4g9ttdk.gif";
+//        String testFile8 = "cCPh3fg.jpg";
+//        String testFileName = testFile4; // swap out test files here
+//        boolean testIsUpload = true;
+//        boolean testIsTrace = true;
+//        int testDataRate = 32;
         
         // Hard coded input for testing
-        halpClient.setIGIP(testIGIP);
-        halpClient.setServerIP(testServIP);
-        halpClient.setTransferDirection(testIsUpload);
-        halpClient.setFileName(testFileName);
-        halpClient.setDataRate(testDataRate);
-        halpClient.setTrace(true);
-        
+//        halpClient.setIGIP(testIGIP);
+//        halpClient.setServerIP(testServIP);
+//        halpClient.setTransferDirection(testIsUpload);
+//        halpClient.setFileName(testFileName);
+//        halpClient.setDataRate(testDataRate);
+//        halpClient.setTrace(true);
         
         // For user input
-//        halpClient.inputIGIP();
-//        halpClient.inputServIP();
-//        halpClient.inputFileName();
-//        halpClient.inputTransferDirection();
-//        halpClient.inputDataRate();
-//        halpClient.inputTrace();
+        halpClient.inputFileName();
+        halpClient.inputIGIP();
+        halpClient.inputServIP();
+        halpClient.inputIGPortNum();
+        halpClient.inputSrvPortNum();
+        halpClient.inputTransferDirection();
+        halpClient.inputDataRate();
+        halpClient.inputTrace();
                 
         halpClient.initiateConnection();
     }

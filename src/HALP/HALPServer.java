@@ -42,83 +42,24 @@ import java.util.logging.Logger;
  * 
  * @author Ben
  */
-public class HALPServer extends HALPClient
+public class HALPServer
 {
-    static DatagramSocket serverSocket;
-
-    private static final int SERVER_PORT = 43000;
+    private static final int SERVER_PORT = 43124;
     
     public static void main(String args[]) throws Exception
     {
         Scanner console = new Scanner(System.in);
-        
-        // For old server implmentation, don't delete
-//        HALPServer halpServer = new HALPServer(SERVER_PORT);
-//        halpServer.startDevice();
 
         // For new server implementation
         HALPClient halpServer = new HALPClient(SERVER_PORT, SERVER_PORT);
         
         // For testing
-        halpServer.setTrace(true);
+//        halpServer.setTrace(true);
         
         // For user input
-//        halpServer.inputTrace();
+        halpServer.inputSrvPortNum();
+        halpServer.inputTrace();
         
         halpServer.runAsServer();
-    }
-
-    public HALPServer() throws SocketException
-    {
-        deviceSocket = new DatagramSocket();
-    }
-    
-    public HALPServer(int servPN) throws SocketException
-    {
-        servPortNum = servPN;
-        deviceSocket = new DatagramSocket(servPN);
-    }
-    
-    @Override
-    public void startDevice() 
-    {
-        boolean placeholderCondition = false;
-        System.out.println("Server has started.");
-        while(placeholderCondition == false)
-        {
-            try {
-                byte[] rcvdMsg = receiveMessage();
-                printDataRateField(rcvdMsg);
-                fileName = getFileNameField(rcvdMsg);
-                dataRate = getDataRateField(rcvdMsg);
-                boolean isSyn = isSYNFlagSet(rcvdMsg);
-                boolean isAck = isACKFlagSet(rcvdMsg);
-                boolean isUpld = isDRTFlagSet(rcvdMsg);
-                if(isSyn && !isAck) 
-                {
-                    rcvdMsg = setACKFlag(rcvdMsg, true);
-                    
-                    // Retrieves the outgoing connection info from the datagram
-                    igIPAddr = currDtgm.getAddress().getHostAddress();
-                    igINAddr = InetAddress.getByName(igIPAddr);
-                    igPortNum = currDtgm.getPort();
-                }
-                sendMessage(rcvdMsg);
-                if(isUpld)
-                {
-                    runAsReceiver(rcvdMsg); // Received message is placeholder
-                }
-                else
-                {
-                    runAsSender();
-                }
-                placeholderCondition = true;
-            } 
-            catch (Exception ex)
-            {
-                Logger.getLogger(HALPIG.class.getName()).log(Level.SEVERE, null,
-                        ex);
-            }
-        }
     }
 }

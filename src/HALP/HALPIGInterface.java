@@ -63,6 +63,13 @@ public interface HALPIGInterface extends HALPInterface
     public void inputCorruptRate();
     
     /**
+     * This method prompts the user to enter in the port number for the 
+     * connection.
+     * 
+     */
+    public void inputPortNum();
+    
+    /**
      * This method is used for setting the max data rate for the internet gateway 
      * 
      * @param dataRate integer for the max data rate of the internet gateway

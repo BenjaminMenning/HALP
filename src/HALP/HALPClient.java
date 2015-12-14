@@ -49,17 +49,10 @@ import static javafx.util.Duration.millis;
  * @version 12/15/2015
 */
 public class HALPClient extends HALP implements HALPClientInterface
-{
-        // Hard coded IP addresses for testing
-//    protected String homeTestIP = "192.168.0."; // for testing at home
-//    protected String testIGIP = homeTestIP + "110";
-//    protected String testServIP = homeTestIP + "109";
-//    protected String testFileName = "alice.txt";
-//    protected boolean testIsUpload = true;
-//    protected int testDataRate = 5000;
+{    
+    private static final int SERVER_PORT = 43124;  
+    private static final int IG_PORT = 43124;
     
-    private static final int SERVER_PORT = 43000;  
-    private static final int IG_PORT = 43001;
     protected String fileName = "";
     protected int dataRate = 0;
     private boolean isUpload = false;
@@ -74,61 +67,47 @@ public class HALPClient extends HALP implements HALPClientInterface
     private File outputFile = null;
     private FileInputStream fInStr = null;
     private FileOutputStream fOutStr = null;
-    
-    //variables for statistics
-//    private final long FILESIZE = inputFile.length();
-//    private final String TRANSFERTIME = getTransferTime(start, stop);
-//    private int messagesGen = 0;
-//    private int totalMessages = 0;
-//    private final int RETRANSMISSIONS = (totalMessages - messagesGen);
-//    private int expectedRetrans = (errorRate/(1-errorRate))*messagesGen;  not sure how we will get error rate transfered to client?????
-//    private int maxRetrans = 0;
-//    private final int PERCENTRETRANS = (RETRANSMISSIONS/totalMessages)*100;
-    
-//    private PrintWriter senderLog = null;
-//    private PrintWriter receiverLog = null;
-    
-   
-            
+                
     public static void main (String args[]) throws Exception 
     {	
         Scanner console = new Scanner(System.in);
         HALPClient halpClient = new HALPClient(IG_PORT, SERVER_PORT);
         
         // Hard coded IP addresses for testing
-        String homeTestIP = "192.168.0."; // for testing at home
-//        String testIGIP = homeTestIP + "110"; // for manual entry
-        String testIGIP = halpClient.getLocalIP(); // for automatic entry
-        String testServIP = homeTestIP + "113";
-        String testFile1 = "alice.txt";
-        String testFile2 = "mission0.txt";
-        String testFile3 = "mission1.txt";
-        String testFile4 = "mission2.txt";
-        String testFile5 = "allan.txt";
-        String testFile6 = "ebZqtsI.gif";
-        String testFile7 = "4g9ttdk.gif";
-        String testFile8 = "cCPh3fg.jpg";
-        String testFileName = testFile4; // swap out test files here
-        boolean testIsUpload = true;
-        boolean testIsTrace = true;
-        int testDataRate = 32;
+//        String homeTestIP = "192.168.0."; // for testing at home
+////        String testIGIP = homeTestIP + "110"; // for manual entry
+//        String testIGIP = halpClient.getLocalIP(); // for automatic entry
+//        String testServIP = homeTestIP + "105";
+//        String testFile1 = "alice.txt";
+//        String testFile2 = "mission0.txt";
+//        String testFile3 = "mission1.txt";
+//        String testFile4 = "mission2.txt";
+//        String testFile5 = "allan.txt";
+//        String testFile6 = "ebZqtsI.gif";
+//        String testFile7 = "4g9ttdk.gif";
+//        String testFile8 = "cCPh3fg.jpg";
+//        String testFileName = testFile4; // swap out test files here
+//        boolean testIsUpload = true;
+//        boolean testIsTrace = true;
+//        int testDataRate = 32;
         
         // Hard coded input for testing
-        halpClient.setIGIP(testIGIP);
-        halpClient.setServerIP(testServIP);
-        halpClient.setTransferDirection(testIsUpload);
-        halpClient.setFileName(testFileName);
-        halpClient.setDataRate(testDataRate);
-        halpClient.setTrace(true);
-        
+//        halpClient.setIGIP(testIGIP);
+//        halpClient.setServerIP(testServIP);
+//        halpClient.setTransferDirection(testIsUpload);
+//        halpClient.setFileName(testFileName);
+//        halpClient.setDataRate(testDataRate);
+//        halpClient.setTrace(true);
         
         // For user input
-//        halpClient.inputIGIP();
-//        halpClient.inputServIP();
-//        halpClient.inputFileName();
-//        halpClient.inputTransferDirection();
-//        halpClient.inputDataRate();
-//        halpClient.inputTrace();
+        halpClient.inputFileName();
+        halpClient.inputIGIP();
+        halpClient.inputServIP();
+        halpClient.inputIGPortNum();
+        halpClient.inputSrvPortNum();
+        halpClient.inputTransferDirection();
+        halpClient.inputDataRate();
+        halpClient.inputTrace();
                 
         halpClient.initiateConnection();
     }
@@ -187,7 +166,6 @@ public class HALPClient extends HALP implements HALPClientInterface
         System.out.println("Please enter the name of the file you wish to "
                 + "download / upload: ");
         String tempFileName = console.nextLine();
-//        setFileName(tempFileName);
         fileName = tempFileName;
     }
     
@@ -198,6 +176,24 @@ public class HALPClient extends HALP implements HALPClientInterface
         System.out.println("Please enter the preferred data rate for the "
                 + "connection (in up to 65,535 bytes): ");
         dataRate = console.nextInt();
+    }
+    
+    @Override
+    public void inputIGPortNum()
+    {
+        // Requests user to input transfer direction
+        System.out.println("Please enter the port number for the IG: ");
+        int tempPortNum = console.nextInt();
+        igPortNum = tempPortNum;
+    }
+
+    @Override
+    public void inputSrvPortNum()
+    {
+        // Requests user to input transfer direction
+        System.out.println("Please enter the port number for the server: ");
+        int tempPortNum = console.nextInt();
+        servPortNum = tempPortNum;
     }
     
     @Override
@@ -247,15 +243,9 @@ public class HALPClient extends HALP implements HALPClientInterface
     @Override
     public byte[] setDestIP(byte[] headerBytes, String destIP)
     {
-        // for future use?
-//        byte tempHdrBytes[] = new byte[HEDR_LEN];
-//        tempHdrBytes = headerBytes;
-        
         byte tempHdrBytes[] = headerBytes;
         byte tempIPBytes[] = new byte[DESTIP_LEN];
         tempIPBytes = convertIPToBytes(destIP);
-//        tempIPBytes = destIN.getAddress();
-//        tempHdrBytes[DESTIP_OFFSET] = tempIPBytes;
         System.arraycopy(tempIPBytes, 0, tempHdrBytes, DESTIP_OFFSET, 
                 DESTIP_LEN);   
         return tempHdrBytes;
@@ -267,7 +257,6 @@ public class HALPClient extends HALP implements HALPClientInterface
         byte tempHdrBytes[] = headerBytes;
         byte tempPNBytes[] = new byte[DESTPN_LEN];
         tempPNBytes = convertPNToBytes(portNum);
-//        tempHdrBytes[DESTIP_OFFSET] = tempIPBytes;
         System.arraycopy(tempPNBytes, 0, tempHdrBytes, DESTPN_OFFSET, 
                 DESTPN_LEN);   
         return tempHdrBytes;
@@ -378,16 +367,6 @@ public class HALPClient extends HALP implements HALPClientInterface
             boolean isTimedOut = false;
             seqNum = generateSequenceNumber();
 
-            // User input
-    //        inputIGIP();
-    //        inputServIP();
-
-            // Hard coded values for testing
-//            setIGIP(testIGIP);
-//            setServerIP(testServIP);
-//            setFileName(testFileName);
-//            setTransferDirection(testIsUpload);
-//            setDataRate(testDataRate);
             msgSize = HEDR_LEN + dataRate;
 
             // Create header
@@ -472,7 +451,6 @@ public class HALPClient extends HALP implements HALPClientInterface
                 tempHeader = setDRTFlag(tempHeader, isUpload);
                 tempHeader = setACKFlag(tempHeader, true);
                 tempHeader = setSYNFlag(tempHeader, true);
-//                printMessage(tempHeader);
 
                 // Set data fields and checksum
                 tempData = new byte[1];
@@ -497,7 +475,6 @@ public class HALPClient extends HALP implements HALPClientInterface
                         isSyn = isSYNFlagSet(rcvdMsg);
                         isAck = isACKFlagSet(rcvdMsg);
                         isChkValid = isChecksumValid(rcvdMsg);
-        //                isDrt = isDRTFlagSet(rcvdMsg);
                     } 
                     catch (SocketTimeoutException e) 
                     {
@@ -510,9 +487,6 @@ public class HALPClient extends HALP implements HALPClientInterface
                     }
                 }
                 
-//                ackNum = getSequenceNumber(rcvdMsg);
-//                ackNum = incrementSequence(ackNum);
-//                seqNum = incrementSequence(seqNum);
                 runAsReceiver(rcvdMsg);
             }
             if(isTraceOn)
@@ -572,13 +546,13 @@ public class HALPClient extends HALP implements HALPClientInterface
             Logger.getLogger(HALPClient.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        boolean placeholderCondition = false;
+        boolean transferOver = false;
         System.out.println("Server has started.");
         if(isTraceOn)
         {
             deviceLog.println("Server has started.");
         }
-        while(placeholderCondition == false)
+        while(transferOver == false)
         {
             isChkValid = false;
             try 
@@ -601,8 +575,6 @@ public class HALPClient extends HALP implements HALPClientInterface
                         break;
                     
                     // Create header
-//                    tempHeader = setDestIP(tempHeader, servIPAddr);
-//                    tempHeader = setDestPN(tempHeader, servPortNum);
                     tempHeader = setACKFlag(tempHeader, isChkValid);
                     tempHeader = setSYNFlag(tempHeader, true);
                     tempHeader = setSequenceNumber(tempHeader, 0);
@@ -632,8 +604,6 @@ public class HALPClient extends HALP implements HALPClientInterface
                     tempData = new byte[2];
 
                     // Create header
-    //                    tempHeader = setDestIP(tempHeader, servIPAddr);
-    //                    tempHeader = setDestPN(tempHeader, servPortNum);
                     tempHeader = setACKFlag(tempHeader, true);
                     tempHeader = setSYNFlag(tempHeader, true);
                     tempHeader = setSequenceNumber(tempHeader, seqNum);
@@ -653,22 +623,18 @@ public class HALPClient extends HALP implements HALPClientInterface
                 // If ACK is set and DRT is an upload
                 else if(isAck && isUpld)
                 {
-//                    ackNum = getSequenceNumber(rcvdMsg);
-//                    ackNum = incrementSequence(ackNum);
-//                    seqNum = incrementSequence(seqNum);
                     isUpload = isUpld;
                     runAsReceiver(rcvdMsg);
-                    placeholderCondition = true;
+                    transferOver = true;
                 }
                 // If ACK is set and DRT is a download
                 else if(isSyn && isAck && !isUpld)
                 {
-//                    ackNum = getSequenceNumber(rcvdMsg);
                     ackNum = incrementSequence(ackNum);
                     seqNum = incrementSequence(seqNum);
                     isUpload = isUpld;
                     runAsSender();
-                    placeholderCondition = true;
+                    transferOver = true;
                 }
             } 
             catch (Exception ex)
@@ -693,22 +659,11 @@ public class HALPClient extends HALP implements HALPClientInterface
             deviceLog.println("Begin sending data");
         }
         start = System.currentTimeMillis();
-//        start = startTransferTimer();
-//        stopWatch.start();
         
         // Create input file and start file input stream
         inputFile = new File(fileName);
         fileSize = inputFile.length();
         fInStr = new FileInputStream(fileName);
-        
-         
-//        //creating log for sender
-//        String senderStr = System.getProperty("user.home") + "/Desktop/";
-//        String senderName = "Sender_Log.txt";
-//        File senderFile = new File(senderStr + senderName);
-//        senderLog = new PrintWriter(senderFile);
-//        senderLog.println("Senders' Logging: \n");
-        
         
         // Initialize message variables
         byte[] tempHeader = new byte[HEDR_LEN];
@@ -749,8 +704,6 @@ public class HALPClient extends HALP implements HALPClientInterface
             
             // Create message
             tempData = new byte[tempDataRate];
-//            tempHeader = setDestIP(tempHeader, servIPAddr);
-//            tempHeader = setDestPN(tempHeader, servPortNum);
             tempHeader = setSequenceNumber(tempHeader, seqNum);
             tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
             tempHeader = setDRTFlag(tempHeader, isUpload);
@@ -761,7 +714,6 @@ public class HALPClient extends HALP implements HALPClientInterface
             msgGenNum2++;
             tempMsg = assembleMessage(tempHeader, tempData);
             tempMsg = setChecksum(tempMsg);
-//            senderLog.println(messageLog(tempMsg)); //writes to the sender log information about the message sent
             
             // Reset flags
             isSyn = false;
@@ -803,14 +755,11 @@ public class HALPClient extends HALP implements HALPClientInterface
             {
                 addMaxTransmission(retransCount);
             }
-//            ackNum = getSequenceNumber(rcvdMsg);
             ackNum = incrementSequence(ackNum);
             seqNum = incrementSequence(seqNum);
         }
         
         // Create message
-//        tempHeader = setDestIP(tempHeader, servIPAddr);
-//        tempHeader = setDestPN(tempHeader, servPortNum);
         tempHeader = setSequenceNumber(tempHeader, seqNum);
         tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
         tempHeader = setDRTFlag(tempHeader, isUpload);
@@ -850,11 +799,8 @@ public class HALPClient extends HALP implements HALPClientInterface
         }
         
         // Close file input stream and connection
-//        stopWatch.stop();
-//        stop = stopTransferTimer();
         stop = System.currentTimeMillis();
         fInStr.close();
-//        senderLog.close();
         closeConnection();
         printTraceStats();
     }
@@ -933,7 +879,6 @@ public class HALPClient extends HALP implements HALPClientInterface
 //                deviceLog.println("Sequence number valid: " + isSeqValid);
 //            }
                         
-//            otherSeqNum = getSequenceNumber(rcvdMsg);
 
             // If checksum is valid, write data out  to file and set ACK flag
             if(isChkValid && isAck && isSeqValid)
@@ -944,21 +889,14 @@ public class HALPClient extends HALP implements HALPClientInterface
                 tempHeader = setACKFlag(tempHeader, true);
                 tempHeader = setSequenceNumber(tempHeader, seqNum);
                 tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
-//                if(!isWritten)
-//                {
-//                savedData = rcvdData;
                 if(!isFinValid)
                 {
                     fOutStr.write(rcvdData);
                 }
-////                    isWritten = true;
-//                    ackNum = incrementSequence(ackNum);
-//                } 
             }
             // Increments sequence number to see if it's the next message
             else if(isChkValid && isAck && !isSeqValid)
             {
-//                tempSeqNum = getSequenceNumber(rcvdMsg);
                 otherSeqNum++;
                 isSeqValid = isSeqNumValid(otherSeqNum);
 //                if(isTraceOn)
@@ -971,17 +909,12 @@ public class HALPClient extends HALP implements HALPClientInterface
                     tempHeader = setACKFlag(tempHeader, true);
                     tempHeader = setSequenceNumber(tempHeader, seqNum);
                     tempHeader = setAcknowledgmentNumber(tempHeader, ackNum);
-//                    fOutStr.write(savedData);
-////                    isWritten = true;
-//                    ackNum = incrementSequence(ackNum);
-//                    seqNum = incrementSequence(seqNum);
                 }
             }
             // If checksum is invalid, don't set ACK flag
             else
             {
                 tempHeader = setACKFlag(tempHeader, false);
-//                receiverLog.println(errorDetectedLog(rcvdMsg));  //writes to receiver log information of the received message that has an error
             }
             
             tempHeader = setDRTFlag(tempHeader, isUpload);
@@ -994,7 +927,6 @@ public class HALPClient extends HALP implements HALPClientInterface
         
         // Close file input stream and connection
         fOutStr.close();
-//        receiverLog.close();
         closeConnection();
     }
     

@@ -85,7 +85,7 @@ public abstract class HALP implements HALPInterface
 //    protected int retransTO = 500;
 //    protected int transDelay = 0;
     
-    
+    // Port numbers
     protected int clntPortNum = 0;
     protected int igPortNum = 0;
     protected int servPortNum = 0;
@@ -108,10 +108,7 @@ public abstract class HALP implements HALPInterface
     protected byte[] fileBytes = new byte[10]; // placeholder value
     protected byte[] dataBytes = new byte[DTRT_LEN];
     
-//    protected byte[] currMsg; // message to be sent
-//    protected byte[] rcvdMsg; // received message
     protected ArrayList<byte[]> messageQueue = new ArrayList<byte[]>();
-//    protected CRC16 crc16 = new CRC16();
     
     // Constants for header field lengths in bytes
     protected static final int DESTIP_LEN = 4;
@@ -139,9 +136,6 @@ public abstract class HALP implements HALPInterface
     
     protected DatagramPacket currDtgm; // received datagram?
     
-//    protected DatagramSocket clntSocket;
-//    protected DatagramSocket igSocket;
-//    protected DatagramSocket servSocket;
     protected DatagramSocket deviceSocket;
     
     // For IG
@@ -150,8 +144,7 @@ public abstract class HALP implements HALPInterface
     protected double corruptRate = 0; // q
     protected double lossRate = 0; // q - 1
     
-//    protected StopWatch stopWatch = new StopWatch();
-    
+    // Times for start and end of tranmsission
     protected long start;
     protected long stop;
     
@@ -391,23 +384,6 @@ public abstract class HALP implements HALPInterface
         System.arraycopy(tempChkSumBytes, 0, tempMsgBytes, CRC_OFFSET, 
                 CRC_LEN);   
         return tempMsgBytes;
-        
-//        crc.update(testMessage, 0, testMessage.length);
-//        System.out.println(crc.getValue());
-//        byte blankByte = 0;
-//        byte errorByte = halpIG.generateByteError(blankByte);
-////        testMessage[0] = errorByte;
-//        crc2.update(testMessage, 0, testMessage.length);
-//        System.out.println(crc2.getValue());
-//        
-//                byte tempMsgBytes[] = messageBytes;
-//        byte tempDRBytes[] = new byte[DTRT_LEN];
-//        tempDRBytes = convertPNToBytes(rate);
-////        tempHdrBytes[DESTIP_OFFSET] = tempIPBytes;
-//        System.arraycopy(tempDRBytes, 0, tempMsgBytes, DTRT_OFFSET, 
-//                DTRT_LEN);   
-//        return tempMsgBytes;
-//
     }
     
     @Override
@@ -673,19 +649,9 @@ public abstract class HALP implements HALPInterface
         byte[] tempMsgBytes = null;
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-//            outputStream.write(destIPBytes);
-//            outputStream.write(destPNBytes);
-//            outputStream.write(crcBytes);
-//            outputStream.write(seqBytes);
-//            outputStream.write(ackBytes);
-//            outputStream.write(flagBytes);
-//            outputStream.write(rsvdBytes);
-//            outputStream.write(dtrtBytes);
             outputStream.write(tempHdrBytes);
             outputStream.write(dataBytes);
             tempMsgBytes = outputStream.toByteArray();
-//            currMsgLen = currMsg.length; // remove later?
-//            messageQueue.add(currMsg); // remove later?
         } catch (IOException ex) {
             Logger.getLogger(HALP.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -705,7 +671,6 @@ public abstract class HALP implements HALPInterface
         dtgmTransNum2++;
         
         // Display the message
-//        String sentMessage = new String(msgBytes, 0, sendPacket.getLength());
         if(isTraceOn)
         {
             System.out.println("Message sent is: ");
@@ -744,7 +709,6 @@ public abstract class HALP implements HALPInterface
         currDtgm = receivedDatagram;
         
         // Display the message
-//        String echodMessage = new String(data, 0, receivedDatagram.getLength());
         if(isTraceOn)
         {
             System.out.println("Message received is: ");
@@ -868,10 +832,6 @@ public abstract class HALP implements HALPInterface
         String flagInfo = "Destination IP: ";
         String destIPStr = getDestinationIP(headerBytes);
         flagInfo += destIPStr;
-//        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, DESTIP_OFFSET, 
-//            (DESTIP_OFFSET + DESTIP_LEN));
-//        byte tempFlagByte = tempFlagBytes[0];
-//        flagInfo += Integer.toBinaryString((int)tempFlagByte);
         System.out.println(flagInfo);
         deviceLog.println(flagInfo);
     }
@@ -882,10 +842,6 @@ public abstract class HALP implements HALPInterface
         String flagInfo = "Destination Port Number: ";
         int destIPStr = getDestinationPort(headerBytes);
         flagInfo += destIPStr;
-//        byte tempFlagBytes[] = Arrays.copyOfRange(headerBytes, DESTIP_OFFSET, 
-//            (DESTIP_OFFSET + DESTIP_LEN));
-//        byte tempFlagByte = tempFlagBytes[0];
-//        flagInfo += Integer.toBinaryString((int)tempFlagByte);
         System.out.println(flagInfo);
         deviceLog.println(flagInfo);
     }
@@ -963,10 +919,6 @@ public abstract class HALP implements HALPInterface
     @Override
     public void printSequenceNumber(byte[] headerBytes){
          long printSeq = getSequenceNumber(headerBytes);
-//        int printSequenceNum= (headerBytes[SEQ_OFFSET]<<24)&0xff000000|
-//       (headerBytes[SEQ_OFFSET + 1]<<16)&0x00ff0000|
-//       (headerBytes[SEQ_OFFSET + 2]<< 8)&0x0000ff00|
-//       (headerBytes[SEQ_OFFSET + 3])&0x000000ff;
          String seqInfo = "Sequence number: " + printSeq;
         System.out.println(seqInfo);
         deviceLog.println(seqInfo);
@@ -976,10 +928,6 @@ public abstract class HALP implements HALPInterface
     @Override
      public void printAcknowledgmentNumber(byte[] headerBytes){
          long printAck  = getAcknowledgmentNumber(headerBytes);
-//         int printAcknowledgment = (headerBytes[ACK_OFFSET]<<24)&0xff000000|
-//       (headerBytes[ACK_OFFSET + 1]<<16)&0x00ff0000|
-//       (headerBytes[ACK_OFFSET + 2]<< 8)&0x0000ff00|
-//       (headerBytes[ACK_OFFSET + 3])&0x000000ff;
          String ackInfo = "Acknowledgment number: " + printAck;
         System.out.println(ackInfo);
         deviceLog.println(ackInfo);
