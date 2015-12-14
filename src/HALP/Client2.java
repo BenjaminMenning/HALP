@@ -34,7 +34,7 @@ import java.util.Scanner;
  */
 public class Client2 
 {
-    private static final int IG_PORT = 43000;
+    private static final int IG_PORT = 43001;
     private static final int SERVER_PORT = 49000;
 
     public static void main (String args[]) throws Exception 
@@ -55,7 +55,7 @@ public class Client2
         String testFile6 = "ebZqtsI.gif";
         String testFile7 = "4g9ttdk.gif";
         String testFile8 = "cCPh3fg.jpg";
-        String testFileName = testFile5; // swap out test files here
+        String testFileName = testFile3; // swap out test files here
         boolean testIsUpload = true;
         boolean testIsTrace = true;
         int testDataRate = 8;
