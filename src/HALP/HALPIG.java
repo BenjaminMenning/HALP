@@ -102,7 +102,7 @@ public class HALPIG extends HALP implements HALPIGInterface
 //        halpIG.inputCorruptRate();
 //        halpIG.inputTrace();
         
-        halpIG.run();
+        halpIG.startDevice();
     }
     
     public HALPIG() throws SocketException
@@ -117,7 +117,7 @@ public class HALPIG extends HALP implements HALPIGInterface
     }
 
     @Override
-    public void run() 
+    public void startDevice() 
     {
         if(isTraceOn)
         {

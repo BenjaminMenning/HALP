@@ -160,7 +160,7 @@ public interface HALPInterface
      *Method for starting methods in a program
      * 
      */
-    public void run();
+    public void startDevice();
 
      /**
      *Method to close a device connection socket

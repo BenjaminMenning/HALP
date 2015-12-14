@@ -99,7 +99,7 @@ public class HALPClient extends HALP implements HALPClientInterface
         String homeTestIP = "192.168.0."; // for testing at home
 //        String testIGIP = homeTestIP + "110"; // for manual entry
         String testIGIP = halpClient.getLocalIP(); // for automatic entry
-        String testServIP = homeTestIP + "110";
+        String testServIP = homeTestIP + "113";
         String testFile1 = "alice.txt";
         String testFile2 = "mission0.txt";
         String testFile3 = "mission1.txt";
@@ -108,10 +108,10 @@ public class HALPClient extends HALP implements HALPClientInterface
         String testFile6 = "ebZqtsI.gif";
         String testFile7 = "4g9ttdk.gif";
         String testFile8 = "cCPh3fg.jpg";
-        String testFileName = testFile5; // swap out test files here
+        String testFileName = testFile4; // swap out test files here
         boolean testIsUpload = true;
         boolean testIsTrace = true;
-        int testDataRate = 8;
+        int testDataRate = 32;
         
         // Hard coded input for testing
         halpClient.setIGIP(testIGIP);
@@ -927,11 +927,11 @@ public class HALPClient extends HALP implements HALPClientInterface
             otherSeqNum = getSequenceNumber(rcvdMsg);
             otherAckNum = getAcknowledgmentNumber(rcvdMsg);
             isSeqValid = isSeqNumValid(otherSeqNum);
-            if(isTraceOn)
-            {
-                System.out.println("Sequence number valid: " + isSeqValid);
-                deviceLog.println("Sequence number valid: " + isSeqValid);
-            }
+//            if(isTraceOn)
+//            {
+//                System.out.println("Sequence number valid: " + isSeqValid);
+//                deviceLog.println("Sequence number valid: " + isSeqValid);
+//            }
                         
 //            otherSeqNum = getSequenceNumber(rcvdMsg);
 
@@ -961,11 +961,11 @@ public class HALPClient extends HALP implements HALPClientInterface
 //                tempSeqNum = getSequenceNumber(rcvdMsg);
                 otherSeqNum++;
                 isSeqValid = isSeqNumValid(otherSeqNum);
-                if(isTraceOn)
-                {
-                System.out.println("Sequence number valid: " + isSeqValid);
-                deviceLog.println("Sequence number valid: " + isSeqValid);
-                }
+//                if(isTraceOn)
+//                {
+//                System.out.println("Sequence number valid: " + isSeqValid);
+//                deviceLog.println("Sequence number valid: " + isSeqValid);
+//                }
                 if(isSeqValid)
                 {
                     tempHeader = setACKFlag(tempHeader, true);
@@ -999,7 +999,7 @@ public class HALPClient extends HALP implements HALPClientInterface
     }
     
     @Override
-    public void run()
+    public void startDevice()
     {
         
     }
