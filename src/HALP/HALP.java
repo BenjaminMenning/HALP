@@ -79,8 +79,12 @@ public abstract class HALP implements HALPInterface
     protected InetAddress servINAddr;
     protected InetAddress igINAddr;
     
-    protected int retransTO = 200;
-    protected int transDelay = 1000;
+    protected int retransTO = 250;
+    protected int transDelay = 0;
+
+//    protected int retransTO = 500;
+//    protected int transDelay = 0;
+    
     
     protected int clntPortNum = 0;
     protected int igPortNum = 0;
@@ -926,7 +930,7 @@ public abstract class HALP implements HALPInterface
         String flagInfo = "Data rate: ";
         int dataRateStr = getDataRateField(messageBytes);
         flagInfo += dataRateStr;
-        flagInfo += " KBps";
+        flagInfo += " Bps";
         System.out.println(flagInfo);
         deviceLog.println(flagInfo);
     }
