@@ -42,20 +42,20 @@ public interface ConnectionTableInterface
     // so we can retrieve the connection information without much hassle
     
     /**
-     *
+     *Used to add a connection the connection table to be referenced at a later time
      * @param e adds specified connection to table
      */
         
     public void addConnection(Connection e);
     
     /**
-     *
+     *Used to remove an existing connection from the connection table after the connection has been closed
      * @param e removes specified connection from table
      */
     public void removeConnection(Connection e);
     
     /**
-     * Wait to implement.
+     * 
      * This method retrieves the corresponding connection information for a 
      * IP address and port number pair that are passed into the table. For 
      * instance, if you pass in the Client IP address and port number, you will

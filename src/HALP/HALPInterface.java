@@ -40,111 +40,210 @@ public interface HALPInterface
 {
 
     /**
-     *
-     * @param ipAddr
+     *Method used to set the client ip address to be used by other methods
+     * 
+     * @param ipAddr string that is to set as the ip address for the client
      */
     public void setClientIP(String ipAddr);
     
     /**
-     *
-     * @param portNum
+     *Method used to set the client port number to be used by other methods
+     * 
+     * @param portNum the port number for the client
      */
     public void setClientPort(int portNum);
     
     /**
-     *
-     * @return
+     *Method used for getting the ip address for the client
+     * 
+     * @return string that is the client ip address
      */
     public String getClientIP();
     
     /**
-     *
-     * @return
+     *Method used for getting the port number of the client
+     * 
+     * @return integer that is the clients port number
      */
     public int getClientPort();
     
     /**
-     *
-     * @param ipAddr
+     *Method used for setting the internet gateway ip address to be used by other methods
+     * 
+     * @param ipAddr string that is to be set as the internet gateways ip address
      */
     public void setIGIP(String ipAddr);
     
     /**
-     *
-     * @param portNum
+     *Method used the set the port number of the internet gateway to be used by other methods
+     * 
+     * @param portNum integer that is the port number of the internet gateway
      */
     public void setIGPort(int portNum);
     
     /**
-     *
-     * @return
+     *Method used for getting the internet gateways ip address
+     * 
+     * @return string that is the internet gateways ip address
      */
     public String getIGIP();
     
     /**
-     *
-     * @return
+     *Method used for getting the port number of the internet gateway
+     * 
+     * @return integer that is the internet gateway port number
      */
     public int getIGPort();
     
     /**
-     *
-     * @param ipAddr
+     *Method used for setting the server ip address used by other methods
+     * 
+     * @param ipAddr string that is the ip address of the server
      */
     public void setServerIP(String ipAddr);
     
     /**
-     *
-     * @param portNum
+     *Method for setting the port number of the server used by other methods
+     * 
+     * @param portNum integer that is the port number of the server
      */
     public void setServerPort(int portNum);
             
     /**
-     *
-     * @return
+     *Method used for getting the ip address of the server
+     * 
+     * @return string that is the ip address of the server
      */
     public String getServerIP();
     
     /**
-     *
-     * @return
+     *Method for getting the port number of the server 
+     * 
+     * @return integer that is the port number of the server
      */
     public int getServerPort();
     
     /**
-     * Just for testing right now.
+     *Method for getting the bytes that are the segment sent 
      * 
-     * @return
+     * @return byte array that contains the bytes of the segment
      */
     public byte[] getMessage();
     
+     /**
+     *Method to assemble a message that is to be sent 
+     * 
+     * 
+     * @param headerBytes byte array that contains the header information
+     * @param dataBytes byte array that contains the data being sent
+     * @return byte array that contains the header information and data
+     */
     public byte[] assembleMessage(byte[] headerBytes, byte[] dataBytes);
     
+     /**
+     *Method to send a message 
+     * 
+     * @param messageBytes byte array of the message to be sent
+     * @throws java.lang.Exception
+     */
     public void sendMessage(byte[] messageBytes) throws Exception;
     
+     /**
+     *Method for receiving messages
+     * 
+     * @return byte array of the message received 
+     * @throws java.net.SocketTimeoutException 
+     */
     public byte[] receiveMessage() throws SocketTimeoutException;
     
+     /**
+     *Method for starting methods in a program
+     * 
+     */
     public void run();
 
+     /**
+     *Method to close a device connection socket
+     * 
+     */
     public void closeConnection();
     
+     /**
+     *Method for converting an integer that is a port number into bytes
+     * 
+     * @param portNum integer that is the port number to be converted to bytes
+     * @return byte array of the bytes representing the port number
+     */
     public byte[] convertPNToBytes(int portNum);
     
+     /**
+     *Method for setting the data of a message *used for testing
+     * 
+     */
     public void setData();
     
+     /**
+     *Method for setting the reset flag
+     * 
+     * @param headerBytes byte array that contains header information
+     * @param isSet boolean specifying if the reset flag is set
+     * @return byte array containing header information fwith the reset flag set or unset
+     */
     // Do not implement RST unless we find we need it
     public byte[] setRSTFlag(byte[] headerBytes, boolean isSet);
     
+     /**
+     *Method for setting the direction flag
+     * 
+     * @param headerBytes byte array that contains the header information
+     * @param isSet boolean specifying if the direction flag is upload or not
+     * @return byte array containing the header information and the direction flag set
+     */
     public byte[] setDRTFlag(byte[] headerBytes, boolean isSet);
     
+     /**
+     *Method for setting the acknowledgment flag
+     * 
+     * @param headerBytes byte array that contains the header information
+     * @param isSet boolean indicating if there is an acknowledgment or not
+     * @return byte array containing the header information and acknowledgment flag set
+     */
     public byte[] setACKFlag(byte[] headerBytes, boolean isSet);
     
+     /**
+     *Method for setting the sync flag
+     * 
+     * @param headerBytes byte array that contains the header information
+     * @param isSet boolean that indicates if the sync bit is set
+     * @return byte array containing the header information and sync flag set
+     */
     public byte[] setSYNFlag(byte[] headerBytes, boolean isSet);
     
+     /**
+     *Method for setting the finish flag
+     * 
+     * @param headerBytes byte array that contains the header information
+     * @param isSet boolean that indicates if the finish flag is set
+     * @return byte array containing the header information and finish flag set
+     */
     public byte[] setFINFlag(byte[] headerBytes, boolean isSet);
     
+     /**
+     *Method for setting the data rate field in the message
+     * 
+     * @param messageBytes byte array that contains the message information
+     * @param rate integer that is the data rate for sending the messages
+     * @return byte array that contains the data rate 
+     */
     public byte[] setDataRateField(byte[] messageBytes, int rate);
     
+    
+     /**
+     *Method for setting the checksum in the message to be sent 
+     * 
+     * @param messageBytes byte array for message being sent
+     * @return byte array that contains the calculated checksum set
+     */
     public byte[] setChecksum(byte[] messageBytes);
     
     /**
@@ -184,10 +283,28 @@ public interface HALPInterface
      */
     public int getDestinationPort(byte[] messageBytes);  
     
+     /**
+     *Method used for getting the file name from a message
+     * 
+     * @param messageBytes byte array that contains the bytes of a message
+     * @return string that is the file name of the file being transfered
+     */
     public String getFileNameField(byte[] messageBytes);
     
+     /**
+     *Method for retrieving the data rate from a message
+     * 
+     * @param messageBytes byte array that contains the bytes of a message
+     * @return integer that is the data rate
+     */
     public int getDataRateField(byte[] messageBytes); 
     
+     /**
+     *Method for retrieving the checksum from a message
+     * 
+     * @param messageBytes byte array that contains the bytes of a message
+     * @return integer that is the checksum
+     */
     public int getChecksum(byte[] messageBytes);
     
     /**
@@ -238,35 +355,80 @@ public interface HALPInterface
      */
     public boolean isFINFlagSet(byte[] headerBytes);
         
+     /**
+     *Method for printing the destination ip address
+     * 
+     * @param headerBytes byte array that contains the header information
+     */
     public void printDestIPField(byte[] headerBytes);
     
+     /**
+     *Method for printing the destination port number
+     * 
+     * @param headerBytes byte array that contains the header information
+     */
     public void printDestPNField(byte[] headerBytes);
     
+     /**
+     *Method for printing the flag field
+     * 
+     * @param headerBytes byte array that contains the header information
+     */
     public void printFlagField(byte[] headerBytes);
     
+     /**
+     *Method for printing the file name
+     * 
+     * @param messageBytes byte array that contains the header information
+     */
     public void printFileNameField(byte[] messageBytes);
     
+     /**
+     *Method for printing the data rate
+     * 
+     * @param messageBytes byte array that contains the header information
+     */
     public void printDataRateField(byte[] messageBytes);
     
+     /**
+     *Method for printing the header information
+     * 
+     * @param messageBytes byte array that contains the message information
+     */
     public void printHeaderField(byte[] messageBytes);
     
+     /**
+     *Method for printing the data
+     * 
+     * @param messageBytes byte array that contains the message information
+     */
     public void printDataField(byte[] messageBytes);
     
+     /**
+     *Method for printing the checksum
+     * 
+     * @param messageBytes byte array that contains the message information
+     */
     public void printChecksum(byte[] messageBytes);
     
     /**
      * This method sets whether or not the trace feature will be turned on.
      * 
      * @param isTraceSet
-     * @return trace true or false depending what is passed in
      */
     public void setTrace(boolean isTraceSet);
     
+     /**
+     *Method for the user to indicate if the trace function is to be on or off
+     * 
+     * 
+     */
     public void inputTrace();
     
     /**
      * This method retrieves the size of the file that is being transferred.
      * 
+     * @return double that is the file size
      */
     public double getFileSize();
     
@@ -285,7 +447,7 @@ public interface HALPInterface
     public long stopTransferTimer();
     
     /**
-     * This method retrieves the total file transfer time. 
+     * This method calculates the total file transfer time. 
      * 
      * @param s long from startTransferTimer
      * @param e long from stopTransferTimer
@@ -296,18 +458,21 @@ public interface HALPInterface
     /**
      * This method retrieves the total number of messages generated.
      * 
+     * @return integer of number of messages created by the sender
      */
     public int getMessagesGenerated();
     
     /**
      * This method retrieves the total number of UDP datagrams transmitted.
      * 
+     * @return integer of how many datagrams have been sent from the sender
      */
     public int getUDPDatagramsTransmitted();
     
     /**
      * This method retrieves the total number of retransmissions
      * 
+     * @return integer of total number of retransmissions were sent 
      */
     public int getTotalRetransmissions();
     
@@ -338,14 +503,14 @@ public interface HALPInterface
     /**
      * This method retrieves the percentage of messages that were retransmitted.
      * 
-     * @return
+     * @return double that is the percentage of retransmissions
      */
     public double getPercentageOfRetransmissions();
     
     /**
      * This method retrieves the expected number of retransmissions.
      * 
-     * @return
+     * @return double that is what is the expected number of retransmissions
      */
     public double getExpectedRetransmissions();
     
@@ -365,12 +530,14 @@ public interface HALPInterface
     public void printMessage(byte [] messageBytes);
     
     /**
-     * generates the first sequence number, only used for syncing
-     * @return sequence integer between 0-2147483647
+     *Method that generates the first sequence number, only used for syncing
+     * 
+     * @return sequence long between 0-4294967295
      */
     public long generateSequenceNumber();
     
     /**
+     *Method for incrementing the sequence number 
      * 
      * @param sequence current sequence number that was sent in last segment
      * @return seq long that is the next sequence number to be used when sending the next segment
@@ -391,7 +558,7 @@ public interface HALPInterface
     /**
      * Takes byte[] containing header information and returns an integer that is the acknowledgment number
      * @param headerBytes byte[] that contains header information
-     * @return sequenceNum integer that is the sequence number
+     * @return sequenceNum long that is the sequence number
      */
     public long getSequenceNumber(byte[] headerBytes);
     
@@ -405,6 +572,7 @@ public interface HALPInterface
     public byte[] setAcknowledgmentNumber(byte[] headerBytes, long acknowledgment);
     
     /**
+     * Method for generating the acknowledgment number
      * 
      * @param sequence the sequence number from incoming message to be acknowledged
      * @return acknowledgment long that is sequence +1, if sequence = 42944967295 then acknowledgment = 0
@@ -412,6 +580,7 @@ public interface HALPInterface
     public long generateAcknowledgement(long sequence);
             
     /**
+     * Method for retrieving the acknowledgment number
      * 
      * @param headerBytes byte[] containing header information
      * @return acknowledgment integer that is the acknowledgment number from header
@@ -419,18 +588,23 @@ public interface HALPInterface
     public long getAcknowledgmentNumber(byte[] headerBytes);
     
     /**
+     * Method for printing the sequence number
+     * 
      * Takes byte[] containing header information, and prints a string with the sequence number
      * @param headerBytes byte[] containing header information
      */
     public void printSequenceNumber(byte[] headerBytes);
     
     /**
+     * Method for printing the acknowledgment number
+     * 
      * Takes byte[] containing header information, and prints a string with the acknowledgment number
      * @param headerBytes byte[] containing header information
      */
     public void printAcknowledgmentNumber(byte[] headerBytes);
     
     /**
+     * Method for generating a string of header information to be written to a log file
      * 
      * @param headerBytes byte [] containing header Bytes
      * @return String containing information from the header(destination IP and port, sequence number, acknowledgment number, checksum, and data size)
@@ -438,6 +612,7 @@ public interface HALPInterface
      public String messageLog(byte[] headerBytes);
      
      /**
+      * Method for generating a string of header information to be written to a log file
       * 
      * @param headerBytes  byte [] containing header Bytes
      * @return String stating resent segment plus information from the header(destination IP and port, sequence number, acknowledgment number, checksum, and data size)
@@ -445,6 +620,7 @@ public interface HALPInterface
       public String resendLog(byte[] headerBytes);
       
       /**
+       * Method for generating a string of header information to be written to a log file
        * 
      * @param headerBytes  byte [] containing header Bytes
      * @return String stating error generated plus information from the header(destination IP and port, sequence number, acknowledgment number, checksum, and data size)
@@ -452,6 +628,7 @@ public interface HALPInterface
        public String errorGeneratedLog(byte[] headerBytes);
        
        /**
+        * Method for generating a string of header information to be written to a log file
         * 
      * @param headerBytes  byte [] containing header Bytes
      * @return String stating error detected plus information from the header(destination IP and port, sequence number, acknowledgment number, checksum, and data size)

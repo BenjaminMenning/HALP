@@ -44,12 +44,29 @@ public interface HALPIGInterface extends HALPInterface
 //
 //    public void convertBytesToDestPN();
     
+    /**
+     * This method is for the user to specify the max data rate for the internet gateway
+     * 
+     */
     public void inputMaxDataRate();
     
+    /**
+     * This method is for the user to specify error data rate for the internet gateway
+     * 
+     */
     public void inputErrorRate();
     
+    /**
+     * This method is for the user to specify the corruption rate for the internet gateway
+     * 
+     */
     public void inputCorruptRate();
     
+    /**
+     * This method is used for setting the max data rate for the internet gateway 
+     * 
+     * @param dataRate integer for the max data rate of the internet gateway
+     */
     public void setMaxDataRate(int dataRate);
     
     /**
@@ -63,7 +80,6 @@ public interface HALPIGInterface extends HALPInterface
     /**
      * This method returns what type of error is to occur if there is to be an error
      * 
-     * @param n the int between 0 and 1 that IG creates when starting up
      * @return true for corrupted data, false for lost packet
      */
     public boolean isCorrupt();
@@ -72,6 +88,7 @@ public interface HALPIGInterface extends HALPInterface
      * This method returns a random index for a byte in the frame for an 
      * error to be placed.
      * 
+     * @param index the index of the byte that is to be modified to represent an error
      * @return int  returns an int containing the byte index for the error
      */
     public int randomIndex(int index);
@@ -80,7 +97,7 @@ public interface HALPIGInterface extends HALPInterface
      * This error generates an error within a byte by flipping a random bit 
      * inside of the byte.
      * 
-     * @param oldByte the byte where the error is to be generated
+     * @param messageBytes byte array that is the bytes of the message being sent
      * @return byte returns a byte containing the new error.
      */
     public byte[] generateByteError(byte[] messageBytes);
@@ -96,28 +113,28 @@ public interface HALPIGInterface extends HALPInterface
     /**
      * This method assigns the error rate for the data transmission.
      * 
-     * @param rate  the int to be assigned as the error rate
+     * @param rate  the double to be assigned as the error rate
      */
     public void setErrorRate(double rate);
     
     /**
      * This method retrieves the error rate for the data transmission
      * 
-     * @return int  returns the int assigned as the error rate
+     * @return double  returns the double assigned as the error rate
      */
     public double getErrorRate();
     
     /**
      * This method assigns the error rate for the data transmission.
      * 
-     * @param rate  the int to be assigned as the error rate
+     * @param rate  the double to be assigned as the error rate
      */
     public void setCorruptRate(double rate);
     
     /**
      * This method retrieves the error rate for the data transmission
      * 
-     * @return int  returns the int assigned as the error rate
+     * @return double  returns the double assigned as the error rate
      */
     public double getCorruptRate();
 }
